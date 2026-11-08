@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: syntra-crm
+    env: python
+    buildCommand: "python crm/build_dashboard.py"
+    startCommand: "python crm/server.py"
+    plan: free
+    autoDeploy: true
+    envVars:
+      - key: PORT
+        value: 8500
+      - key: ADMIN_PIN
+        value: "2026"
+      - key: STAFF_PIN
+        value: "1234"
+      - key: PYTHONUNBUFFERED
+        value: "1"
+    disk:
+      name: crm-data
+      mountPath: /opt/render/project/src/crm/data
+      sizeGB: 1

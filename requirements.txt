@@ -1,0 +1,6 @@
+# Syntra Group CRM & ERP - Dependencias Python
+# El servidor central utiliza exclusivamente la biblioteca estándar de Python (http.server, sqlite3, json, socket, urllib)
+# No requiere paquetes externos obligatorios para correr en producción en Python 3.10, 3.11, 3.12 o 3.13.
+
+# Dependencias opcionales para testing automatizado E2E (QA):
+# playwright>=1.40.0

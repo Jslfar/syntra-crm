@@ -1,0 +1,32 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Scratch & Temporary Testing Files
+scratch/
+*.log
+*.log.*
+.gemini/
+
+# Environment Variables & Secrets
+.env
+*.env.local
+
+# Backups
+*.bak
+*.backup
+
+# OS Generated
+.DS_Store
+Thumbs.db
+
+# WhatsApp Session / Chromium user data
+whatsapp_bridge/session_data/
+*.leveldb
+*.ldb
+*.dat
+
+# Separate Repositories / Subprojects
+syntraweb/
+syntralab-calculator/

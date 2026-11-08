@@ -1,0 +1,35 @@
+Categoria,Producto / SKU,Cantidad,Costo Real Almacen USD,PVP Oficial BCV USD,Dolares Reales en Binance P2P (-14% Brecha),Perdida Cambiaria USD,Margen Bruto Real %,Gastos Operativos 10%,Utilidad Neta Real / Und USD,Venta Bruta Total USD,Utilidad Neta Total Real USD
+Filamentos Basicos,PETG Basic 1kg (17 colores),170,4.74,20.00,17.20,2.80,72.4%,1.72,10.74,2924.00,1825.80
+Filamentos Basicos,PLA Basic 1kg (Blanco 50 / Negro 30 / etc),180,7.70,20.00,17.20,2.80,55.2%,1.72,7.78,3096.00,1400.40
+Filamentos Basicos,PLA+ 1kg Alta Velocidad (80 und),80,8.74,22.00,18.92,3.08,53.8%,1.89,8.29,1513.60,663.20
+Filamentos Silk,PLA Silk Gold (150 und - Oro),150,8.44,25.00,21.50,3.50,60.7%,2.15,10.91,3225.00,1636.50
+Filamentos Silk,PLA Silk Silver y Solidos (110 und),110,8.44,25.00,21.50,3.50,60.7%,2.15,10.91,2365.00,1200.10
+Filamentos Silk,PLA Silk Bicolor Dual-Color (70 und),70,8.88,28.00,24.08,3.92,63.1%,2.41,12.79,1685.60,895.30
+Filamentos Silk,PLA Silk Tricolor Tri-Color (80 und),80,8.74,28.00,24.08,3.92,63.7%,2.41,12.93,1926.40,1034.40
+Filamentos Silk,PLA Silk Rainbow / Gradientes (40 und),40,9.18,28.00,24.08,3.92,61.9%,2.41,12.49,963.20,499.60
+Filamentos Especiales,PLA Marble Efecto Marmol 1kg,10,10.36,28.00,24.08,3.92,57.0%,2.41,11.31,240.80,113.10
+Filamentos Especiales,PLA Matte Mate 1kg (20 und),20,6.81,22.00,18.92,3.08,64.0%,1.89,10.22,378.40,204.40
+Filamentos Especiales,PETG Matte Mate 1kg (20 und),20,5.77,22.00,18.92,3.08,69.5%,1.89,11.26,378.40,225.20
+Tecnicos & Flexibles,TPU 95A Flexible (120 und),120,10.07,30.00,25.80,4.20,61.0%,2.58,13.15,3096.00,1578.00
+Tecnicos & Flexibles,ASA Basic Resistente UV (30 und),30,9.77,30.00,25.80,4.20,62.1%,2.58,13.45,774.00,403.50
+Tecnicos & Flexibles,PETG-CF Fibra de Carbono 1kg,10,11.11,45.00,38.70,6.30,71.3%,3.87,23.72,387.00,237.20
+Tecnicos & Flexibles,PLA-CF Fibra de Carbono 1kg,10,11.11,45.00,38.70,6.30,71.3%,3.87,23.72,387.00,237.20
+Camas Magneticas,Placa PEI Doble Cara A1 Mini (184x184),20,3.70,22.00,18.92,3.08,80.4%,1.89,13.33,378.40,266.60
+Camas Magneticas,Placa Diamante + PEO A1 Mini (184x184),20,4.15,25.00,21.50,3.50,80.7%,2.15,15.20,430.00,304.00
+Camas Magneticas,Placa Gold PEI Doble Cara X1/P1/A1 (257x257),20,4.89,35.00,30.10,4.90,83.8%,3.01,22.20,602.00,444.00
+Camas Magneticas,Placa Diamante + Carbon X1/P1/A1 (257x257),10,6.37,38.00,32.68,5.32,80.5%,3.27,23.04,326.80,230.40
+Camas Magneticas,Placa Doble Cara PEI Film X1/P1/A1 (257x257),10,9.62,40.00,34.40,5.60,72.0%,3.44,21.34,344.00,213.40
+Camas Magneticas,Placa Topre Chameleon PEO+PEI X1/P1/A1 (257x257),10,7.11,40.00,34.40,5.60,79.3%,3.44,23.85,344.00,238.50
+Camas Magneticas,Placa Diamante + PEO Grande X1/P1/A1 (257x257),10,7.11,40.00,34.40,5.60,79.3%,3.44,23.85,344.00,238.50
+Camas Magneticas,Placa Cold-Stamping Serigrafiada (256x256),10,9.62,42.00,36.12,5.88,73.4%,3.61,22.89,361.20,228.90
+Camas Magneticas,Placas H2D 355x346 (3 modelos),30,9.62,50.00,43.00,7.00,77.6%,4.30,29.08,1290.00,872.40
+Hotends & Boquillas,Hotend Inox Bambu A1 / A1 Mini (0.2 a 0.8),80,3.85,20.00,17.20,2.80,77.6%,1.72,11.63,1376.00,930.40
+Hotends & Boquillas,Hotend Hardened Bambu A1 / A1 Mini (0.2 a 0.8),80,3.85,25.00,21.50,3.50,82.1%,2.15,15.50,1720.00,1240.00
+Hotends & Boquillas,Hotend Laton Brass Heatsink A1 Hardened 0.4,10,7.70,32.00,27.52,4.48,72.0%,2.75,17.07,275.20,170.70
+Hotends & Boquillas,Hotend H2D Standard Hardened (0.2 a 0.8),80,4.44,28.00,24.08,3.92,81.6%,2.41,17.23,1926.40,1378.40
+Hotends & Boquillas,Hotend H2D High-Flow Integrado (0.4 a 0.8),30,7.70,38.00,32.68,5.32,76.4%,3.27,21.71,980.40,651.30
+Repuestos & Accesorios,Engranajes Extrusor Bambu X1/P1 Hardened,10,9.92,28.00,24.08,3.92,58.8%,2.41,11.75,240.80,117.50
+Repuestos & Accesorios,Wipers Boquilla Silicona A1 Mini (Set x3),50,0.37,5.00,4.30,0.70,91.4%,0.43,3.50,215.00,175.00
+Repuestos & Accesorios,Wipers Boquilla Silicona A1 (Set x3),50,0.37,5.00,4.30,0.70,91.4%,0.43,3.50,215.00,175.00
+Repuestos & Accesorios,Fundas Silicona Termica Bambu H2D,100,0.22,3.00,2.58,0.42,91.5%,0.26,2.10,258.00,210.00
+TOTALES,,1500,11385.00,37750.00,32465.00,5285.00,64.9%,3246.50,17833.50,32465.00,17833.50

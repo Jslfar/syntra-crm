@@ -1,0 +1,35 @@
+Categoria,Producto / SKU,Cantidad,Costo Fabrica USD,Costo Real Almacen USD,Ref MercadoLibre USD,Ref Instagram / Nodem / Filaven,PVP Recomendado Syntra USD,Margen Bruto %,Gastos Operativos 10%,Utilidad Neta Unitaria USD,Venta Total Proyectada USD,Utilidad Neta Total USD
+Filamentos Basicos,PETG Basic 1kg (17 colores Kingroon),170,3.20,4.74,19.00,20.00,20.00,76.3%,2.00,13.26,3400.00,2254.20
+Filamentos Basicos,PLA Basic 1kg (Blanco 50 / Negro 30 / Rojo 30 / etc),180,5.20,7.70,19.50,20.00,20.00,61.5%,2.00,10.30,3600.00,1854.00
+Filamentos Basicos,PLA+ 1kg Alta Resistencia (Azul / Amarillo / etc),80,5.90,8.74,22.00,22.00,22.00,60.3%,2.20,11.06,1760.00,884.80
+Filamentos Silk,PLA Silk Gold Oro 1kg (150 unidades - Top Ventas),150,5.70,8.44,25.00,25.00,25.00,66.2%,2.50,14.06,3750.00,2109.00
+Filamentos Silk,PLA Silk Silver y Solidos (11 colores metalicos),110,5.70,8.44,25.00,25.00,25.00,66.2%,2.50,14.06,2750.00,1546.60
+Filamentos Silk,PLA Silk Bicolor Dual-Color (7 combinaciones),70,6.00,8.88,28.00,28.00,28.00,68.3%,2.80,16.32,1960.00,1142.40
+Filamentos Silk,PLA Silk Tricolor Tri-Color (8 combinaciones),80,5.90,8.74,28.00,28.00,28.00,68.8%,2.80,16.46,2240.00,1316.80
+Filamentos Silk,PLA Silk Rainbow / Gradientes (4 estilos),40,6.20,9.18,28.00,28.00,28.00,67.2%,2.80,16.02,1120.00,640.80
+Filamentos Especiales,PLA Marble Efecto Marmol Piedra 1kg,10,7.00,10.36,26.00,28.00,28.00,63.0%,2.80,14.84,280.00,148.40
+Filamentos Especiales,PLA Matte Mate (Rojo / Piel) 1kg,20,4.60,6.81,22.00,24.00,22.00,69.0%,2.20,12.99,440.00,259.80
+Filamentos Especiales,PETG Matte Mate (Negro / Blanco) 1kg,20,3.90,5.77,22.00,24.00,22.00,73.8%,2.20,14.03,440.00,280.60
+Tecnicos & Flexibles,TPU 95A Flexible (10 colores Kingroon),120,6.80,10.07,30.00,30.00,30.00,66.4%,3.00,16.93,3600.00,2031.60
+Tecnicos & Flexibles,ASA Basic Resistente UV Solar (Blanco/Gris/Negro),30,6.60,9.77,32.00,30.00,30.00,67.4%,3.00,17.23,900.00,516.90
+Tecnicos & Flexibles,PETG-CF Fibra de Carbono 1kg,10,7.50,11.11,48.00,45.00,45.00,75.3%,4.50,29.39,450.00,293.90
+Tecnicos & Flexibles,PLA-CF Fibra de Carbono 1kg,10,7.50,11.11,48.00,45.00,45.00,75.3%,4.50,29.39,450.00,293.90
+Camas Magneticas,Placa PEI Doble Cara Texturizada A1 Mini (184x184),20,2.50,3.70,20.00,25.00,22.00,83.2%,2.20,16.10,440.00,322.00
+Camas Magneticas,Placa Diamante + PEO Grande A1 Mini (184x184),20,2.80,4.15,22.00,28.00,25.00,83.4%,2.50,18.35,500.00,367.00
+Camas Magneticas,Placa Gold PEI Doble Cara Bambu X1/P1/A1 (257x257),20,3.30,4.89,38.00,42.00,35.00,86.0%,3.50,26.61,700.00,532.20
+Camas Magneticas,Placa Diamante + Carbono X1/P1/A1 (257x257),10,4.30,6.37,38.00,45.00,38.00,83.2%,3.80,27.83,380.00,278.30
+Camas Magneticas,Placa Doble Cara PEI Film X1/P1/A1 (257x257),10,6.50,9.62,40.00,45.00,40.00,76.0%,4.00,26.38,400.00,263.80
+Camas Magneticas,Placa Topre Chameleon PEO+PEI X1/P1/A1 (257x257),10,4.80,7.11,40.00,45.00,40.00,82.2%,4.00,28.89,400.00,288.90
+Camas Magneticas,Placa Diamante + PEO Grande X1/P1/A1 (257x257),10,4.80,7.11,40.00,45.00,40.00,82.2%,4.00,28.89,400.00,288.90
+Camas Magneticas,Placa Cold-Stamping Serigrafiada (256x256),10,6.50,9.62,42.00,45.00,42.00,77.1%,4.20,28.18,420.00,281.80
+Camas Magneticas,Placas H2D 355x346 (Carbon PET/PEO/PEI 3 modelos),30,6.50,9.62,50.00,55.00,50.00,80.8%,5.00,35.38,1500.00,1061.40
+Hotends & Boquillas,Hotend Inox Bambu A1 / A1 Mini (0.2 a 0.8mm),80,2.60,3.85,25.00,22.00,20.00,80.8%,2.00,14.15,1600.00,1132.00
+Hotends & Boquillas,Hotend Hardened Bambu A1 / A1 Mini (0.2 a 0.8mm),80,2.60,3.85,30.00,28.00,25.00,84.6%,2.50,18.65,2000.00,1492.00
+Hotends & Boquillas,Hotend Laton Brass Heatsink A1 Hardened 0.4,10,5.20,7.70,35.00,35.00,32.00,75.9%,3.20,21.10,320.00,211.00
+Hotends & Boquillas,Hotend H2D Standard Hardened (0.2 a 0.8mm),80,3.00,4.44,30.00,30.00,28.00,84.1%,2.80,20.76,2240.00,1660.80
+Hotends & Boquillas,Hotend H2D High-Flow Integrado (0.4 a 0.8mm),30,5.20,7.70,42.00,42.00,38.00,79.7%,3.80,26.50,1140.00,795.00
+Repuestos & Accesorios,Engranajes Extrusor Bambu X1/P1 Hardened Nano,10,6.70,9.92,28.00,30.00,28.00,64.6%,2.80,15.28,280.00,152.80
+Repuestos & Accesorios,Wipers Boquilla Silicona A1 Mini (Set x3),50,0.25,0.37,6.00,6.00,5.00,92.6%,0.50,4.13,250.00,206.50
+Repuestos & Accesorios,Wipers Boquilla Silicona A1 (Set x3),50,0.25,0.37,6.00,6.00,5.00,92.6%,0.50,4.13,250.00,206.50
+Repuestos & Accesorios,Fundas Silicona Termica Bambu H2D,100,0.15,0.22,4.00,4.00,3.00,92.7%,0.30,2.48,300.00,248.00
+TOTALES,,1500,7689.00,11385.00,-,-,37750.00,69.8%,3775.00,22590.00,37750.00,22590.00

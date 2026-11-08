@@ -1,0 +1,137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SyntraSupplyCatalogTaxonomy",
+  "description": "Taxonomía de catálogo de insumos, repuestos y accesorios 3D para ingesta RAG en Antigravity",
+  "version": "1.0.0",
+  "last_updated": "2026-11-07",
+  "categories": [
+    {
+      "id": "CAT-FILAMENTS",
+      "name": "Filamentos FDM",
+      "subcategories": [
+        {
+          "id": "SUBCAT-FIL-PLA-BASIC",
+          "name": "PLA Básico / High-Speed",
+          "target_machines": ["Universal FDM 1.75mm", "Bambu Lab A1/P1/X1", "Creality K1/Ender", "Elegoo Neptune 4"],
+          "attributes": ["material", "diameter_mm", "color", "weight_kg", "max_flow_mm3_s", "temp_nozzle_c", "temp_bed_c", "fan_cooling_pct", "tolerance_mm"],
+          "cross_sell_skus": ["ACC-DRYBOX-01", "ACC-VACBAG-01", "BED-PEI-257-GOLD", "TOOL-DEBURR-01"]
+        },
+        {
+          "id": "SUBCAT-FIL-PLA-SILK",
+          "name": "PLA Seda (Silk Sólido, Bicolor, Tricolor, Rainbow)",
+          "target_machines": ["Universal FDM 1.75mm"],
+          "attributes": ["finish_type", "color_pattern", "temp_nozzle_c", "temp_bed_c", "outer_wall_speed_limit_mms"],
+          "cross_sell_skus": ["NOZ-BAM-A1-04-SS", "BED-PEO-257-HOLO", "ACC-SILICA-500G"]
+        },
+        {
+          "id": "SUBCAT-FIL-PETG",
+          "name": "PETG Estándar y High-Speed",
+          "target_machines": ["Universal FDM 1.75mm"],
+          "attributes": ["chemical_resistance", "max_flow_mm3_s", "temp_nozzle_c", "temp_bed_c", "bed_adhesive_required"],
+          "cross_sell_skus": ["CHEM-ADH-3DLAC", "ACC-DRYBOX-02", "NOZ-BAM-P1-04-HS"]
+        },
+        {
+          "id": "SUBCAT-FIL-TPU",
+          "name": "TPU Flexible 95A / 85A",
+          "target_machines": ["Direct Drive Extruders (Bambu Lab, Sprite, Direct Volcano)"],
+          "attributes": ["shore_hardness", "retraction_distance_mm", "speed_limit_mms", "direct_drive_only"],
+          "cross_sell_skus": ["ACC-DRYBOX-01", "ACC-PTFE-CAPRICORN", "CHEM-ADH-3DLAC"]
+        },
+        {
+          "id": "SUBCAT-FIL-TECH-CF",
+          "name": "Técnicos Compuestos (PLA-CF, PETG-CF, ABS/ASA)",
+          "target_machines": ["Enclosed Machines (Bambu X1/P1S, Creality K1, Voron)"],
+          "attributes": ["fiber_content_pct", "abrasive", "min_nozzle_diameter_mm", "enclosure_required"],
+          "cross_sell_skus": ["NOZ-BAM-A1-06-HS", "GEAR-EXT-BAM-HS", "ACC-DRYBOX-02"]
+        }
+      ]
+    },
+    {
+      "id": "CAT-HOTENDS-NOZZLES",
+      "name": "Hotends, Boquillas y Bloques Calefactores",
+      "subcategories": [
+        {
+          "id": "SUBCAT-NOZ-BAMBU-A1",
+          "name": "Ensambles Quick-Swap Bambu Lab A1 / A1 Mini",
+          "target_machines": ["Bambu Lab A1", "Bambu Lab A1 Mini"],
+          "attributes": ["nozzle_diameter_mm", "core_material", "max_temp_c", "flow_rate_category"],
+          "cross_sell_skus": ["REP-WIP-BAM-A1", "REP-SCK-BAM-A1", "CHEM-THERMAL-PASTE"]
+        },
+        {
+          "id": "SUBCAT-NOZ-BAMBU-X1P1",
+          "name": "Hotends y Ensambles Bambu Lab P1P / P1S / X1-Carbon",
+          "target_machines": ["Bambu Lab P1P", "Bambu Lab P1S", "Bambu Lab X1-Carbon"],
+          "attributes": ["nozzle_diameter_mm", "heater_block_type", "thermistor_included", "hardened_steel"],
+          "cross_sell_skus": ["REP-CUT-BAM-P1", "GEAR-EXT-BAM-HS", "REP-SCK-BAM-H2D"]
+        },
+        {
+          "id": "SUBCAT-NOZ-CREALITY-K1",
+          "name": "Boquillas y Hotends Creality K1 / Unicorn / Ender-3 V3",
+          "target_machines": ["Creality K1", "Creality K1 Max", "Creality K1C", "Creality Ender-3 V3 KE"],
+          "attributes": ["thread_type", "throat_style", "flow_rate_mm3_s"],
+          "cross_sell_skus": ["TOOL-NOZ-WRENCH", "CHEM-THERMAL-PASTE"]
+        }
+      ]
+    },
+    {
+      "id": "CAT-BUILD-PLATES",
+      "name": "Superficies y Placas Magnéticas de Construcción",
+      "subcategories": [
+        {
+          "id": "SUBCAT-BED-BAMBU",
+          "name": "Placas de Construcción Ecosistema Bambu Lab (184x184mm / 257x257mm)",
+          "target_machines": ["Bambu Lab A1 Mini", "Bambu Lab A1", "Bambu Lab P1P", "Bambu Lab P1S", "Bambu Lab X1C"],
+          "attributes": ["dimension_x_mm", "dimension_y_mm", "coating_side_a", "coating_side_b", "spring_steel_grade", "has_qr_code"],
+          "cross_sell_skus": ["CHEM-ADH-3DLAC", "CHEM-IPA-WIPES", "TOOL-SCRAPER-PLASTIC"]
+        },
+        {
+          "id": "SUBCAT-BED-UNIVERSAL",
+          "name": "Placas Magnéticas PEI / PEO Universales (235x235mm / 310x310mm)",
+          "target_machines": ["Creality Ender-3 Series", "Creality K1", "Elegoo Neptune 4", "Artillery Genius"],
+          "attributes": ["dimension_x_mm", "dimension_y_mm", "magnetic_base_included"],
+          "cross_sell_skus": ["CHEM-ADH-3DLAC", "ACC-LEVEL-SPRINGS"]
+        }
+      ]
+    },
+    {
+      "id": "CAT-HUMIDITY-STORAGE",
+      "name": "Control de Humedad y Almacenamiento",
+      "subcategories": [
+        {
+          "id": "SUBCAT-DRYBOX",
+          "name": "Secadores Térmicos Activos",
+          "target_machines": ["Universal FDM"],
+          "attributes": ["spool_capacity", "max_heating_temp_c", "fan_assisted", "feed_slot_count"],
+          "cross_sell_skus": ["ACC-PTFE-CAPRICORN", "ACC-SILICA-500G"]
+        },
+        {
+          "id": "SUBCAT-VAC-STORAGE",
+          "name": "Sistemas de Vacío y Desecantes",
+          "target_machines": ["Universal FDM"],
+          "attributes": ["bag_dimensions_cm", "pump_type", "rechargeable_indicator"],
+          "cross_sell_skus": ["ACC-HYGRO-MINI", "CAT-FILAMENTS"]
+        }
+      ]
+    },
+    {
+      "id": "CAT-MAKER-HARDWARE",
+      "name": "Ferretería Maker e Inserción Térmica",
+      "subcategories": [
+        {
+          "id": "SUBCAT-HEAT-INSERTS",
+          "name": "Insertos Roscados de Latón Métricos (M2 a M5)",
+          "target_machines": ["Universal 3D Printed Parts"],
+          "attributes": ["thread_size", "length_mm", "outer_knurling_type", "material"],
+          "cross_sell_skus": ["TOOL-HEAT-TIPS-T12", "TOOL-DEBURR-01", "HDW-MAGNET-NEO"]
+        },
+        {
+          "id": "SUBCAT-NEO-MAGNETS",
+          "name": "Imanes de Neodimio N52",
+          "target_machines": ["Functional Enclosures, Toolheads, Multiboard"],
+          "attributes": ["diameter_mm", "thickness_mm", "grade", "plating"],
+          "cross_sell_skus": ["SUBCAT-HEAT-INSERTS", "TOOL-SUPERGLUE-CYANO"]
+        }
+      ]
+    }
+  ]
+}
