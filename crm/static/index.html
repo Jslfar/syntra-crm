@@ -29,6 +29,15 @@
     .role-staff .admin-only {
       display: none !important;
     }
+    .role-staff .staff-only {
+      display: block !important;
+    }
+    .role-staff div.staff-only {
+      display: grid !important;
+    }
+    :not(.role-staff) .staff-only {
+      display: none !important;
+    }
     /* ================= OPTIMIZACIÓN ERGONÓMICA IPHONE 17 PRO & APPLE HIG ================= */
     :root {
       --sat: env(safe-area-inset-top, 0px);
@@ -238,7 +247,7 @@
             </div>
             <span id="nav-dn-badge" class="px-2 py-0.5 rounded text-[10px] font-bold bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 font-mono">0</span>
           </button>
-          <button onclick="switchTab('cxc')" id="btn-cxc" class="nav-item w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800/50 transition">
+          <button onclick="switchTab('cxc')" id="btn-cxc" class="admin-only nav-item w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800/50 transition">
             <div class="flex items-center space-x-3">
               <i data-lucide="badge-dollar-sign" class="w-4 h-4 text-amber-400"></i>
               <span>Cuentas por Cobrar (CxC)</span>
@@ -249,7 +258,7 @@
             <i data-lucide="users" class="w-4 h-4"></i>
             <span>Clientes & Leads</span>
           </button>
-          <button onclick="switchTab('affiliates')" id="btn-affiliates" class="nav-item w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800/50 transition">
+          <button onclick="switchTab('affiliates')" id="btn-affiliates" class="admin-only nav-item w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800/50 transition">
             <div class="flex items-center space-x-3">
               <i data-lucide="share-2" class="w-4 h-4 text-indigo-400"></i>
               <span>Red de Afiliados</span>
@@ -275,7 +284,7 @@
             </div>
             <span id="badge-requests-count" class="px-2 py-0.5 text-[10px] font-bold bg-amber-500/20 text-amber-300 rounded-full border border-amber-500/30">0</span>
           </button>
-          <button onclick="switchTab('forecast')" id="btn-forecast" class="nav-item w-full flex items-center space-x-3 px-3 py-2 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800/50 transition">
+          <button onclick="switchTab('forecast')" id="btn-forecast" class="admin-only nav-item w-full flex items-center space-x-3 px-3 py-2 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800/50 transition">
             <i data-lucide="trending-up" class="w-4 h-4"></i>
             <span>Proyección Anual</span>
           </button>
@@ -283,7 +292,7 @@
 
         <!-- 3. Finanzas & Tesorería -->
         <div class="space-y-1">
-          <div class="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-500 flex items-center justify-between">
+          <div class="admin-only px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-500 flex items-center justify-between">
             <span>Finanzas & Caja</span>
             <i data-lucide="landmark" class="w-3 h-3 text-amber-400"></i>
           </div>
@@ -291,21 +300,21 @@
             <i data-lucide="calculator" class="w-4 h-4"></i>
             <span>Cotizador Dual BCV/USDT</span>
           </button>
-          <button onclick="switchTab('cash-register')" id="btn-cash-register" class="nav-item w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800/50 transition">
+          <button onclick="switchTab('cash-register')" id="btn-cash-register" class="admin-only nav-item w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800/50 transition">
             <div class="flex items-center space-x-3">
               <i data-lucide="landmark" class="w-4 h-4 text-emerald-400"></i>
               <span>Cierre de Caja</span>
             </div>
             <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-500/20 text-emerald-300">Cuadre</span>
           </button>
-          <button onclick="switchTab('expenses')" id="btn-expenses" class="nav-item w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800/50 transition">
+          <button onclick="switchTab('expenses')" id="btn-expenses" class="admin-only nav-item w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800/50 transition">
             <div class="flex items-center space-x-3">
               <i data-lucide="receipt" class="w-4 h-4 text-rose-400"></i>
               <span>Gastos & Opex</span>
             </div>
             <span id="nav-expenses-badge" class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/10 text-rose-400 border border-rose-500/30 font-mono">$0</span>
           </button>
-          <button onclick="switchTab('cxp')" id="btn-cxp" class="nav-item w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800/50 transition">
+          <button onclick="switchTab('cxp')" id="btn-cxp" class="admin-only nav-item w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800/50 transition">
             <div class="flex items-center space-x-3">
               <i data-lucide="building-2" class="w-4 h-4 text-amber-400"></i>
               <span>Cuentas por Pagar (CxP)</span>
@@ -457,8 +466,11 @@
                 </h3>
                 <span class="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 font-mono font-bold">1.750 Bobinas Kingroon</span>
               </div>
-              <p class="text-xs text-slate-400 mt-1 max-w-2xl leading-relaxed">
+              <p class="admin-only text-xs text-slate-400 mt-1 max-w-2xl leading-relaxed">
                 Control de inventario en vivo, defensa de reposición internacional (FOB Kingroon $7.972 / Landed $11.386) y priorización de cobro en divisas líquidas sin exposición bancaria.
+              </p>
+              <p class="staff-only text-xs text-slate-400 mt-1 max-w-2xl leading-relaxed">
+                Terminal de Almacén & Despacho Lechería • Catálogo de filamentos en tiempo real, registro de órdenes, cotizaciones WhatsApp y entrega inmediata.
               </p>
             </div>
             <div class="flex flex-wrap items-center gap-2">
@@ -470,11 +482,11 @@
                 <i data-lucide="share-2" class="w-3.5 h-3.5 text-indigo-400"></i>
                 <span>📋 Catálogo WA</span>
               </button>
-              <button onclick="switchTab('cash-register')" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded-xl text-xs font-medium flex items-center space-x-1.5 transition">
+              <button onclick="switchTab('cash-register')" class="admin-only px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded-xl text-xs font-medium flex items-center space-x-1.5 transition">
                 <i data-lucide="landmark" class="w-3.5 h-3.5 text-emerald-400"></i>
                 <span>Arqueo Caja</span>
               </button>
-              <button onclick="switchTab('affiliates')" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded-xl text-xs font-medium flex items-center space-x-1.5 transition">
+              <button onclick="switchTab('affiliates')" class="admin-only px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded-xl text-xs font-medium flex items-center space-x-1.5 transition">
                 <i data-lucide="users" class="w-3.5 h-3.5 text-indigo-400"></i>
                 <span>Afiliados</span>
               </button>
@@ -482,8 +494,8 @@
           </div>
         </div>
         
-        <!-- 8 Core Financial, ERP & Currency KPI Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8 gap-3">
+        <!-- KPI ROW 1: FINANZAS & VALUACIONES CONFIDENCIALES (SOLO ADMINISTRADOR) -->
+        <div class="admin-only grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8 gap-3">
           <!-- 1. Total Facturado -->
           <div class="bg-[#11192d] p-3.5 rounded-2xl border border-[#1e293b] space-y-1">
             <div class="flex justify-between items-start">
@@ -577,6 +589,57 @@
           </div>
         </div>
 
+        <!-- KPI ROW 2: OPERACIONES DE TIENDA & DESPACHO (EXCLUSIVO PARA PERSONAL) -->
+        <div class="staff-only grid grid-cols-2 md:grid-cols-4 gap-3">
+          <!-- 1. Stock Físico -->
+          <div class="bg-[#11192d] p-4 rounded-2xl border border-cyan-500/30 space-y-1">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-bold text-cyan-400">Stock en Almacén</span>
+              <div class="p-1.5 bg-cyan-500/10 text-cyan-400 rounded-lg">
+                <i data-lucide="package" class="w-4 h-4"></i>
+              </div>
+            </div>
+            <div class="text-2xl font-black text-white font-mono" id="staff-kpi-stock">1.750 und</div>
+            <div class="text-[11px] text-slate-400">117 colores listos para entrega</div>
+          </div>
+
+          <!-- 2. Clientes Registrados -->
+          <div class="bg-[#11192d] p-4 rounded-2xl border border-emerald-500/30 space-y-1">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-bold text-emerald-400">Clientes & Contactos</span>
+              <div class="p-1.5 bg-emerald-500/10 text-emerald-400 rounded-lg">
+                <i data-lucide="users" class="w-4 h-4"></i>
+              </div>
+            </div>
+            <div class="text-2xl font-black text-white font-mono" id="staff-kpi-clients">5 clientes</div>
+            <div class="text-[11px] text-slate-400">Comunidad 3D en Lechería</div>
+          </div>
+
+          <!-- 3. Radar de Demanda -->
+          <div class="bg-[#11192d] p-4 rounded-2xl border border-amber-500/30 space-y-1">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-bold text-amber-400">Radar Faltantes</span>
+              <div class="p-1.5 bg-amber-500/10 text-amber-400 rounded-lg">
+                <i data-lucide="bell" class="w-4 h-4"></i>
+              </div>
+            </div>
+            <div class="text-2xl font-black text-white font-mono" id="staff-kpi-requests">0 pedidos</div>
+            <div class="text-[11px] text-slate-400">Solicitudes por atender</div>
+          </div>
+
+          <!-- 4. Despacho Inmediato -->
+          <div class="bg-[#11192d] p-4 rounded-2xl border border-purple-500/30 space-y-1">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-bold text-purple-400">Logística & Despacho</span>
+              <div class="p-1.5 bg-purple-500/10 text-purple-400 rounded-lg">
+                <i data-lucide="truck" class="w-4 h-4"></i>
+              </div>
+            </div>
+            <div class="text-2xl font-black text-white font-mono">Retiro / MRW</div>
+            <div class="text-[11px] text-emerald-400 font-medium">● Almacén Operativo</div>
+          </div>
+        </div>
+
         <!-- SEMÁFORO DE RE-STOCK CRÍTICO (TOP SKUs KINGROON) -->
         <div class="bg-gradient-to-r from-[#11192d] via-slate-900 to-[#101b33] p-5 rounded-2xl border border-amber-500/30 shadow-xl space-y-4">
           <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-800/80 pb-3">
@@ -594,7 +657,7 @@
             </div>
             <div class="flex flex-wrap items-center gap-2">
               <span id="restock-global-health-badge"></span>
-              <button onclick="copyRestockOrderKingroon()" class="px-3.5 py-2 bg-amber-500 hover:bg-amber-400 text-black font-bold rounded-xl text-xs flex items-center space-x-1.5 shadow-md shadow-amber-500/20 transition">
+              <button onclick="copyRestockOrderKingroon()" class="admin-only px-3.5 py-2 bg-amber-500 hover:bg-amber-400 text-black font-bold rounded-xl text-xs flex items-center space-x-1.5 shadow-md shadow-amber-500/20 transition">
                 <i data-lucide="copy" class="w-3.5 h-3.5"></i>
                 <span>📋 Copiar Pedido a Kingroon</span>
               </button>
@@ -607,8 +670,8 @@
           </div>
         </div>
 
-        <!-- 2 NUEVAS TARJETAS ESTRATÉGICAS: Mix de Cobranza Divisas vs Red de Afiliados -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- 2 NUEVAS TARJETAS ESTRATÉGICAS: Mix de Cobranza Divisas vs Red de Afiliados (Solo Administrador) -->
+        <div class="admin-only grid grid-cols-1 lg:grid-cols-2 gap-6">
           <!-- Mix de Cobranza & Salud Cambiaria (Radar Anti-Arbitraje) -->
           <div class="bg-[#11192d] p-5 rounded-2xl border border-[#1e293b] space-y-4">
             <div class="flex justify-between items-center border-b border-slate-800 pb-3">
@@ -815,7 +878,7 @@
                   <th class="py-3 px-4">Método Pago</th>
                   <th class="py-3 px-4">Cant.</th>
                   <th class="py-3 px-4">Total ($)</th>
-                  <th class="py-3 px-4">Ganancia Neta</th>
+                  <th class="admin-only py-3 px-4">Ganancia Neta</th>
                 </tr>
               </thead>
               <tbody id="recent-sales-tbody" class="divide-y divide-slate-800 text-slate-300">
@@ -825,8 +888,8 @@
           </div>
         </div>
 
-        <!-- Bitácora & Notas Operativas de Syntra (Persistentes) -->
-        <div class="bg-gradient-to-r from-[#11192d] via-slate-900 to-[#0e1628] p-6 rounded-2xl border border-cyan-500/20 shadow-xl space-y-4">
+        <!-- Bitácora & Notas Operativas de Syntra (Solo Administrador) -->
+        <div class="admin-only bg-gradient-to-r from-[#11192d] via-slate-900 to-[#0e1628] p-6 rounded-2xl border border-cyan-500/20 shadow-xl space-y-4">
           <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-800/80 pb-3">
             <div class="flex items-center space-x-3">
               <div class="w-9 h-9 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
@@ -1524,7 +1587,7 @@
                   <th class="py-3 px-3">Producto Vendido</th>
                   <th class="py-3 px-3">Cant.</th>
                   <th class="py-3 px-3">Total ($)</th>
-                  <th class="py-3 px-3">Utilidad ($)</th>
+                  <th class="admin-only py-3 px-3">Utilidad ($)</th>
                   <th class="py-3 px-3">Método Pago</th>
                   <th class="py-3 px-3">Despacho & Guía</th>
                   <th class="py-3 px-3 text-right">Acciones</th>
@@ -4101,8 +4164,18 @@
 
     function switchTab(tabId, triggerSave = true) {
       closeMobileSidebar();
-      if (typeof currentAuthRole !== 'undefined' && currentAuthRole === 'staff' && tabId === 'pl') {
-        showToast('🔒 El Estado de Resultados P&L es confidencial (Solo Administrador).', 'warning');
+      const staffRestrictedTabs = ['pl', 'expenses', 'cxp', 'cash-register', 'forecast', 'affiliates', 'cxc'];
+      if (typeof currentAuthRole !== 'undefined' && currentAuthRole === 'staff' && staffRestrictedTabs.includes(tabId)) {
+        const tabLabels = {
+          pl: 'Estado de Resultados P&L',
+          expenses: 'Gastos Operativos',
+          cxp: 'Proveedores & Cuentas por Pagar',
+          'cash-register': 'Arqueo & Cierre de Caja',
+          forecast: 'Plan Anual de Suministro',
+          affiliates: 'Red de Afiliados & Comisiones',
+          cxc: 'Cartera de Cuentas por Cobrar'
+        };
+        showToast(`🔒 El módulo de ${tabLabels[tabId] || tabId} es confidencial (Solo Administrador).`, 'warning');
         tabId = 'dashboard';
       }
       currentActiveTab = tabId;
@@ -4112,7 +4185,7 @@
         const btn = document.getElementById(`btn-${t}`);
         if (el) el.classList.add('hidden');
         if (btn) {
-          const admOnly = (t === 'pl') ? 'admin-only ' : '';
+          const admOnly = staffRestrictedTabs.includes(t) ? 'admin-only ' : '';
           btn.className = `nav-item ${admOnly}w-full flex items-center space-x-3 px-3 py-2 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800/50 transition`;
         }
       });
@@ -4158,7 +4231,7 @@
         if (tabId === 'pl') activeColor = 'bg-purple-500/10 text-purple-400 border border-purple-500/20';
         if (tabId === 'affiliates') activeColor = 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20';
         if (tabId === 'cxc') activeColor = 'bg-amber-500/10 text-amber-400 border border-amber-500/20';
-        const admOnly = (tabId === 'pl') ? 'admin-only ' : '';
+        const admOnly = staffRestrictedTabs.includes(tabId) ? 'admin-only ' : '';
         activeBtn.className = `nav-item ${admOnly}w-full flex items-center space-x-3 px-3 py-2 rounded-xl text-xs font-semibold transition ${activeColor}`;
       }
       
@@ -4549,6 +4622,14 @@
 
       document.getElementById('kpi-stock').textContent = `${Number(s.total_stock || 0).toLocaleString()} und`;
       document.getElementById('kpi-inv-value').textContent = `Cash: $${Number(s.inventory_pvp_cash_value || 34395).toLocaleString('en-US', {maximumFractionDigits: 0})}`;
+
+      // Actualizar tarjetas de operaciones para Personal (Staff)
+      const staffStockEl = document.getElementById('staff-kpi-stock');
+      if (staffStockEl) staffStockEl.textContent = `${Number(s.total_stock || 0).toLocaleString()} und`;
+      const staffClientsEl = document.getElementById('staff-kpi-clients');
+      if (staffClientsEl) staffClientsEl.textContent = `${appData.clients ? appData.clients.length : 0} clientes`;
+      const staffReqEl = document.getElementById('staff-kpi-requests');
+      if (staffReqEl) staffReqEl.textContent = `${s.pending_requests_count || 0} pendientes`;
       
       // 1. Desglose de Mix de Medios de Pago & Captación de Divisas
       let usdtSales = 0, cashSales = 0, zelleSales = 0, pmSales = 0, totalSalesAmount = 0;
@@ -4697,7 +4778,7 @@
               <td class="py-2.5 px-4 text-[11px] text-slate-300 font-mono">${sale.payment_method || 'Contado'}</td>
               <td class="py-2.5 px-4 font-mono font-bold text-white">${sale.quantity}</td>
               <td class="py-2.5 px-4 font-bold text-white font-mono">$${Number(sale.total_price).toFixed(2)}</td>
-              <td class="py-2.5 px-4 font-bold text-emerald-400 font-mono">
+              <td class="admin-only py-2.5 px-4 font-bold text-emerald-400 font-mono">
                 <div class="flex items-center justify-between">
                   <span>+$${Number(sale.net_profit).toFixed(2)}</span>
                   <button onclick="openDeliveryNoteModal(${sale.id})" class="ml-2 px-2 py-0.5 bg-cyan-950/70 hover:bg-cyan-900 text-cyan-300 rounded text-[10px] font-bold border border-cyan-800/80 transition" title="Ver Nota de Entrega">
@@ -5073,7 +5154,7 @@
               <td class="admin-only py-3 px-3 font-mono text-emerald-400 font-medium">${p.margin_pct}%</td>
               <td class="admin-only py-3 px-3 font-mono font-bold text-emerald-400">+$${Number(p.net_profit_unit).toFixed(2)}</td>
               <td class="py-3 px-4 text-right space-x-1.5 whitespace-nowrap">
-                <button onclick="openKardexModal(${p.id})" title="Ver Historial Kardex de Entradas y Salidas" class="px-2 py-1 bg-cyan-950/70 hover:bg-cyan-900 text-cyan-300 rounded-lg text-xs font-semibold border border-cyan-800 transition inline-flex items-center space-x-1">
+                <button onclick="openKardexModal(${p.id})" title="Ver Historial Kardex de Entradas y Salidas" class="admin-only px-2 py-1 bg-cyan-950/70 hover:bg-cyan-900 text-cyan-300 rounded-lg text-xs font-semibold border border-cyan-800 transition inline-flex items-center space-x-1">
                   <i data-lucide="history" class="w-3 h-3 text-cyan-400"></i>
                   <span>Kardex</span>
                 </button>
@@ -5138,7 +5219,7 @@
                   <i data-lucide="shopping-cart" class="w-4 h-4"></i>
                   <span>Vender</span>
                 </button>
-                <button onclick="openKardexModal(${p.id})" class="h-11 flex items-center justify-center space-x-1.5 bg-cyan-950/70 hover:bg-cyan-900 text-cyan-300 rounded-xl text-xs font-bold border border-cyan-800 transition active:scale-95">
+                <button onclick="openKardexModal(${p.id})" class="admin-only h-11 flex items-center justify-center space-x-1.5 bg-cyan-950/70 hover:bg-cyan-900 text-cyan-300 rounded-xl text-xs font-bold border border-cyan-800 transition active:scale-95">
                   <i data-lucide="history" class="w-4 h-4 text-cyan-400"></i>
                   <span>Kardex</span>
                 </button>
@@ -5189,11 +5270,11 @@
                     ? `<div class="font-bold flex items-center space-x-1.5"><span class="px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-300 text-[10px] border border-cyan-500/30">📦 Multi-Ítem (${s.items.length})</span> <span>${s.quantity} unds</span></div>
                        <div class="text-[10px] text-slate-400 truncate max-w-xs mt-0.5">${s.items.map(it => `${it.product_name} (${it.quantity})`).join(', ')}</div>`
                     : `<div>${s.product_name}</div>`}
-                  ${s.affiliate_code ? `<span class="inline-flex items-center space-x-1 px-1.5 py-0.5 rounded text-[10px] bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-mono mt-0.5" title="Comisión otorgada: $${Number(s.commission_amount || 0).toFixed(2)}"><i data-lucide="share-2" class="w-2.5 h-2.5"></i><span>${s.affiliate_code} • $${Number(s.commission_amount || 0).toFixed(2)}</span></span>` : ''}
+                  ${s.affiliate_code ? `<span class="admin-only inline-flex items-center space-x-1 px-1.5 py-0.5 rounded text-[10px] bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-mono mt-0.5" title="Comisión otorgada: $${Number(s.commission_amount || 0).toFixed(2)}"><i data-lucide="share-2" class="w-2.5 h-2.5"></i><span>${s.affiliate_code} • $${Number(s.commission_amount || 0).toFixed(2)}</span></span>` : ''}
                 </td>
                 <td class="py-3 px-3 font-mono">${s.quantity}</td>
                 <td class="py-3 px-3 font-mono font-bold text-white">$${Number(s.total_price).toFixed(2)}</td>
-                <td class="py-3 px-3 font-mono font-bold text-emerald-400">+$${Number(s.net_profit).toFixed(2)}</td>
+                <td class="admin-only py-3 px-3 font-mono font-bold text-emerald-400">+$${Number(s.net_profit).toFixed(2)}</td>
                 <td class="py-3 px-3">
                   <div class="text-[11px] text-white">${s.payment_method || 'Zelle'}</div>
                   ${s.payment_status === 'A CRÉDITO' 
@@ -5263,7 +5344,7 @@
                     ? `<div class="font-bold text-cyan-300 flex items-center space-x-1.5"><span class="px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-300 text-[10px] border border-cyan-500/30">📦 Multi-Ítem (${s.items.length})</span> <span>${s.quantity} bobinas</span></div>
                        <div class="text-slate-400 text-[11px] leading-relaxed break-words">${s.items.map(it => `${it.product_name} (${it.quantity})`).join(', ')}</div>`
                     : `<div class="font-semibold text-cyan-300">${s.product_name}</div>`}
-                  ${s.affiliate_code ? `<div class="text-[10px] text-indigo-300 font-mono pt-1 border-t border-slate-800">Promotor: ${s.affiliate_code} (Comisión: $${Number(s.commission_amount || 0).toFixed(2)})</div>` : ''}
+                  ${s.affiliate_code ? `<div class="admin-only text-[10px] text-indigo-300 font-mono pt-1 border-t border-slate-800">Promotor: ${s.affiliate_code} (Comisión: $${Number(s.commission_amount || 0).toFixed(2)})</div>` : ''}
                 </div>
 
                 <div class="flex items-center justify-between pt-1">
@@ -5271,7 +5352,7 @@
                     <span class="text-[10px] text-slate-400 uppercase font-bold block">Total Cobrado</span>
                     <div class="font-mono font-black text-white text-base">$${Number(s.total_price).toFixed(2)}</div>
                   </div>
-                  <div class="text-right">
+                  <div class="admin-only text-right">
                     <span class="text-[10px] text-slate-400 uppercase font-bold block">Ganancia Neta</span>
                     <div class="font-mono font-black text-emerald-400 text-sm">+$${Number(s.net_profit).toFixed(2)}</div>
                   </div>
@@ -9053,6 +9134,10 @@ Se reintegrarán ${qty} unidades de nuevo al inventario físico.` : '';
 
     // ================= KARDEX POR PRODUCTO =================
     async function openKardexModal(productId) {
+      if (typeof currentAuthRole !== 'undefined' && currentAuthRole === 'staff') {
+        showToast('🔒 El Kardex y auditoría de compras es confidencial (Solo Administrador).', 'warning');
+        return;
+      }
       try {
         const res = await fetch(`/api/inventory/kardex?product_id=${productId}`).then(r => r.json());
         if (res.error) return alert('Error cargando Kardex: ' + res.error);
@@ -10129,7 +10214,8 @@ Se reintegrarán ${qty} unidades de nuevo al inventario físico.` : '';
         body.classList.add('role-staff');
         if (roleLabel) roleLabel.textContent = '👤 Personal';
         if (roleBadge) roleBadge.className = 'flex items-center space-x-1.5 px-3 py-1.5 bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 rounded-xl text-xs font-bold transition hover:bg-cyan-500/20';
-        if (typeof currentActiveTab !== 'undefined' && currentActiveTab === 'pl') {
+        const staffRestrictedTabs = ['pl', 'expenses', 'cxp', 'cash-register', 'forecast', 'affiliates', 'cxc'];
+        if (typeof currentActiveTab !== 'undefined' && staffRestrictedTabs.includes(currentActiveTab)) {
           switchTab('dashboard');
         }
       } else {
