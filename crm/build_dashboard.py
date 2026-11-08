@@ -32,6 +32,36 @@ HTML_CONTENT = """<!DOCTYPE html>
     .role-staff .admin-only {
       display: none !important;
     }
+    /* ================= OPTIMIZACIÓN ERGONÓMICA IPHONE 17 PRO & APPLE HIG ================= */
+    :root {
+      --sat: env(safe-area-inset-top, 0px);
+      --sab: env(safe-area-inset-bottom, 0px);
+    }
+    .safe-top {
+      padding-top: max(0.5rem, env(safe-area-inset-top));
+    }
+    .safe-bottom {
+      padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+    }
+    .safe-dock-pad {
+      padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px)) !important;
+    }
+    @media (max-width: 768px) {
+      .touch-target {
+        min-height: 44px;
+      }
+      button:not(.btn-inline), a.btn-touch {
+        min-height: 42px;
+      }
+    }
+    /* Estilos Modal Bottom-Sheet en móvil */
+    @media (max-width: 640px) {
+      .modal-card-mobile {
+        border-bottom-left-radius: 0 !important;
+        border-bottom-right-radius: 0 !important;
+        max-height: 90vh !important;
+      }
+    }
     ::-webkit-scrollbar {
       width: 6px;
       height: 6px;
@@ -321,7 +351,15 @@ HTML_CONTENT = """<!DOCTYPE html>
         </span>
         <span class="text-emerald-400 font-mono font-medium">Activo</span>
       </div>
-      <div class="text-[11px] text-slate-500 text-center">
+      <!-- Botón Cerrar Sesión en Sidebar -->
+      <div class="pt-2">
+        <button onclick="logoutCurrentUser()" class="w-full py-2.5 px-3 bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/30 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-2">
+          <i data-lucide="log-out" class="w-4 h-4 text-rose-400"></i>
+          <span>Cerrar Sesión Segura</span>
+        </button>
+      </div>
+
+      <div class="text-[11px] text-slate-500 text-center pt-1">
         Syntra Group C.A. &copy; 2026<br>Lechería, Venezuela
       </div>
     </div>
@@ -330,23 +368,28 @@ HTML_CONTENT = """<!DOCTYPE html>
   <!-- ================= MAIN CONTENT WRAPPER ================= -->
   <main class="flex-1 flex flex-col overflow-y-auto bg-[#090d16]">
     
-    <!-- Top Header Bar -->
-    <header class="h-16 border-b border-[#1e293b] bg-[#0c1222]/90 backdrop-blur-md px-4 sm:px-6 flex items-center justify-between sticky top-0 z-10">
-      <div class="flex items-center space-x-2.5 sm:space-x-3">
+    <!-- Top Header Bar (Diseño Adaptado para iPhone 17 Pro & Desktop) -->
+    <header class="h-16 border-b border-[#1e293b] bg-[#0c1222]/95 backdrop-blur-md px-3 sm:px-6 flex items-center justify-between sticky top-0 z-30 safe-top">
+      <div class="flex items-center space-x-2 sm:space-x-3 min-w-0">
         <!-- Hamburger Button (Mobile Only) -->
-        <button onclick="toggleMobileSidebar()" class="md:hidden p-2 rounded-xl bg-slate-800 text-cyan-400 hover:text-white border border-slate-700/60 transition" title="Abrir Menú">
+        <button onclick="toggleMobileSidebar()" class="md:hidden p-2 rounded-xl bg-slate-800 text-cyan-400 hover:text-white border border-slate-700/60 transition flex-shrink-0 touch-target flex items-center justify-center" title="Abrir Menú">
           <i data-lucide="menu" class="w-5 h-5"></i>
         </button>
-        <h2 id="page-title" class="text-base sm:text-lg font-bold text-white flex items-center space-x-2">
-          <span>Resumen Ejecutivo de Syntra</span>
-        </h2>
-        <span class="hidden sm:inline-block px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-mono">
+        <div class="flex items-center space-x-2 min-w-0">
+          <div class="w-7 h-7 rounded-lg bg-gradient-to-tr from-cyan-500 to-emerald-400 flex items-center justify-center font-black text-black text-xs flex-shrink-0 shadow-sm shadow-cyan-500/20">
+            S
+          </div>
+          <h2 id="page-title" class="text-xs sm:text-base font-bold text-white truncate max-w-[110px] xs:max-w-[150px] sm:max-w-none">
+            Resumen Ejecutivo
+          </h2>
+        </div>
+        <span class="hidden lg:inline-block px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-mono flex-shrink-0">
           Almacén Lechería • 1.750 Unds
         </span>
       </div>
 
-      <div class="flex items-center space-x-2.5">
-        <!-- Indicador de Tasas en Vivo & Brecha Cambiaria -->
+      <div class="flex items-center space-x-1.5 sm:space-x-2 flex-shrink-0">
+        <!-- Indicador de Tasas en Vivo & Brecha Cambiaria (Desktop Only) -->
         <div class="hidden xl:flex items-center space-x-2 px-3 py-1.5 bg-slate-900/90 rounded-xl border border-slate-800 text-xs font-mono" title="Tasas cambiarias configurables en Cotizador Dual">
           <div class="flex items-center space-x-1.5 text-emerald-400">
             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
@@ -373,29 +416,35 @@ HTML_CONTENT = """<!DOCTYPE html>
           <span>+ Cliente</span>
         </button>
 
-        <!-- Botón + Venta Rápida -->
-        <button onclick="openSaleModal()" class="flex items-center space-x-1.5 px-3.5 py-1.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-black font-bold rounded-xl text-xs shadow-lg shadow-emerald-500/20 transition" title="Registrar venta inmediata">
+        <!-- Botón + Venta Rápida (Ergonómico para móvil) -->
+        <button onclick="openSaleModal()" class="flex items-center space-x-1 sm:space-x-1.5 px-2.5 sm:px-3.5 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-black font-extrabold rounded-xl text-xs shadow-lg shadow-emerald-500/20 transition flex-shrink-0" title="Registrar venta inmediata">
           <i data-lucide="shopping-cart" class="w-3.5 h-3.5"></i>
-          <span>+ Venta Rápida</span>
+          <span class="hidden xs:inline">+ Venta</span>
         </button>
 
         <!-- Selector/Indicador de Perfil y Botón de Bloqueo -->
-        <button onclick="openLockScreen()" id="btn-user-role-badge" class="flex items-center space-x-1.5 px-3 py-1.5 bg-amber-500/10 text-amber-400 border border-amber-500/30 rounded-xl text-xs font-bold transition hover:bg-amber-500/20" title="Perfil activo. Clic para bloquear o cambiar de usuario">
+        <button onclick="openLockScreen()" id="btn-user-role-badge" class="flex items-center space-x-1 sm:space-x-1.5 px-2.5 sm:px-3 py-2 bg-amber-500/10 text-amber-400 border border-amber-500/30 rounded-xl text-xs font-bold transition hover:bg-amber-500/20 flex-shrink-0" title="Perfil activo. Clic para bloquear o cambiar de usuario">
           <i data-lucide="crown" class="w-3.5 h-3.5 text-amber-400"></i>
-          <span id="label-user-role">👑 Admin</span>
+          <span id="label-user-role" class="hidden xs:inline">👑 Admin</span>
+        </button>
+
+        <!-- Botón Cerrar Sesión Segura & Guardar -->
+        <button onclick="logoutCurrentUser()" id="btn-logout" class="flex items-center space-x-1 px-2.5 sm:px-3 py-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 rounded-xl text-xs font-bold transition flex-shrink-0" title="Guardar cambios y cerrar sesión">
+          <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+          <span class="hidden sm:inline">Salir</span>
         </button>
 
         <div class="h-5 w-px bg-slate-800 hidden sm:block"></div>
 
         <!-- Respaldo .DB -->
-        <a href="/api/backup/download" download onclick="showToast('Descargando copia de seguridad SQLite (.db)...')" class="admin-only p-2 sm:px-2.5 sm:py-1.5 bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 rounded-xl border border-slate-700 transition shadow-sm" title="Descargar copia de seguridad completa de la base de datos (.db)">
+        <a href="/api/backup/download" download onclick="showToast('Descargando copia de seguridad SQLite (.db)...')" class="admin-only hidden sm:flex p-2 sm:px-2.5 sm:py-1.5 bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 rounded-xl border border-slate-700 transition shadow-sm flex-shrink-0" title="Descargar copia de seguridad completa de la base de datos (.db)">
           <i data-lucide="database" class="w-3.5 h-3.5 text-cyan-400"></i>
         </a>
       </div>
     </header>
 
     <!-- Dynamic Tab Views Container -->
-    <div class="p-8 space-y-6">
+    <div class="p-3.5 sm:p-6 lg:p-8 space-y-4 sm:space-y-6 safe-dock-pad">
 
       <!-- ================= 1. TAB: DASHBOARD & KPIS ================= -->
       <section id="tab-dashboard" class="space-y-6">
@@ -840,7 +889,13 @@ HTML_CONTENT = """<!DOCTYPE html>
         </div>
 
         <!-- Tabla de Clientes -->
-        <div class="bg-[#11192d] rounded-2xl border border-[#1e293b] overflow-hidden">
+        <!-- Vista Móvil: Tarjetas de Clientes & CRM (iPhone) -->
+        <div id="clients-card-list" class="block md:hidden space-y-3">
+          <!-- Rellenado por JS en móvil -->
+        </div>
+
+        <!-- Vista Escritorio: Tabla de Clientes (PC / Tablet) -->
+        <div class="hidden md:block bg-[#11192d] rounded-2xl border border-[#1e293b] overflow-hidden">
           <div class="overflow-x-auto">
             <table class="w-full text-left text-xs">
               <thead class="text-slate-400 uppercase tracking-wider bg-slate-900/60 border-b border-slate-800">
@@ -955,7 +1010,13 @@ HTML_CONTENT = """<!DOCTYPE html>
         </div>
 
         <!-- Tabla de Inventario -->
-        <div class="bg-[#11192d] rounded-2xl border border-[#1e293b] overflow-hidden shadow-xl">
+        <!-- Vista Móvil: Tarjetas Táctiles de Materiales (iPhone) -->
+        <div id="inventory-card-list" class="block md:hidden space-y-3">
+          <!-- Rellenado por JS en móvil -->
+        </div>
+
+        <!-- Vista Escritorio: Tabla Completa de 10 Columnas (PC / Tablet) -->
+        <div class="hidden md:block bg-[#11192d] rounded-2xl border border-[#1e293b] overflow-hidden shadow-xl">
           <div class="overflow-x-auto">
             <table class="w-full text-left text-xs">
               <thead class="text-slate-400 uppercase tracking-wider bg-slate-900/90 border-b border-slate-800 sticky top-0 z-10 backdrop-blur-sm">
@@ -1279,14 +1340,14 @@ HTML_CONTENT = """<!DOCTYPE html>
                 <textarea id="quote-preview-text" rows="7" readonly class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-cyan-200 font-mono text-[11px] select-all"></textarea>
               </div>
 
-              <div class="flex justify-end space-x-2 pt-1">
-                <button onclick="copyQuoteToClipboard()" id="btn-copy-quote" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold flex items-center space-x-1.5 transition">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2">
+                <button onclick="copyQuoteToClipboard()" id="btn-copy-quote" class="h-11 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold flex items-center justify-center space-x-2 transition border border-slate-700">
                   <i data-lucide="copy" class="w-4 h-4"></i>
-                  <span>Copiar al Portapapeles</span>
+                  <span>Copiar Mensaje</span>
                 </button>
-                <button onclick="sendQuoteViaWhatsApp()" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black font-bold rounded-xl flex items-center space-x-1.5 shadow-lg shadow-emerald-500/20 transition">
+                <button onclick="sendQuoteViaWhatsApp()" class="h-11 bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold rounded-xl flex items-center justify-center space-x-2 shadow-lg shadow-emerald-500/20 transition">
                   <i data-lucide="send" class="w-4 h-4"></i>
-                  <span>Enviar por WhatsApp</span>
+                  <span>Enviar a WhatsApp</span>
                 </button>
               </div>
             </div>
@@ -1449,7 +1510,13 @@ HTML_CONTENT = """<!DOCTYPE html>
           </div>
         </div>
 
-        <div class="bg-[#11192d] rounded-2xl border border-[#1e293b] overflow-hidden">
+        <!-- Vista Móvil: Tarjetas de Órdenes y Ventas (iPhone) -->
+        <div id="sales-card-list" class="block md:hidden space-y-3">
+          <!-- Rellenado por JS en móvil -->
+        </div>
+
+        <!-- Vista Escritorio: Tabla del Libro de Ventas (PC / Tablet) -->
+        <div class="hidden md:block bg-[#11192d] rounded-2xl border border-[#1e293b] overflow-hidden">
           <div class="overflow-x-auto">
             <table class="w-full text-left text-xs">
               <thead class="text-slate-400 uppercase tracking-wider bg-slate-900/60 border-b border-slate-800">
@@ -2041,7 +2108,7 @@ HTML_CONTENT = """<!DOCTYPE html>
             <p class="text-xs text-slate-400">Estado financiero ejecutivo con deducción rigurosa de Costo de Ventas (COGS), Gastos Operativos (Opex) y Pérdidas por Mermas.</p>
           </div>
           <div class="flex items-center space-x-2">
-            <button onclick="printFinancialStatement()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-purple-300 border border-purple-500/30 rounded-xl text-xs font-bold transition flex items-center space-x-2 shadow-sm">
+            <button onclick="printFinancialStatement()" class="h-11 px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-purple-300 border border-purple-500/30 rounded-xl text-xs font-bold transition flex items-center space-x-2 shadow-sm">
               <i data-lucide="printer" class="w-4 h-4"></i>
               <span>Imprimir Estado Financiero (B/N)</span>
             </button>
@@ -2283,8 +2350,8 @@ HTML_CONTENT = """<!DOCTYPE html>
   </main>
 
   <!-- ================= MODAL: REGISTRAR VENTA ================= -->
-  <div id="modal-sale" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-    <div class="bg-[#11192d] border border-cyan-500/30 rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl relative max-h-[92vh] overflow-y-auto">
+  <div id="modal-sale" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto hidden">
+    <div class="bg-[#11192d] border border-cyan-500/30 rounded-t-3xl sm:rounded-2xl max-w-lg w-full p-5 sm:p-6 space-y-4 shadow-2xl relative max-h-[88vh] overflow-y-auto safe-bottom">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
         <h3 class="font-bold text-lg text-white flex items-center space-x-2">
           <i data-lucide="shopping-bag" class="w-5 h-5 text-emerald-400"></i>
@@ -2469,16 +2536,16 @@ HTML_CONTENT = """<!DOCTYPE html>
         </div>
 
         <div class="flex justify-end space-x-3 pt-2">
-          <button type="button" onclick="closeModal('modal-sale')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-medium">Cancelar</button>
-          <button type="submit" class="px-5 py-2 bg-emerald-500 hover:bg-emerald-400 text-black font-bold rounded-xl shadow-lg shadow-emerald-500/20">Confirmar Venta y Descontar Stock</button>
+          <button type="button" onclick="closeModal('modal-sale')" class="h-11 px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-medium">Cancelar</button>
+          <button type="submit" class="h-11 px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-black font-bold rounded-xl shadow-lg shadow-emerald-500/20">Confirmar Venta y Descontar Stock</button>
         </div>
       </form>
     </div>
   </div>
 
   <!-- ================= MODAL: GESTIÓN DE DESPACHO Y LOGÍSTICA ================= -->
-  <div id="modal-shipping" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-    <div class="bg-[#11192d] border border-blue-500/40 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl relative">
+  <div id="modal-shipping" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto hidden">
+    <div class="bg-[#11192d] border border-cyan-500/30 rounded-t-3xl sm:rounded-2xl max-w-md w-full p-5 sm:p-6 space-y-4 shadow-2xl relative max-h-[88vh] overflow-y-auto safe-bottom">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
         <h3 class="font-bold text-lg text-white flex items-center space-x-2">
           <i data-lucide="truck" class="w-5 h-5 text-blue-400"></i>
@@ -2554,8 +2621,8 @@ HTML_CONTENT = """<!DOCTYPE html>
   </div>
 
     <!-- ================= MODAL: NUEVA SOLICITUD DE RE-STOCK / WISHLIST ================= -->
-  <div id="modal-request" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-    <div class="bg-[#11192d] border border-amber-500/30 rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl relative">
+  <div id="modal-request" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto hidden">
+    <div class="bg-[#11192d] border border-cyan-500/30 rounded-t-3xl sm:rounded-2xl max-w-lg w-full p-5 sm:p-6 space-y-4 shadow-2xl relative max-h-[88vh] overflow-y-auto safe-bottom">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
         <h3 class="font-bold text-lg text-white flex items-center space-x-2">
           <i data-lucide="compass" class="w-5 h-5 text-amber-400"></i>
@@ -2629,7 +2696,7 @@ HTML_CONTENT = """<!DOCTYPE html>
         </div>
 
         <div class="flex justify-end space-x-3 pt-2">
-          <button type="button" onclick="closeModal('modal-request')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-medium">Cancelar</button>
+          <button type="button" onclick="closeModal('modal-request')" class="h-11 px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-medium">Cancelar</button>
           <button type="submit" class="px-5 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-black font-bold rounded-xl shadow-lg shadow-amber-500/20">Anotar para Re-stock</button>
         </div>
       </form>
@@ -2637,8 +2704,8 @@ HTML_CONTENT = """<!DOCTYPE html>
   </div>
 
   <!-- ================= MODAL: EDITAR / AGREGAR PRODUCTO ================= -->
-  <div id="modal-product" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-    <div class="bg-[#11192d] border border-cyan-500/30 rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl relative">
+  <div id="modal-product" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto hidden">
+    <div class="bg-[#11192d] border border-cyan-500/30 rounded-t-3xl sm:rounded-2xl max-w-lg w-full p-5 sm:p-6 space-y-4 shadow-2xl relative max-h-[88vh] overflow-y-auto safe-bottom">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
         <h3 id="modal-product-title" class="font-bold text-lg text-white flex items-center space-x-2">
           <i data-lucide="package" class="w-5 h-5 text-cyan-400"></i>
@@ -2708,7 +2775,7 @@ HTML_CONTENT = """<!DOCTYPE html>
         </div>
 
         <div class="pt-2 flex justify-end space-x-3">
-          <button type="button" onclick="closeModal('modal-product')" class="px-4 py-2 bg-slate-800 text-slate-300 hover:bg-slate-700 rounded-xl text-xs font-semibold transition">
+          <button type="button" onclick="closeModal('modal-product')" class="h-11 px-4 py-2.5 bg-slate-800 text-slate-300 hover:bg-slate-700 rounded-xl text-xs font-semibold transition">
             Cancelar
           </button>
           <button type="submit" class="px-5 py-2 bg-gradient-to-r from-cyan-500 to-emerald-400 hover:from-cyan-400 hover:to-emerald-300 text-slate-950 font-black rounded-xl text-xs transition shadow-lg shadow-cyan-500/20">
@@ -2720,8 +2787,8 @@ HTML_CONTENT = """<!DOCTYPE html>
   </div>
 
   <!-- ================= MODAL: NUEVO / EDITAR CLIENTE ================= -->
-  <div id="modal-client" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-    <div class="bg-[#11192d] border border-cyan-500/30 rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl relative">
+  <div id="modal-client" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto hidden">
+    <div class="bg-[#11192d] border border-cyan-500/30 rounded-t-3xl sm:rounded-2xl max-w-lg w-full p-5 sm:p-6 space-y-4 shadow-2xl relative max-h-[88vh] overflow-y-auto safe-bottom">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
         <h3 class="font-bold text-lg text-white flex items-center space-x-2">
           <i data-lucide="user-plus" class="w-5 h-5 text-cyan-400"></i>
@@ -2907,8 +2974,8 @@ HTML_CONTENT = """<!DOCTYPE html>
         </div>
 
         <div class="flex justify-end space-x-3 pt-2">
-          <button type="button" onclick="closeModal('modal-client')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-medium">Cancelar</button>
-          <button type="submit" class="px-5 py-2 bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-xl shadow-lg shadow-cyan-500/20">Guardar Cliente</button>
+          <button type="button" onclick="closeModal('modal-client')" class="h-11 px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-medium">Cancelar</button>
+          <button type="submit" class="h-11 px-5 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-xl shadow-lg shadow-cyan-500/20">Guardar Cliente</button>
         </div>
       </form>
     </div>
@@ -2916,8 +2983,8 @@ HTML_CONTENT = """<!DOCTYPE html>
 
   
   <!-- ================= MODAL: REGISTRAR GASTO / EGRESO ================= -->
-  <div id="modal-expense" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-    <div class="bg-[#11192d] border border-rose-500/30 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl relative">
+  <div id="modal-expense" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto hidden">
+    <div class="bg-[#11192d] border border-cyan-500/30 rounded-t-3xl sm:rounded-2xl max-w-md w-full p-5 sm:p-6 space-y-4 shadow-2xl relative max-h-[88vh] overflow-y-auto safe-bottom">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
         <h3 class="font-bold text-lg text-white flex items-center space-x-2">
           <i data-lucide="receipt" class="w-5 h-5 text-rose-400"></i>
@@ -2985,8 +3052,8 @@ HTML_CONTENT = """<!DOCTYPE html>
   </div>
 
   <!-- ================= MODAL: REGISTRAR ABONO / PAGO ================= -->
-  <div id="modal-sale-payment" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-    <div class="bg-[#11192d] border border-amber-500/30 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl relative">
+  <div id="modal-sale-payment" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto hidden">
+    <div class="bg-[#11192d] border border-cyan-500/30 rounded-t-3xl sm:rounded-2xl max-w-md w-full p-5 sm:p-6 space-y-4 shadow-2xl relative max-h-[88vh] overflow-y-auto safe-bottom">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
         <h3 class="font-bold text-lg text-white flex items-center space-x-2">
           <i data-lucide="credit-card" class="w-5 h-5 text-amber-400"></i>
@@ -3068,8 +3135,8 @@ HTML_CONTENT = """<!DOCTYPE html>
   </div>
 
   <!-- ================= MODAL: AJUSTE / MERMA DE INVENTARIO ================= -->
-  <div id="modal-inventory-adjust" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-    <div class="bg-[#11192d] border border-amber-500/30 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl relative">
+  <div id="modal-inventory-adjust" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto hidden">
+    <div class="bg-[#11192d] border border-cyan-500/30 rounded-t-3xl sm:rounded-2xl max-w-md w-full p-5 sm:p-6 space-y-4 shadow-2xl relative max-h-[88vh] overflow-y-auto safe-bottom">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
         <h3 class="font-bold text-lg text-white flex items-center space-x-2">
           <i data-lucide="package-minus" class="w-5 h-5 text-amber-400"></i>
@@ -3119,8 +3186,8 @@ HTML_CONTENT = """<!DOCTYPE html>
   </div>
 
   <!-- ================= MODAL: KARDEX / AUDIT TRAIL POR PRODUCTO ================= -->
-  <div id="modal-kardex" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4 overflow-y-auto">
-    <div class="bg-[#11192d] border border-cyan-500/30 rounded-2xl max-w-3xl w-full p-6 space-y-4 shadow-2xl relative my-auto">
+  <div id="modal-kardex" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto hidden">
+    <div class="bg-[#11192d] border border-cyan-500/30 rounded-t-3xl sm:rounded-2xl max-w-3xl w-full p-5 sm:p-6 space-y-4 shadow-2xl relative max-h-[88vh] overflow-y-auto safe-bottom">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
         <div>
           <h3 class="font-bold text-lg text-white flex items-center space-x-2">
@@ -3183,8 +3250,8 @@ HTML_CONTENT = """<!DOCTYPE html>
   </div>
 
   <!-- ================= MODAL: ESTADO DE CUENTA CLIENTE 360° ================= -->
-  <div id="modal-client-statement" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4 overflow-y-auto">
-    <div class="bg-[#11192d] border border-purple-500/30 rounded-2xl max-w-3xl w-full p-6 space-y-4 shadow-2xl relative my-auto">
+  <div id="modal-client-statement" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto hidden">
+    <div class="bg-[#11192d] border border-cyan-500/30 rounded-t-3xl sm:rounded-2xl max-w-3xl w-full p-5 sm:p-6 space-y-4 shadow-2xl relative max-h-[88vh] overflow-y-auto safe-bottom">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
         <div>
           <h3 class="font-bold text-lg text-white flex items-center space-x-2">
@@ -3249,7 +3316,7 @@ HTML_CONTENT = """<!DOCTYPE html>
             <span>Imprimir B/N</span>
           </button>
         </div>
-        <button type="button" onclick="closeModal('modal-client-statement')" class="px-4 py-2 bg-slate-800 text-slate-300 rounded-xl text-xs font-semibold">
+        <button type="button" onclick="closeModal('modal-client-statement')" class="h-11 px-4 py-2.5 bg-slate-800 text-slate-300 rounded-xl text-xs font-semibold">
           Cerrar
         </button>
       </div>
@@ -3257,8 +3324,8 @@ HTML_CONTENT = """<!DOCTYPE html>
   </div>
 
   <!-- ================= MODAL: GENERADOR DE PEDIDO DE REPOSICIÓN A FÁBRICA ================= -->
-  <div id="modal-restock-order" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4 overflow-y-auto">
-    <div class="bg-[#11192d] border border-amber-500/30 rounded-2xl max-w-3xl w-full p-6 space-y-4 shadow-2xl relative my-auto">
+  <div id="modal-restock-order" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto hidden">
+    <div class="bg-[#11192d] border border-cyan-500/30 rounded-t-3xl sm:rounded-2xl max-w-3xl w-full p-5 sm:p-6 space-y-4 shadow-2xl relative max-h-[88vh] overflow-y-auto safe-bottom">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
         <div>
           <h3 class="font-bold text-lg text-white flex items-center space-x-2">
@@ -3319,15 +3386,15 @@ HTML_CONTENT = """<!DOCTYPE html>
             <span>Copiar Lista</span>
           </button>
         </div>
-        <button type="button" onclick="closeModal('modal-restock-order')" class="px-4 py-2 bg-slate-800 text-slate-300 rounded-xl text-xs font-semibold">
+        <button type="button" onclick="closeModal('modal-restock-order')" class="h-11 px-4 py-2.5 bg-slate-800 text-slate-300 rounded-xl text-xs font-semibold">
           Cerrar
         </button>
       </div>
     </div>
   </div>
   <!-- ================= MODAL: NUEVO PROVEEDOR ================= -->
-  <div id="modal-supplier" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-    <div class="bg-[#11192d] border border-amber-500/30 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl relative">
+  <div id="modal-supplier" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto hidden">
+    <div class="bg-[#11192d] border border-cyan-500/30 rounded-t-3xl sm:rounded-2xl max-w-md w-full p-5 sm:p-6 space-y-4 shadow-2xl relative max-h-[88vh] overflow-y-auto safe-bottom">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
         <h3 id="modal-supplier-title" class="font-bold text-lg text-white flex items-center space-x-2">
           <i data-lucide="truck" class="w-5 h-5 text-amber-400"></i>
@@ -3379,16 +3446,16 @@ HTML_CONTENT = """<!DOCTYPE html>
           <input type="text" id="supp-notes" placeholder="Ej: Anticipo 30% FOB, 70% contra BL" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white focus:border-amber-500">
         </div>
         <div class="flex justify-end space-x-3 pt-2">
-          <button type="button" onclick="closeModal('modal-supplier')" class="px-4 py-2 bg-slate-800 text-slate-300 rounded-xl font-medium">Cancelar</button>
-          <button type="submit" class="px-5 py-2 bg-amber-500 hover:bg-amber-400 text-black font-bold rounded-xl shadow-lg shadow-amber-500/20">Guardar Proveedor</button>
+          <button type="button" onclick="closeModal('modal-supplier')" class="h-11 px-4 py-2.5 bg-slate-800 text-slate-300 rounded-xl font-medium">Cancelar</button>
+          <button type="submit" class="h-11 px-5 py-2.5 bg-amber-500 hover:bg-amber-400 text-black font-bold rounded-xl shadow-lg shadow-amber-500/20">Guardar Proveedor</button>
         </div>
       </form>
     </div>
   </div>
 
   <!-- ================= MODAL: REGISTRAR FACTURA / PO DE PROVEEDOR ================= -->
-  <div id="modal-supplier-invoice" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-    <div class="bg-[#11192d] border border-amber-500/30 rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl relative">
+  <div id="modal-supplier-invoice" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto hidden">
+    <div class="bg-[#11192d] border border-cyan-500/30 rounded-t-3xl sm:rounded-2xl max-w-lg w-full p-5 sm:p-6 space-y-4 shadow-2xl relative max-h-[88vh] overflow-y-auto safe-bottom">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
         <h3 class="font-bold text-lg text-white flex items-center space-x-2">
           <i data-lucide="file-plus" class="w-5 h-5 text-amber-400"></i>
@@ -3446,7 +3513,7 @@ HTML_CONTENT = """<!DOCTYPE html>
           <span id="sinv-balance-preview" class="font-bold text-amber-400 text-sm font-mono">$0.00</span>
         </div>
         <div class="flex justify-end space-x-3 pt-2">
-          <button type="button" onclick="closeModal('modal-supplier-invoice')" class="px-4 py-2 bg-slate-800 text-slate-300 rounded-xl font-medium">Cancelar</button>
+          <button type="button" onclick="closeModal('modal-supplier-invoice')" class="h-11 px-4 py-2.5 bg-slate-800 text-slate-300 rounded-xl font-medium">Cancelar</button>
           <button type="submit" class="px-5 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-black font-bold rounded-xl shadow-lg shadow-amber-500/20">Registrar Factura CxP</button>
         </div>
       </form>
@@ -3454,8 +3521,8 @@ HTML_CONTENT = """<!DOCTYPE html>
   </div>
 
   <!-- ================= MODAL: ABONO A FACTURA DE PROVEEDOR ================= -->
-  <div id="modal-supplier-payment" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-    <div class="bg-[#11192d] border border-amber-500/30 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl relative">
+  <div id="modal-supplier-payment" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto hidden">
+    <div class="bg-[#11192d] border border-cyan-500/30 rounded-t-3xl sm:rounded-2xl max-w-md w-full p-5 sm:p-6 space-y-4 shadow-2xl relative max-h-[88vh] overflow-y-auto safe-bottom">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
         <h3 class="font-bold text-lg text-white flex items-center space-x-2">
           <i data-lucide="credit-card" class="w-5 h-5 text-amber-400"></i>
@@ -3532,8 +3599,8 @@ HTML_CONTENT = """<!DOCTYPE html>
   </div>
 
   <!-- ================= MODAL NOTA DE ENTREGA / FACTURA DIGITAL ================= -->
-  <div id="modal-delivery-note" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-2 sm:p-4 overflow-y-auto">
-    <div class="bg-[#0c1222] border border-slate-700 rounded-2xl max-w-2xl w-full p-4 sm:p-6 shadow-2xl relative max-h-[94vh] flex flex-col my-auto">
+  <div id="modal-delivery-note" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto hidden">
+    <div class="bg-[#0c1222] border border-slate-700 rounded-t-3xl sm:rounded-2xl max-w-2xl w-full p-5 sm:p-6 space-y-4 shadow-2xl relative max-h-[88vh] overflow-y-auto safe-bottom">
       
       <!-- Toolbar no imprimible -->
       <div class="flex flex-wrap justify-between items-center border-b border-slate-800 pb-3 gap-2 no-print">
@@ -3733,8 +3800,8 @@ HTML_CONTENT = """<!DOCTYPE html>
 
 
   <!-- ================= MODAL: CREAR / EDITAR AFILIADO ================= -->
-  <div id="modal-affiliate" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-    <div class="bg-[#11192d] border border-indigo-500/30 rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl relative">
+  <div id="modal-affiliate" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto hidden">
+    <div class="bg-[#11192d] border border-cyan-500/30 rounded-t-3xl sm:rounded-2xl max-w-lg w-full p-5 sm:p-6 space-y-4 shadow-2xl relative max-h-[88vh] overflow-y-auto safe-bottom">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
         <h3 id="modal-affiliate-title" class="font-bold text-lg text-white flex items-center space-x-2">
           <i data-lucide="user-plus" class="w-5 h-5 text-indigo-400"></i>
@@ -3824,7 +3891,7 @@ HTML_CONTENT = """<!DOCTYPE html>
         </div>
 
         <div class="flex justify-end space-x-3 pt-2 border-t border-slate-800">
-          <button type="button" onclick="closeModal('modal-affiliate')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-medium">Cancelar</button>
+          <button type="button" onclick="closeModal('modal-affiliate')" class="h-11 px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-medium">Cancelar</button>
           <button type="submit" class="px-5 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-400 hover:to-purple-500 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/20">Guardar Afiliado</button>
         </div>
       </form>
@@ -3832,8 +3899,8 @@ HTML_CONTENT = """<!DOCTYPE html>
   </div>
 
   <!-- ================= MODAL: LIQUIDAR COMISIÓN ================= -->
-  <div id="modal-affiliate-payout" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-    <div class="bg-[#11192d] border border-emerald-500/30 rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl relative">
+  <div id="modal-affiliate-payout" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto hidden">
+    <div class="bg-[#11192d] border border-cyan-500/30 rounded-t-3xl sm:rounded-2xl max-w-lg w-full p-5 sm:p-6 space-y-4 shadow-2xl relative max-h-[88vh] overflow-y-auto safe-bottom">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
         <h3 class="font-bold text-lg text-white flex items-center space-x-2">
           <i data-lucide="banknote" class="w-5 h-5 text-emerald-400"></i>
@@ -3890,16 +3957,16 @@ HTML_CONTENT = """<!DOCTYPE html>
         </div>
 
         <div class="flex justify-end space-x-3 pt-2 border-t border-slate-800">
-          <button type="button" onclick="closeModal('modal-affiliate-payout')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-medium">Cancelar</button>
-          <button type="submit" class="px-5 py-2 bg-emerald-500 hover:bg-emerald-400 text-black font-bold rounded-xl shadow-lg shadow-emerald-500/20">Confirmar Pago de Comisión</button>
+          <button type="button" onclick="closeModal('modal-affiliate-payout')" class="h-11 px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-medium">Cancelar</button>
+          <button type="submit" class="h-11 px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-black font-bold rounded-xl shadow-lg shadow-emerald-500/20">Confirmar Pago de Comisión</button>
         </div>
       </form>
     </div>
   </div>
 
   <!-- ================= MODAL: KIT PROMOTOR PARA WHATSAPP ================= -->
-  <div id="modal-affiliate-kit" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-    <div class="bg-[#11192d] border border-indigo-500/30 rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl relative">
+  <div id="modal-affiliate-kit" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto hidden">
+    <div class="bg-[#11192d] border border-cyan-500/30 rounded-t-3xl sm:rounded-2xl max-w-lg w-full p-5 sm:p-6 space-y-4 shadow-2xl relative max-h-[88vh] overflow-y-auto safe-bottom">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
         <h3 class="font-bold text-lg text-white flex items-center space-x-2">
           <i data-lucide="share-2" class="w-5 h-5 text-indigo-400"></i>
@@ -3924,7 +3991,7 @@ HTML_CONTENT = """<!DOCTYPE html>
         </div>
 
         <div class="flex justify-end space-x-2 pt-2 border-t border-slate-800">
-          <button onclick="copyAffiliateKit()" id="btn-copy-kit" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold flex items-center space-x-1.5 transition">
+          <button onclick="copyAffiliateKit()" id="btn-copy-kit" class="h-11 px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold flex items-center space-x-1.5 transition">
             <i data-lucide="copy" class="w-4 h-4"></i>
             <span>Copiar Kit</span>
           </button>
@@ -4115,7 +4182,50 @@ HTML_CONTENT = """<!DOCTYPE html>
         cxc: 'Cartera de Cuentas por Cobrar (CxC) & Créditos Comerciales',
         affiliates: 'Red de Afiliados, Promotores & Comisiones'
       };
-      document.getElementById('page-title').innerHTML = `<span>${titles[tabId] || 'Syntra Group'}</span>`;
+      // Título adaptable: corto en móvil para evitar saltos de línea y choques
+      const mobileShortTitles = {
+        dashboard: 'Syntra CRM',
+        clients: 'Clientes 3D',
+        inventory: 'Stock Físico',
+        forecast: 'Demanda Anual',
+        requests: 'Radar Faltantes',
+        calculator: 'Cotizador WA',
+        estimator: 'Calculadora 3D',
+        sales: 'Ventas & Pedidos',
+        'delivery-notes': 'Facturación Digital',
+        expenses: 'Gastos Operativos',
+        cxp: 'Proveedores CxP',
+        'cash-register': 'Cierre de Caja',
+        pl: 'Estado P&L',
+        cxc: 'Cuentas x Cobrar',
+        affiliates: 'Red Promotores'
+      };
+
+      const titleEl = document.getElementById('page-title');
+      if (titleEl) {
+        if (window.innerWidth < 640 && mobileShortTitles[tabId]) {
+          titleEl.innerHTML = `<span class="truncate block max-w-[130px] sm:max-w-none">${mobileShortTitles[tabId]}</span>`;
+        } else {
+          titleEl.innerHTML = `<span class="truncate block max-w-[200px] sm:max-w-none">${titles[tabId] || 'Syntra Group'}</span>`;
+        }
+      }
+
+      // Sincronizar dock de navegación móvil inferior
+      const dockItems = ['dashboard', 'sales', 'inventory', 'calculator'];
+      dockItems.forEach(d => {
+        const dockBtn = document.getElementById(`dock-btn-${d}`);
+        if (dockBtn) {
+          if (d === tabId) {
+            dockBtn.className = 'flex flex-col items-center justify-center flex-1 py-1.5 text-cyan-400 transition';
+            const sp = dockBtn.querySelector('span');
+            if (sp) { sp.className = 'text-[10px] font-black mt-0.5'; }
+          } else {
+            dockBtn.className = 'flex flex-col items-center justify-center flex-1 py-1.5 text-slate-400 hover:text-white transition';
+            const sp = dockBtn.querySelector('span');
+            if (sp) { sp.className = 'text-[10px] font-medium mt-0.5'; }
+          }
+        }
+      });
       
       if (tabId === 'forecast') renderForecast();
       if (tabId === 'calculator') updateQuotePreview();
@@ -4702,7 +4812,16 @@ HTML_CONTENT = """<!DOCTYPE html>
 
     function renderClients(list) {
       const tbody = document.getElementById('clients-tbody');
-      tbody.innerHTML = '';
+      const cardList = document.getElementById('clients-card-list');
+      if (tbody) tbody.innerHTML = '';
+      if (cardList) cardList.innerHTML = '';
+
+      if (!list || list.length === 0) {
+        if (tbody) tbody.innerHTML = `<tr><td colspan="8" class="py-6 text-center text-slate-500">No se encontraron clientes registrados.</td></tr>`;
+        if (cardList) cardList.innerHTML = `<div class="p-8 text-center text-slate-500 bg-[#11192d] rounded-2xl border border-slate-800">No se encontraron clientes registrados.</div>`;
+        return;
+      }
+
       list.forEach(c => {
         const badgeColors = {
           'Prospecto': 'bg-slate-800 text-slate-300 border-slate-700',
@@ -4711,55 +4830,119 @@ HTML_CONTENT = """<!DOCTYPE html>
           'Comprador Recurrente': 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
         };
         const badgeCls = badgeColors[c.lead_status] || badgeColors['Prospecto'];
-        const cleanPhone = c.phone.replace(/[^0-9]/g, '');
+        const cleanPhone = (c.phone || '').replace(/[^0-9]/g, '');
 
-        tbody.innerHTML += `
-          <tr class="hover:bg-slate-800/30">
-            <td class="py-3 px-4 font-semibold text-white">${c.name}</td>
-            <td class="py-3 px-4">
-              <a href="https://wa.me/${cleanPhone}" target="_blank" class="text-emerald-400 hover:underline flex items-center space-x-1 font-mono">
-                <i data-lucide="message-circle" class="w-3.5 h-3.5"></i>
-                <span>${c.phone}</span>
-              </a>
-            </td>
-            <td class="py-3 px-4 text-slate-300">${c.location || 'No definida'}</td>
-            <td class="py-3 px-4">
-              ${(() => {
-                const raw = (c.printer_model || '').trim();
-                if (!raw) return '<span class="text-slate-500 text-xs italic">No indicada</span>';
-                const list = splitPrintersList(raw);
-                if (list.length === 0) return '<span class="text-slate-500 text-xs italic">No indicada</span>';
-                return `<div class="flex flex-wrap gap-1 max-w-xs">` + 
-                  list.map(item => `
-                    <span class="inline-flex items-center space-x-1 px-2 py-0.5 rounded-lg bg-cyan-950/70 border border-cyan-500/30 text-cyan-300 text-[10px] font-semibold whitespace-nowrap">
-                      <i data-lucide="cpu" class="w-2.5 h-2.5 text-cyan-400"></i>
-                      <span>${item}</span>
-                    </span>
-                  `).join('') + `</div>`;
-              })()}
-            </td>
-            <td class="py-3 px-4 text-slate-400">${c.materials_interest || 'General'}</td>
-            <td class="py-3 px-4">
-              <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold border ${badgeCls}">${c.lead_status}</span>
-            </td>
-            <td class="py-3 px-4 font-mono font-bold text-white">$${Number(c.total_spent || 0).toFixed(2)}</td>
-            <td class="py-3 px-4 text-right space-x-1.5 whitespace-nowrap">
-              <button onclick="openClientStatementModal(${c.id})" title="Ver Estado de Cuenta / Historial Financiero" class="px-2 py-1 bg-purple-950/70 hover:bg-purple-900 text-purple-300 rounded-lg text-xs font-semibold border border-purple-800 transition inline-flex items-center space-x-1">
-                <i data-lucide="file-spreadsheet" class="w-3 h-3 text-purple-400"></i>
-                <span>Cuenta</span>
-              </button>
-              <button onclick="editClient(${c.id})" class="px-2.5 py-1 bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg text-xs font-semibold border border-slate-700 transition">
-                Editar
-              </button>
-              <button onclick="quickSaleForClient(${c.id})" class="px-2.5 py-1 bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500 hover:text-black rounded-lg text-xs font-bold transition">
-                + Vender
-              </button>
-              <button onclick="deleteClient(${c.id}, '${c.name.replace(/'/g, "\\\\'")}')" class="admin-only p-1 hover:bg-red-500/20 text-slate-500 hover:text-red-400 rounded-lg transition" title="Eliminar Cliente">
-                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-              </button>
-            </td>
-          </tr>
-        `;
+        if (tbody) {
+          tbody.innerHTML += `
+            <tr class="hover:bg-slate-800/30">
+              <td class="py-3 px-4 font-semibold text-white">${c.name}</td>
+              <td class="py-3 px-4">
+                <a href="https://wa.me/${cleanPhone}" target="_blank" class="text-emerald-400 hover:underline flex items-center space-x-1 font-mono">
+                  <i data-lucide="message-circle" class="w-3.5 h-3.5"></i>
+                  <span>${c.phone}</span>
+                </a>
+              </td>
+              <td class="py-3 px-4 text-slate-300">${c.location || 'No definida'}</td>
+              <td class="py-3 px-4">
+                ${(() => {
+                  const raw = (c.printer_model || '').trim();
+                  if (!raw) return '<span class="text-slate-500 text-xs italic">No indicada</span>';
+                  const spl = splitPrintersList(raw);
+                  if (spl.length === 0) return '<span class="text-slate-500 text-xs italic">No indicada</span>';
+                  return `<div class="flex flex-wrap gap-1 max-w-xs">` + 
+                    spl.map(item => `
+                      <span class="inline-flex items-center space-x-1 px-2 py-0.5 rounded-lg bg-cyan-950/70 border border-cyan-500/30 text-cyan-300 text-[10px] font-semibold whitespace-nowrap">
+                        <i data-lucide="cpu" class="w-2.5 h-2.5 text-cyan-400"></i>
+                        <span>${item}</span>
+                      </span>
+                    `).join('') + `</div>`;
+                })()}
+              </td>
+              <td class="py-3 px-4 text-slate-400">${c.materials_interest || 'General'}</td>
+              <td class="py-3 px-4">
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold border ${badgeCls}">${c.lead_status}</span>
+              </td>
+              <td class="py-3 px-4 font-mono font-bold text-white">$${Number(c.total_spent || 0).toFixed(2)}</td>
+              <td class="py-3 px-4 text-right space-x-1.5 whitespace-nowrap">
+                <button onclick="openClientStatementModal(${c.id})" title="Ver Estado de Cuenta / Historial Financiero" class="px-2 py-1 bg-purple-950/70 hover:bg-purple-900 text-purple-300 rounded-lg text-xs font-semibold border border-purple-800 transition inline-flex items-center space-x-1">
+                  <i data-lucide="file-spreadsheet" class="w-3 h-3 text-purple-400"></i>
+                  <span>Cuenta</span>
+                </button>
+                <button onclick="editClient(${c.id})" class="px-2.5 py-1 bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg text-xs font-semibold border border-slate-700 transition">
+                  Editar
+                </button>
+                <button onclick="quickSaleForClient(${c.id})" class="px-2.5 py-1 bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500 hover:text-black rounded-lg text-xs font-bold transition">
+                  + Vender
+                </button>
+                <button onclick="deleteClient(${c.id}, '${c.name.replace(/'/g, "\\'")}')" class="admin-only p-1 hover:bg-red-500/20 text-slate-500 hover:text-red-400 rounded-lg transition" title="Eliminar Cliente">
+                  <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                </button>
+              </td>
+            </tr>
+          `;
+        }
+
+        if (cardList) {
+          cardList.innerHTML += `
+            <div class="bg-[#11192d] border border-slate-800 rounded-2xl p-4 space-y-3 shadow-lg">
+              <div class="flex items-center justify-between gap-2">
+                <h4 class="font-bold text-white text-base truncate">${c.name}</h4>
+                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold border ${badgeCls} shrink-0">${c.lead_status}</span>
+              </div>
+
+              <div class="grid grid-cols-2 gap-2 text-xs">
+                <div class="space-y-0.5">
+                  <span class="text-[10px] text-slate-400 uppercase font-bold block">WhatsApp</span>
+                  <a href="https://wa.me/${cleanPhone}" target="_blank" class="h-9 inline-flex items-center space-x-1.5 text-emerald-400 font-mono font-bold hover:underline">
+                    <i data-lucide="message-circle" class="w-4 h-4 text-emerald-400"></i>
+                    <span>${c.phone}</span>
+                  </a>
+                </div>
+                <div class="space-y-0.5">
+                  <span class="text-[10px] text-slate-400 uppercase font-bold block">Ubicación</span>
+                  <span class="text-slate-300 truncate block">${c.location || 'No definida'}</span>
+                </div>
+              </div>
+
+              <div class="space-y-1">
+                <span class="text-[10px] text-slate-400 uppercase font-bold block">Impresoras 3D</span>
+                ${(() => {
+                  const raw = (c.printer_model || '').trim();
+                  if (!raw) return '<span class="text-slate-500 text-xs italic">No indicada</span>';
+                  const spl = splitPrintersList(raw);
+                  if (spl.length === 0) return '<span class="text-slate-500 text-xs italic">No indicada</span>';
+                  return `<div class="flex flex-wrap gap-1">` + 
+                    spl.map(item => `
+                      <span class="inline-flex items-center space-x-1 px-2 py-0.5 rounded-lg bg-cyan-950/70 border border-cyan-500/30 text-cyan-300 text-[10px] font-semibold whitespace-nowrap">
+                        <i data-lucide="cpu" class="w-2.5 h-2.5 text-cyan-400"></i>
+                        <span>${item}</span>
+                      </span>
+                    `).join('') + `</div>`;
+                })()}
+              </div>
+
+              <div class="flex items-center justify-between pt-1 border-t border-slate-800">
+                <span class="text-xs text-slate-400">Total Comprado:</span>
+                <span class="font-mono font-bold text-white text-sm">$${Number(c.total_spent || 0).toFixed(2)}</span>
+              </div>
+
+              <div class="grid grid-cols-3 gap-2 pt-1 border-t border-slate-800/80">
+                <button onclick="quickSaleForClient(${c.id})" class="h-11 flex items-center justify-center space-x-1.5 bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 rounded-xl text-xs font-black shadow-md shadow-emerald-950 transition active:scale-95">
+                  <i data-lucide="shopping-cart" class="w-4 h-4"></i>
+                  <span>+ Vender</span>
+                </button>
+                <button onclick="openClientStatementModal(${c.id})" class="h-11 flex items-center justify-center space-x-1.5 bg-purple-950/70 hover:bg-purple-900 text-purple-300 rounded-xl text-xs font-bold border border-purple-800 transition active:scale-95">
+                  <i data-lucide="file-spreadsheet" class="w-4 h-4 text-purple-400"></i>
+                  <span>Cuenta</span>
+                </button>
+                <button onclick="editClient(${c.id})" class="h-11 flex items-center justify-center space-x-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold border border-slate-700 transition active:scale-95">
+                  <i data-lucide="edit-3" class="w-4 h-4 text-slate-400"></i>
+                  <span>Editar</span>
+                </button>
+              </div>
+            </div>
+          `;
+        }
       });
       lucide.createIcons();
     }
@@ -4831,12 +5014,18 @@ HTML_CONTENT = """<!DOCTYPE html>
 
     function renderInventory(list) {
       const tbody = document.getElementById('inventory-tbody');
-      tbody.innerHTML = '';
+      const cardList = document.getElementById('inventory-card-list');
+      if (tbody) tbody.innerHTML = '';
+      if (cardList) cardList.innerHTML = '';
+
       if (!list || list.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="10" class="py-8 text-center text-slate-500">No se encontraron referencias que coincidan con la búsqueda o filtros aplicados.</td></tr>`;
+        if (tbody) tbody.innerHTML = `<tr><td colspan="10" class="py-8 text-center text-slate-500">No se encontraron referencias que coincidan con la búsqueda o filtros aplicados.</td></tr>`;
+        if (cardList) cardList.innerHTML = `<div class="p-8 text-center text-slate-500 bg-[#11192d] rounded-2xl border border-slate-800">No se encontraron referencias que coincidan.</div>`;
         return;
       }
+
       const bcvRate = parseFloat(document.getElementById('calc-bcv') ? document.getElementById('calc-bcv').value : 896.12) || 896.12;
+
       list.forEach(p => {
         const pct = Math.min(100, Math.round((p.current_stock / (p.initial_stock || 1)) * 100));
         const colorBadge = getColorBadge(p);
@@ -4845,61 +5034,125 @@ HTML_CONTENT = """<!DOCTYPE html>
         const bcvPrice = Number(p.pvp_usd).toFixed(2);
         const bsPrice = (p.pvp_usd * bcvRate).toLocaleString('es-VE', { maximumFractionDigits: 0 });
 
-        tbody.innerHTML += `
-          <tr class="hover:bg-slate-800/30 transition">
-            <td class="py-3 px-3">
-              <span class="font-mono text-[11px] text-cyan-400 bg-cyan-950/40 px-2 py-0.5 rounded border border-cyan-800/40 font-medium">${p.sku || ('KR-' + p.id)}</span>
-            </td>
-            <td class="py-3 px-4">
-              <div class="font-semibold text-white">${p.material_type || p.name}</div>
-              <div class="text-[10px] text-slate-400">${p.category}</div>
-            </td>
-            <td class="py-3 px-4 whitespace-nowrap">
-              ${colorBadge}
-            </td>
-            <td class="py-3 px-4">
-              <div class="flex items-center space-x-2">
-                <span class="font-mono font-bold ${p.current_stock === 0 ? 'text-rose-400' : (p.current_stock <= minSt ? 'text-amber-400' : 'text-emerald-400')}">${p.current_stock}</span>
-                <span class="text-slate-500 text-[10px]">/ ${p.initial_stock} und</span>
-                ${p.current_stock === 0 
-                  ? '<span class="px-1.5 py-0.2 rounded text-[9px] font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30">Agotado</span>' 
-                  : (p.current_stock <= minSt 
-                    ? `<span class="px-1.5 py-0.2 rounded text-[9px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">Mín: ${minSt}</span>` 
-                    : '<span class="px-1.5 py-0.2 rounded text-[9px] font-bold bg-emerald-500/10 text-emerald-400">Óptimo</span>')}
+        if (tbody) {
+          tbody.innerHTML += `
+            <tr class="hover:bg-slate-800/30 transition">
+              <td class="py-3 px-3">
+                <span class="font-mono text-[11px] text-cyan-400 bg-cyan-950/40 px-2 py-0.5 rounded border border-cyan-800/40 font-medium">${p.sku || ('KR-' + p.id)}</span>
+              </td>
+              <td class="py-3 px-4">
+                <div class="font-semibold text-white">${p.material_type || p.name}</div>
+                <div class="text-[10px] text-slate-400">${p.category}</div>
+              </td>
+              <td class="py-3 px-4 whitespace-nowrap">
+                ${colorBadge}
+              </td>
+              <td class="py-3 px-4">
+                <div class="flex items-center space-x-2">
+                  <span class="font-mono font-bold ${p.current_stock === 0 ? 'text-rose-400' : (p.current_stock <= minSt ? 'text-amber-400' : 'text-emerald-400')}">${p.current_stock}</span>
+                  <span class="text-slate-500 text-[10px]">/ ${p.initial_stock} und</span>
+                  ${p.current_stock === 0 
+                    ? '<span class="px-1.5 py-0.2 rounded text-[9px] font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30">Agotado</span>' 
+                    : (p.current_stock <= minSt 
+                      ? `<span class="px-1.5 py-0.2 rounded text-[9px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">Mín: ${minSt}</span>` 
+                      : '<span class="px-1.5 py-0.2 rounded text-[9px] font-bold bg-emerald-500/10 text-emerald-400">Óptimo</span>')}
+                </div>
+                <div class="w-24 bg-slate-800 h-1.5 rounded-full mt-1 overflow-hidden">
+                  <div class="h-full ${p.current_stock === 0 ? 'bg-rose-500' : (p.current_stock <= minSt ? 'bg-amber-400' : 'bg-gradient-to-r from-cyan-500 to-emerald-400')}" style="width: ${pct}%"></div>
+                </div>
+              </td>
+              <td class="admin-only py-3 px-3 font-mono text-slate-400">$${Number(p.cost_warehouse).toFixed(2)}</td>
+              <td class="py-3 px-3 text-center">
+                <div class="font-mono font-bold text-cyan-300 text-xs">$${bcvPrice}</div>
+                <div class="text-[10px] text-slate-400 font-mono">Bs. ${bsPrice}</div>
+              </td>
+              <td class="py-3 px-3 text-center whitespace-nowrap">
+                <span class="inline-flex items-center space-x-1 px-2.5 py-1 rounded-lg text-xs font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm shadow-emerald-950">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                  <span>$${cashPrice}</span>
+                  <span class="text-[10px] text-emerald-400/80 font-normal">USDT</span>
+                </span>
+              </td>
+              <td class="admin-only py-3 px-3 font-mono text-emerald-400 font-medium">${p.margin_pct}%</td>
+              <td class="admin-only py-3 px-3 font-mono font-bold text-emerald-400">+$${Number(p.net_profit_unit).toFixed(2)}</td>
+              <td class="py-3 px-4 text-right space-x-1.5 whitespace-nowrap">
+                <button onclick="openKardexModal(${p.id})" title="Ver Historial Kardex de Entradas y Salidas" class="px-2 py-1 bg-cyan-950/70 hover:bg-cyan-900 text-cyan-300 rounded-lg text-xs font-semibold border border-cyan-800 transition inline-flex items-center space-x-1">
+                  <i data-lucide="history" class="w-3 h-3 text-cyan-400"></i>
+                  <span>Kardex</span>
+                </button>
+                <button onclick="openProductEditModal(${p.id})" title="Editar precio PVP, costo o stock" class="admin-only px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg text-xs font-semibold border border-slate-700 transition inline-flex items-center space-x-1">
+                  <i data-lucide="edit-3" class="w-3 h-3 text-slate-400"></i>
+                  <span>Editar</span>
+                </button>
+                <button onclick="quickSaleForProduct(${p.id})" class="px-2.5 py-1 bg-cyan-500/20 text-cyan-300 hover:bg-cyan-500 hover:text-black rounded-lg text-xs font-bold transition">
+                  Vender
+                </button>
+              </td>
+            </tr>
+          `;
+        }
+
+        if (cardList) {
+          cardList.innerHTML += `
+            <div class="bg-[#11192d] border border-slate-800 rounded-2xl p-4 space-y-3 shadow-lg">
+              <div class="flex items-center justify-between">
+                <span class="font-mono text-xs text-cyan-400 bg-cyan-950/60 px-2.5 py-1 rounded-lg border border-cyan-800/50 font-bold">${p.sku || ('KR-' + p.id)}</span>
+                <div class="flex items-center space-x-1.5">
+                  <span class="font-mono text-xs font-bold ${p.current_stock === 0 ? 'text-rose-400' : (p.current_stock <= minSt ? 'text-amber-400' : 'text-emerald-400')}">${p.current_stock} / ${p.initial_stock} und</span>
+                  ${p.current_stock === 0 
+                    ? '<span class="px-2 py-0.5 rounded text-[10px] font-black bg-rose-500/20 text-rose-400 border border-rose-500/30">Agotado</span>' 
+                    : (p.current_stock <= minSt 
+                      ? `<span class="px-2 py-0.5 rounded text-[10px] font-black bg-amber-500/20 text-amber-400 border border-amber-500/30">Mín: ${minSt}</span>` 
+                      : '<span class="px-2 py-0.5 rounded text-[10px] font-black bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Óptimo</span>')}
+                </div>
               </div>
-              <div class="w-24 bg-slate-800 h-1.5 rounded-full mt-1 overflow-hidden">
+
+              <div class="flex items-start justify-between gap-2">
+                <div class="min-w-0">
+                  <h4 class="font-bold text-white text-sm leading-snug break-words">${p.material_type || p.name}</h4>
+                  <p class="text-xs text-slate-400">${p.category}</p>
+                </div>
+                <div class="shrink-0">${colorBadge}</div>
+              </div>
+
+              <div class="w-full bg-slate-800/80 h-2 rounded-full overflow-hidden">
                 <div class="h-full ${p.current_stock === 0 ? 'bg-rose-500' : (p.current_stock <= minSt ? 'bg-amber-400' : 'bg-gradient-to-r from-cyan-500 to-emerald-400')}" style="width: ${pct}%"></div>
               </div>
-            </td>
-            <td class="admin-only py-3 px-3 font-mono text-slate-400">$${Number(p.cost_warehouse).toFixed(2)}</td>
-            <td class="py-3 px-3 text-center">
-              <div class="font-mono font-bold text-cyan-300 text-xs">$${bcvPrice}</div>
-              <div class="text-[10px] text-slate-400 font-mono">Bs. ${bsPrice}</div>
-            </td>
-            <td class="py-3 px-3 text-center whitespace-nowrap">
-              <span class="inline-flex items-center space-x-1 px-2.5 py-1 rounded-lg text-xs font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm shadow-emerald-950">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span>$${cashPrice}</span>
-                <span class="text-[10px] text-emerald-400/80 font-normal">USDT</span>
-              </span>
-            </td>
-            <td class="admin-only py-3 px-3 font-mono text-emerald-400 font-medium">${p.margin_pct}%</td>
-            <td class="admin-only py-3 px-3 font-mono font-bold text-emerald-400">+$${Number(p.net_profit_unit).toFixed(2)}</td>
-            <td class="py-3 px-4 text-right space-x-1.5 whitespace-nowrap">
-              <button onclick="openKardexModal(${p.id})" title="Ver Historial Kardex de Entradas y Salidas" class="px-2 py-1 bg-cyan-950/70 hover:bg-cyan-900 text-cyan-300 rounded-lg text-xs font-semibold border border-cyan-800 transition inline-flex items-center space-x-1">
-                <i data-lucide="history" class="w-3 h-3 text-cyan-400"></i>
-                <span>Kardex</span>
-              </button>
-              <button onclick="openProductEditModal(${p.id})" title="Editar precio PVP, costo o stock" class="admin-only px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg text-xs font-semibold border border-slate-700 transition inline-flex items-center space-x-1">
-                <i data-lucide="edit-3" class="w-3 h-3 text-slate-400"></i>
-                <span>Editar</span>
-              </button>
-              <button onclick="quickSaleForProduct(${p.id})" class="px-2.5 py-1 bg-cyan-500/20 text-cyan-300 hover:bg-cyan-500 hover:text-black rounded-lg text-xs font-bold transition">
-                Vender
-              </button>
-            </td>
-          </tr>
-        `;
+
+              <div class="grid grid-cols-2 gap-2 pt-1">
+                <div class="bg-emerald-950/30 border border-emerald-500/30 rounded-xl p-2.5 text-center">
+                  <span class="block text-[10px] uppercase font-bold text-emerald-400">Contado Divisa</span>
+                  <div class="font-mono font-black text-emerald-300 text-sm mt-0.5">$${cashPrice} <span class="text-[10px] font-normal">USDT</span></div>
+                </div>
+                <div class="bg-cyan-950/30 border border-cyan-500/20 rounded-xl p-2.5 text-center">
+                  <span class="block text-[10px] uppercase font-bold text-cyan-400">Oficial BCV</span>
+                  <div class="font-mono font-bold text-cyan-200 text-xs mt-0.5">$${bcvPrice}</div>
+                  <div class="text-[9px] font-mono text-slate-400 truncate">Bs. ${bsPrice}</div>
+                </div>
+              </div>
+
+              <div class="admin-only flex items-center justify-between text-xs text-slate-400 px-1 font-mono pt-1">
+                <span>Costo: <strong class="text-slate-300">$${Number(p.cost_warehouse).toFixed(2)}</strong></span>
+                <span>Margen: <strong class="text-emerald-400">${p.margin_pct}%</strong> (+$${Number(p.net_profit_unit).toFixed(2)})</span>
+              </div>
+
+              <div class="grid grid-cols-3 gap-2 pt-1 border-t border-slate-800/70">
+                <button onclick="quickSaleForProduct(${p.id})" class="h-11 flex items-center justify-center space-x-1.5 bg-gradient-to-r from-cyan-500 to-emerald-500 hover:from-cyan-400 hover:to-emerald-400 text-slate-950 rounded-xl text-xs font-black shadow-md shadow-cyan-950 transition active:scale-95">
+                  <i data-lucide="shopping-cart" class="w-4 h-4"></i>
+                  <span>Vender</span>
+                </button>
+                <button onclick="openKardexModal(${p.id})" class="h-11 flex items-center justify-center space-x-1.5 bg-cyan-950/70 hover:bg-cyan-900 text-cyan-300 rounded-xl text-xs font-bold border border-cyan-800 transition active:scale-95">
+                  <i data-lucide="history" class="w-4 h-4 text-cyan-400"></i>
+                  <span>Kardex</span>
+                </button>
+                <button onclick="openProductEditModal(${p.id})" class="admin-only h-11 flex items-center justify-center space-x-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold border border-slate-700 transition active:scale-95">
+                  <i data-lucide="edit-3" class="w-4 h-4 text-slate-400"></i>
+                  <span>Editar</span>
+                </button>
+              </div>
+            </div>
+          `;
+        }
       });
       lucide.createIcons();
     }
@@ -4907,9 +5160,13 @@ HTML_CONTENT = """<!DOCTYPE html>
     // ================= SALES =================
     function renderSales(list) {
       const tbody = document.getElementById('sales-tbody');
-      tbody.innerHTML = '';
-      if (list.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="10" class="py-6 text-center text-slate-500">Panel limpio. No hay ventas registradas aún. Haz clic en "+ Registrar Venta" para añadir una nueva orden.</td></tr>`;
+      const cardList = document.getElementById('sales-card-list');
+      if (tbody) tbody.innerHTML = '';
+      if (cardList) cardList.innerHTML = '';
+
+      if (!list || list.length === 0) {
+        if (tbody) tbody.innerHTML = `<tr><td colspan="10" class="py-6 text-center text-slate-500">Panel limpio. No hay ventas registradas aún. Haz clic en "+ Registrar Venta" para añadir una nueva orden.</td></tr>`;
+        if (cardList) cardList.innerHTML = `<div class="p-8 text-center text-slate-500 bg-[#11192d] rounded-2xl border border-slate-800">Panel limpio. No hay ventas registradas aún.</div>`;
       } else {
         list.forEach(s => {
           const cleanPhone = (s.client_phone || '').replace(/[^0-9]/g, '');
@@ -4921,65 +5178,146 @@ HTML_CONTENT = """<!DOCTYPE html>
 
           const trackingStr = s.tracking_number ? `<span class="block font-mono text-[10px] text-slate-400 mt-0.5">Guía: ${s.tracking_number}</span>` : '';
 
-          tbody.innerHTML += `
-            <tr class="hover:bg-slate-800/30">
-              <td class="py-3 px-3 font-mono text-slate-500">#${s.id}</td>
-              <td class="py-3 px-3 font-mono text-slate-400">${s.date.split(' ')[0]}</td>
-              <td class="py-3 px-3">
-                <div class="font-semibold text-white">${s.client_name || 'Desconocido'}</div>
-                ${cleanPhone ? `<a href="https://wa.me/${cleanPhone}" target="_blank" class="text-[10px] text-emerald-400 hover:underline font-mono">${s.client_phone}</a>` : ''}
-              </td>
-              <td class="py-3 px-3 text-cyan-300 font-medium">
-                ${s.items && s.items.length > 1
-                  ? `<div class="font-bold flex items-center space-x-1.5"><span class="px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-300 text-[10px] border border-cyan-500/30">📦 Multi-Ítem (${s.items.length})</span> <span>${s.quantity} unds</span></div>
-                     <div class="text-[10px] text-slate-400 truncate max-w-xs mt-0.5">${s.items.map(it => `${it.product_name} (${it.quantity})`).join(', ')}</div>`
-                  : `<div>${s.product_name}</div>`}
-                ${s.affiliate_code ? `<span class="inline-flex items-center space-x-1 px-1.5 py-0.5 rounded text-[10px] bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-mono mt-0.5" title="Comisión otorgada: $${Number(s.commission_amount || 0).toFixed(2)}"><i data-lucide="share-2" class="w-2.5 h-2.5"></i><span>${s.affiliate_code} • $${Number(s.commission_amount || 0).toFixed(2)}</span></span>` : ''}
-              </td>
-              <td class="py-3 px-3 font-mono">${s.quantity}</td>
-              <td class="py-3 px-3 font-mono font-bold text-white">$${Number(s.total_price).toFixed(2)}</td>
-              <td class="py-3 px-3 font-mono font-bold text-emerald-400">+$${Number(s.net_profit).toFixed(2)}</td>
-              <td class="py-3 px-3">
-                <div class="text-[11px] text-white">${s.payment_method || 'Zelle'}</div>
-                ${s.payment_status === 'A CRÉDITO' 
-                  ? `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">DEBE $${Number(s.balance_due || 0).toFixed(2)}</span>`
-                  : (s.payment_status === 'PARCIAL'
-                    ? `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">ABONADO: DEBE $${Number(s.balance_due || 0).toFixed(2)}</span>`
-                    : `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">PAGADO</span>`)}
-              </td>
-              <td class="py-3 px-3">
-                <span class="px-2 py-0.5 rounded-md text-[10px] font-semibold border ${deliveryBadge}">${s.delivery_method || 'Retiro en Tienda'}</span>
-                ${trackingStr}
-              </td>
-              <td class="py-3 px-3 text-right whitespace-nowrap space-x-1.5">
-                ${(s.payment_status === 'A CRÉDITO' || s.payment_status === 'PARCIAL') && Number(s.balance_due || 0) > 0
-                  ? `<button onclick="openPaymentModal(${s.id})" class="px-2 py-1 bg-amber-950/70 hover:bg-amber-900 text-amber-300 rounded-lg text-[11px] font-bold border border-amber-800/80 inline-flex items-center space-x-1 transition" title="Registrar Abono">
-                      <i data-lucide="credit-card" class="w-3 h-3"></i>
+          if (tbody) {
+            tbody.innerHTML += `
+              <tr class="hover:bg-slate-800/30">
+                <td class="py-3 px-3 font-mono text-slate-500">#${s.id}</td>
+                <td class="py-3 px-3 font-mono text-slate-400">${s.date.split(' ')[0]}</td>
+                <td class="py-3 px-3">
+                  <div class="font-semibold text-white">${s.client_name || 'Desconocido'}</div>
+                  ${cleanPhone ? `<a href="https://wa.me/${cleanPhone}" target="_blank" class="text-[10px] text-emerald-400 hover:underline font-mono">${s.client_phone}</a>` : ''}
+                </td>
+                <td class="py-3 px-3 text-cyan-300 font-medium">
+                  ${s.items && s.items.length > 1
+                    ? `<div class="font-bold flex items-center space-x-1.5"><span class="px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-300 text-[10px] border border-cyan-500/30">📦 Multi-Ítem (${s.items.length})</span> <span>${s.quantity} unds</span></div>
+                       <div class="text-[10px] text-slate-400 truncate max-w-xs mt-0.5">${s.items.map(it => `${it.product_name} (${it.quantity})`).join(', ')}</div>`
+                    : `<div>${s.product_name}</div>`}
+                  ${s.affiliate_code ? `<span class="inline-flex items-center space-x-1 px-1.5 py-0.5 rounded text-[10px] bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-mono mt-0.5" title="Comisión otorgada: $${Number(s.commission_amount || 0).toFixed(2)}"><i data-lucide="share-2" class="w-2.5 h-2.5"></i><span>${s.affiliate_code} • $${Number(s.commission_amount || 0).toFixed(2)}</span></span>` : ''}
+                </td>
+                <td class="py-3 px-3 font-mono">${s.quantity}</td>
+                <td class="py-3 px-3 font-mono font-bold text-white">$${Number(s.total_price).toFixed(2)}</td>
+                <td class="py-3 px-3 font-mono font-bold text-emerald-400">+$${Number(s.net_profit).toFixed(2)}</td>
+                <td class="py-3 px-3">
+                  <div class="text-[11px] text-white">${s.payment_method || 'Zelle'}</div>
+                  ${s.payment_status === 'A CRÉDITO' 
+                    ? `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">DEBE $${Number(s.balance_due || 0).toFixed(2)}</span>`
+                    : (s.payment_status === 'PARCIAL'
+                      ? `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">ABONADO: DEBE $${Number(s.balance_due || 0).toFixed(2)}</span>`
+                      : `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">PAGADO</span>`)}
+                </td>
+                <td class="py-3 px-3">
+                  <span class="px-2 py-0.5 rounded-md text-[10px] font-semibold border ${deliveryBadge}">${s.delivery_method || 'Retiro en Tienda'}</span>
+                  ${trackingStr}
+                </td>
+                <td class="py-3 px-3 text-right whitespace-nowrap space-x-1.5">
+                  ${(s.payment_status === 'A CRÉDITO' || s.payment_status === 'PARCIAL') && Number(s.balance_due || 0) > 0
+                    ? `<button onclick="openPaymentModal(${s.id})" class="px-2 py-1 bg-amber-950/70 hover:bg-amber-900 text-amber-300 rounded-lg text-[11px] font-bold border border-amber-800/80 inline-flex items-center space-x-1 transition" title="Registrar Abono">
+                        <i data-lucide="credit-card" class="w-3 h-3"></i>
+                        <span>Abonar</span>
+                      </button>`
+                    : ''}
+                  <button onclick="openShippingModal(${s.id})" class="px-2 py-1 bg-blue-950/70 hover:bg-blue-900 text-blue-300 rounded-lg text-[11px] font-bold border border-blue-800/80 inline-flex items-center space-x-1 transition" title="Gestionar Despacho y N° de Guía">
+                    <i data-lucide="truck" class="w-3 h-3 text-blue-400"></i>
+                    <span>Despacho</span>
+                  </button>
+                  <button onclick="printShippingLabel(${s.id})" class="px-2 py-1 bg-amber-950/70 hover:bg-amber-900 text-amber-300 rounded-lg text-[11px] font-bold border border-amber-800 inline-flex items-center space-x-1 transition" title="Imprimir Rótulo de Envío Térmico (MRW / Tealca / Zoom)">
+                    <i data-lucide="tag" class="w-3 h-3 text-amber-400"></i>
+                    <span>Rótulo</span>
+                  </button>
+                  <button onclick="openDeliveryNoteModal(${s.id})" class="px-2.5 py-1 bg-cyan-950/60 hover:bg-cyan-900/80 text-cyan-300 rounded-lg text-[11px] font-bold border border-cyan-800/80 inline-flex items-center space-x-1 transition" title="Emitir Nota de Entrega y Factura Digital">
+                    <i data-lucide="file-text" class="w-3 h-3 text-cyan-400"></i>
+                    <span>Nota / Factura</span>
+                  </button>
+                  <button onclick="sendDispatchWhatsApp(${s.id})" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-[11px] font-bold border border-slate-700 inline-flex items-center space-x-1 transition">
+                    <i data-lucide="message-square" class="w-3 h-3"></i>
+                    <span>Guía WA</span>
+                  </button>
+                  <button onclick="deleteSale(${s.id}, '${s.product_name.replace(/'/g, "\\'")}', ${s.quantity})" class="admin-only p-1 hover:bg-red-500/20 text-slate-500 hover:text-red-400 rounded-lg transition" title="Eliminar orden y restituir stock">
+                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                  </button>
+                </td>
+              </tr>
+            `;
+          }
+
+          if (cardList) {
+            cardList.innerHTML += `
+              <div class="bg-[#11192d] border border-slate-800 rounded-2xl p-4 space-y-3 shadow-lg">
+                <div class="flex items-center justify-between">
+                  <span class="font-mono text-xs font-bold text-slate-300 bg-slate-800/90 px-2.5 py-1 rounded-lg border border-slate-700">Orden #${s.id}</span>
+                  <span class="font-mono text-xs text-slate-400">${s.date.split(' ')[0]}</span>
+                </div>
+
+                <div class="flex items-center justify-between gap-2">
+                  <div class="min-w-0">
+                    <h4 class="font-bold text-white text-sm truncate">${s.client_name || 'Desconocido'}</h4>
+                    <p class="text-xs text-slate-400 font-mono">${s.payment_method || 'Zelle'} • ${s.quantity} unds</p>
+                  </div>
+                  ${cleanPhone ? `
+                    <a href="https://wa.me/${cleanPhone}" target="_blank" class="h-10 px-3 flex items-center space-x-1.5 bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 rounded-xl border border-emerald-500/30 text-xs font-bold transition active:scale-95 shrink-0">
+                      <i data-lucide="message-circle" class="w-4 h-4"></i>
+                      <span>Chat</span>
+                    </a>
+                  ` : ''}
+                </div>
+
+                <div class="bg-slate-900/60 rounded-xl p-2.5 border border-slate-800/80 text-xs space-y-1">
+                  ${s.items && s.items.length > 1
+                    ? `<div class="font-bold text-cyan-300 flex items-center space-x-1.5"><span class="px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-300 text-[10px] border border-cyan-500/30">📦 Multi-Ítem (${s.items.length})</span> <span>${s.quantity} bobinas</span></div>
+                       <div class="text-slate-400 text-[11px] leading-relaxed break-words">${s.items.map(it => `${it.product_name} (${it.quantity})`).join(', ')}</div>`
+                    : `<div class="font-semibold text-cyan-300">${s.product_name}</div>`}
+                  ${s.affiliate_code ? `<div class="text-[10px] text-indigo-300 font-mono pt-1 border-t border-slate-800">Promotor: ${s.affiliate_code} (Comisión: $${Number(s.commission_amount || 0).toFixed(2)})</div>` : ''}
+                </div>
+
+                <div class="flex items-center justify-between pt-1">
+                  <div>
+                    <span class="text-[10px] text-slate-400 uppercase font-bold block">Total Cobrado</span>
+                    <div class="font-mono font-black text-white text-base">$${Number(s.total_price).toFixed(2)}</div>
+                  </div>
+                  <div class="text-right">
+                    <span class="text-[10px] text-slate-400 uppercase font-bold block">Ganancia Neta</span>
+                    <div class="font-mono font-black text-emerald-400 text-sm">+$${Number(s.net_profit).toFixed(2)}</div>
+                  </div>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-1.5">
+                  ${s.payment_status === 'A CRÉDITO' 
+                    ? `<span class="px-2 py-0.5 rounded-lg text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">DEBE $${Number(s.balance_due || 0).toFixed(2)}</span>`
+                    : (s.payment_status === 'PARCIAL'
+                      ? `<span class="px-2 py-0.5 rounded-lg text-xs font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">ABONADO (DEBE $${Number(s.balance_due || 0).toFixed(2)})</span>`
+                      : `<span class="px-2 py-0.5 rounded-lg text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">PAGADO</span>`)}
+                  <span class="px-2 py-0.5 rounded-lg text-xs font-semibold border ${deliveryBadge}">${s.delivery_method || 'Retiro'}</span>
+                  ${s.tracking_number ? `<span class="px-2 py-0.5 rounded-lg text-xs font-mono bg-slate-800 text-slate-300 border border-slate-700">Guía: ${s.tracking_number}</span>` : ''}
+                </div>
+
+                <div class="grid grid-cols-2 gap-2 pt-1 border-t border-slate-800/80">
+                  <button onclick="openDeliveryNoteModal(${s.id})" class="h-11 flex items-center justify-center space-x-1.5 bg-cyan-950/70 hover:bg-cyan-900 text-cyan-300 rounded-xl text-xs font-bold border border-cyan-800 transition active:scale-95">
+                    <i data-lucide="file-text" class="w-4 h-4 text-cyan-400"></i>
+                    <span>Nota / Factura</span>
+                  </button>
+                  <button onclick="sendDispatchWhatsApp(${s.id})" class="h-11 flex items-center justify-center space-x-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold border border-slate-700 transition active:scale-95">
+                    <i data-lucide="message-square" class="w-4 h-4 text-emerald-400"></i>
+                    <span>Guía WA</span>
+                  </button>
+                  <button onclick="openShippingModal(${s.id})" class="h-11 flex items-center justify-center space-x-1.5 bg-blue-950/70 hover:bg-blue-900 text-blue-300 rounded-xl text-xs font-bold border border-blue-800 transition active:scale-95">
+                    <i data-lucide="truck" class="w-4 h-4 text-blue-400"></i>
+                    <span>Despacho</span>
+                  </button>
+                  ${(s.payment_status === 'A CRÉDITO' || s.payment_status === 'PARCIAL') && Number(s.balance_due || 0) > 0 ? `
+                    <button onclick="openPaymentModal(${s.id})" class="h-11 flex items-center justify-center space-x-1.5 bg-amber-950/70 hover:bg-amber-900 text-amber-300 rounded-xl text-xs font-bold border border-amber-800 transition active:scale-95">
+                      <i data-lucide="credit-card" class="w-4 h-4 text-amber-400"></i>
                       <span>Abonar</span>
-                    </button>`
-                  : ''}
-                <button onclick="openShippingModal(${s.id})" class="px-2 py-1 bg-blue-950/70 hover:bg-blue-900 text-blue-300 rounded-lg text-[11px] font-bold border border-blue-800/80 inline-flex items-center space-x-1 transition" title="Gestionar Despacho y N° de Guía">
-                  <i data-lucide="truck" class="w-3 h-3 text-blue-400"></i>
-                  <span>Despacho</span>
-                </button>
-                <button onclick="printShippingLabel(${s.id})" class="px-2 py-1 bg-amber-950/70 hover:bg-amber-900 text-amber-300 rounded-lg text-[11px] font-bold border border-amber-800 inline-flex items-center space-x-1 transition" title="Imprimir Rótulo de Envío Térmico (MRW / Tealca / Zoom)">
-                  <i data-lucide="tag" class="w-3 h-3 text-amber-400"></i>
-                  <span>Rótulo</span>
-                </button>
-                <button onclick="openDeliveryNoteModal(${s.id})" class="px-2.5 py-1 bg-cyan-950/60 hover:bg-cyan-900/80 text-cyan-300 rounded-lg text-[11px] font-bold border border-cyan-800/80 inline-flex items-center space-x-1 transition" title="Emitir Nota de Entrega y Factura Digital">
-                  <i data-lucide="file-text" class="w-3 h-3 text-cyan-400"></i>
-                  <span>Nota / Factura</span>
-                </button>
-                <button onclick="sendDispatchWhatsApp(${s.id})" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-[11px] font-bold border border-slate-700 inline-flex items-center space-x-1 transition">
-                  <i data-lucide="message-square" class="w-3 h-3"></i>
-                  <span>Guía WA</span>
-                </button>
-                <button onclick="deleteSale(${s.id}, '${s.product_name.replace(/'/g, "\\\\'")}', ${s.quantity})" class="admin-only p-1 hover:bg-red-500/20 text-slate-500 hover:text-red-400 rounded-lg transition" title="Eliminar orden y restituir stock">
-                  <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                </button>
-              </td>
-            </tr>
-          `;
+                    </button>
+                  ` : `
+                    <button onclick="deleteSale(${s.id}, '${s.product_name.replace(/'/g, "\\'")}', ${s.quantity})" class="admin-only h-11 flex items-center justify-center space-x-1.5 bg-rose-950/40 hover:bg-rose-900/60 text-rose-400 rounded-xl text-xs font-bold border border-rose-900/60 transition active:scale-95">
+                      <i data-lucide="trash-2" class="w-4 h-4 text-rose-400"></i>
+                      <span>Eliminar</span>
+                    </button>
+                  `}
+                </div>
+              </div>
+            `;
+          }
         });
       }
       lucide.createIcons();
@@ -9707,8 +10045,35 @@ HTML_CONTENT = """<!DOCTYPE html>
       const overlay = document.getElementById('auth-lock-overlay');
       if (overlay) {
         overlay.classList.remove('hidden');
+        const pinInput = document.getElementById('auth-pin-input');
+        if (pinInput) pinInput.value = '';
         selectAuthRole(currentAuthRole || 'admin');
       }
+    }
+
+    async function logoutCurrentUser() {
+      showToast('💾 Guardando cambios de tu sesión antes de salir...', 'info');
+      try {
+        if (typeof saveDashboardState === 'function') {
+          await saveDashboardState(false);
+        }
+      } catch (err) {
+        console.warn('Error al guardar estado previo al logout:', err);
+      }
+
+      // Eliminar credenciales del navegador actual
+      localStorage.removeItem('syntra_auth_role');
+      localStorage.removeItem('syntra_auth_name');
+      currentAuthRole = null;
+
+      // Cerrar navegación móvil si estuviera abierta
+      if (typeof closeMobileSidebar === 'function') {
+        closeMobileSidebar();
+      }
+
+      // Mostrar pantalla de bloqueo con PIN
+      openLockScreen();
+      showToast('🔒 Sesión cerrada con éxito. Datos guardados de forma segura.', 'success');
     }
 
     function applyRolePermissions(role) {
@@ -9745,7 +10110,31 @@ HTML_CONTENT = """<!DOCTYPE html>
 
     window.onload = init;
   </script>
-  <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col space-y-2 pointer-events-none"></div>
+  <!-- ================= DOCK DE NAVEGACIÓN RÁPIDA INFERIOR (APPLE HIG IPHONE) ================= -->
+  <nav id="mobile-bottom-dock" class="md:hidden fixed bottom-0 left-0 right-0 bg-[#090d16]/95 backdrop-blur-2xl border-t border-slate-800/80 px-2 py-1 z-40 flex items-center justify-around shadow-2xl safe-bottom">
+    <button onclick="switchTab('dashboard')" id="dock-btn-dashboard" class="flex flex-col items-center justify-center flex-1 py-1.5 text-cyan-400 transition" title="Inicio">
+      <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+      <span class="text-[10px] font-bold mt-0.5">Inicio</span>
+    </button>
+    <button onclick="switchTab('sales')" id="dock-btn-sales" class="flex flex-col items-center justify-center flex-1 py-1.5 text-slate-400 hover:text-white transition" title="Ventas">
+      <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+      <span class="text-[10px] font-medium mt-0.5">Ventas</span>
+    </button>
+    <button onclick="switchTab('inventory')" id="dock-btn-inventory" class="flex flex-col items-center justify-center flex-1 py-1.5 text-slate-400 hover:text-white transition" title="Inventario">
+      <i data-lucide="package" class="w-5 h-5"></i>
+      <span class="text-[10px] font-medium mt-0.5">Stock</span>
+    </button>
+    <button onclick="switchTab('calculator')" id="dock-btn-calculator" class="flex flex-col items-center justify-center flex-1 py-1.5 text-slate-400 hover:text-white transition" title="Cotizador">
+      <i data-lucide="calculator" class="w-5 h-5"></i>
+      <span class="text-[10px] font-medium mt-0.5">Cotizar</span>
+    </button>
+    <button onclick="toggleMobileSidebar()" id="dock-btn-menu" class="flex flex-col items-center justify-center flex-1 py-1.5 text-slate-400 hover:text-white transition" title="Menú Completo">
+      <i data-lucide="menu" class="w-5 h-5"></i>
+      <span class="text-[10px] font-medium mt-0.5">Menú</span>
+    </button>
+  </nav>
+
+  <div id="toast-container" class="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 z-50 flex flex-col space-y-2 pointer-events-none"></div>
 </body>
 </html>
 """

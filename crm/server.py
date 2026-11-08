@@ -17,8 +17,13 @@ ROOT_DIR = os.path.dirname(BASE_DIR)
 sys.path.append(os.path.join(ROOT_DIR, "whatsapp_bridge"))
 
 def get_db():
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH, timeout=15.0)
     conn.row_factory = sqlite3.Row
+    try:
+        conn.execute("PRAGMA journal_mode=WAL;")
+        conn.execute("PRAGMA busy_timeout=15000;")
+    except Exception:
+        pass
     return conn
 
 def canonicalize_printer_model(raw_name):
@@ -1129,8 +1134,27 @@ class SyntraCRMHandler(BaseHTTPRequestHandler):
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
         """)
-        state_content = body.get("state", body)
-        state_str = json.dumps(state_content, ensure_ascii=False)
+        
+        # Recuperar estado previo para fusión segura multi-sesión
+        cur.execute("SELECT state_json FROM dashboard_state WHERE id = 'main'")
+        row = cur.fetchone()
+        merged_state = {}
+        if row and row["state_json"]:
+            try:
+                merged_state = json.loads(row["state_json"])
+            except Exception:
+                merged_state = {}
+
+        incoming = body.get("state", body)
+        if isinstance(incoming, dict):
+            # Fusión inteligente de claves sin sobreescribir datos de otras sesiones
+            for k, v in incoming.items():
+                if v is not None:
+                    merged_state[k] = v
+        else:
+            merged_state = incoming
+
+        state_str = json.dumps(merged_state, ensure_ascii=False)
         cur.execute("""
         INSERT INTO dashboard_state (id, state_json, updated_at)
         VALUES ('main', ?, datetime('now', 'localtime'))
@@ -1143,7 +1167,7 @@ class SyntraCRMHandler(BaseHTTPRequestHandler):
         r = cur.fetchone()
         updated_at = r[0] if r else ""
         conn.close()
-        self._send_json({"status": "ok", "message": "Configuración y estado guardados exitosamente", "updated_at": updated_at})
+        self._send_json({"status": "ok", "message": "Configuración y estado sincronizados exitosamente sin colisión", "updated_at": updated_at, "state": merged_state})
 
     def handle_get_requests(self):
         conn = get_db()
