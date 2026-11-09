@@ -555,7 +555,7 @@ def sync_crm_database_to_manifest():
         index_content = re.sub(r'Cargando 137 Ítems', f'Cargando {len(products_list)} Ítems', index_content, flags=re.IGNORECASE)
         index_content = re.sub(r'Stock Físico de 137 Consumibles', f'Stock Físico de {len(products_list)} Consumibles', index_content, flags=re.IGNORECASE)
         index_content = re.sub(r'1\.750 BOBINAS & 137 ÍTEMS', f'1.750 BOBINAS & {len(products_list)} ÍTEMS', index_content, flags=re.IGNORECASE)
-        index_content = re.sub(r'\?v=20261109_[a-zA-Z0-9_]+', '?v=20261109_v25_live', index_content)
+        index_content = re.sub(r'\?v=20261109_[a-zA-Z0-9_]+', '?v=20261109_v26_live', index_content)
 
         with open(index_path, 'w', encoding='utf-8', newline='\n') as f:
             f.write(index_content)
