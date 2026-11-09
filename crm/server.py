@@ -1314,6 +1314,14 @@ class SyntraCRMHandler(BaseHTTPRequestHandler):
                 
         conn.commit()
         conn.close()
+
+        # Sincronización automática de inventario con catálogo web
+        try:
+            from sync_crm_to_web import sync_crm_database_to_manifest
+            sync_crm_database_to_manifest()
+        except Exception as _e_sync:
+            print(f"[!] Sincronización Web tras eliminar venta: {_e_sync}")
+
         self._send_json({"status": "ok", "message": f"Venta #{sale_id} eliminada y {total_restored} unidades restituidas al inventario."})
 
     def handle_reset_sales(self):

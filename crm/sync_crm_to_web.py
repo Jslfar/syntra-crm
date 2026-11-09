@@ -1,3 +1,21 @@
+def push_to_github_background():
+    import threading, subprocess
+    def _push():
+        try:
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+            root_dir = os.path.dirname(script_dir) if os.path.basename(script_dir) == 'crm' else script_dir
+            web_dir = os.path.join(root_dir, 'syntraweb')
+            subprocess.run(['git', '-C', web_dir, 'add', 'lib/manifest.js', 'index.html'], capture_output=True, text=True)
+            res = subprocess.run(['git', '-C', web_dir, 'commit', '-m', 'auto(sync): actualizar stock disponible tras operacion en CRM'], capture_output=True, text=True)
+            if res.returncode == 0:
+                subprocess.run(['git', '-C', web_dir, 'push', 'origin', 'main'], capture_output=True, text=True)
+                print("[Syntra Sync] Cambios de inventario subidos a GitHub con exito.")
+        except Exception as err:
+            print(f"[Syntra Sync] Auto-push omitido: {err}")
+
+    t = threading.Thread(target=_push, daemon=True)
+    t.start()
+
 import sqlite3, json, os, re
 
 def get_color_hex_dict():
@@ -238,6 +256,7 @@ def sync_crm_database_to_manifest():
         with open(index_path, 'w', encoding='utf-8', newline='\n') as f:
             f.write(index_content)
 
+    push_to_github_background()
     return len(products_list), sum(p['stock_qty'] for p in products_list)
 
 if __name__ == '__main__':
