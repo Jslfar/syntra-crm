@@ -308,12 +308,18 @@ class SyntraCRMHandler(BaseHTTPRequestHandler):
             self.send_header("Connection", "close")
             self.end_headers()
             return
+        elif path == "/api/public/catalog":
+            self.handle_get_public_catalog()
         elif path == "/api/bootstrap":
             self.handle_get_bootstrap()
         elif path == "/api/stats":
             self.handle_get_stats()
         elif path == "/api/products":
             self.handle_get_products()
+        elif path == "/api/public/order":
+            self.handle_post_public_order(body)
+        elif path == "/api/sync-web":
+            self.handle_sync_web()
         elif path == "/api/clients":
             self.handle_get_clients()
         elif path == "/api/sales":
@@ -351,6 +357,10 @@ class SyntraCRMHandler(BaseHTTPRequestHandler):
 
         if path == "/api/sales":
             self.handle_delete_sale(item_id)
+        elif path == "/api/public/order":
+            self.handle_post_public_order(body)
+        elif path == "/api/sync-web":
+            self.handle_sync_web()
         elif path == "/api/clients":
             self.handle_delete_client(item_id)
         elif path == "/api/requests":
@@ -373,6 +383,10 @@ class SyntraCRMHandler(BaseHTTPRequestHandler):
 
         if path == "/api/auth/login":
             self.handle_post_auth_login(body)
+        elif path == "/api/public/order":
+            self.handle_post_public_order(body)
+        elif path == "/api/sync-web":
+            self.handle_sync_web()
         elif path == "/api/clients":
             self.handle_post_client(body)
         elif path == "/api/clients/delete":
@@ -1026,6 +1040,13 @@ class SyntraCRMHandler(BaseHTTPRequestHandler):
 
         conn.commit()
         conn.close()
+
+        # Sincronización automática de inventario con catálogo web
+        try:
+            from sync_crm_to_web import sync_crm_database_to_manifest
+            sync_crm_database_to_manifest()
+        except Exception as _e_sync:
+            print(f"[!] Sincronización Web tras venta: {_e_sync}")
         self._send_json({
             "status": "ok", 
             "message": f"Venta #{sale_id} registrada ({len(processed_items)} ítems, {total_qty} unds) e inventario descontado exitosamente",
@@ -2191,6 +2212,120 @@ class SyntraCRMHandler(BaseHTTPRequestHandler):
         conn.close()
         self._send_json({"status": "ok", "message": "Liquidación eliminada"})
 
+
+
+    # =========================================================================
+    # PUBLIC SYNC & WEB CATALOG ENDPOINTS (TIEMPO REAL)
+    # =========================================================================
+    def handle_get_public_catalog(self):
+        try:
+            conn = get_db()
+            cur = conn.cursor()
+            cur.execute("""
+                SELECT id, sku, name, category, color, material_type, current_stock, pvp_usd
+                FROM products
+                ORDER BY id;
+            """)
+            products = [dict(row) for row in cur.fetchall()]
+            conn.close()
+            self._send_json({
+                "status": "ok",
+                "bcv_rate": 896.12,
+                "total_products": len(products),
+                "total_stock": sum(p.get("current_stock", 0) for p in products),
+                "products": products
+            })
+        except Exception as e:
+            self._send_json({"status": "error", "message": str(e)}, 500)
+
+    def handle_post_public_order(self, body):
+        try:
+            conn = get_db()
+            cur = conn.cursor()
+
+            name = (body.get("client_name") or "Cliente Catálogo Web").strip()
+            phone = (body.get("client_phone") or "").strip()
+            city = (body.get("client_city") or "Lechería").strip()
+            rif = (body.get("client_id") or "").strip()
+            delivery = body.get("delivery_method", "Retiro en Almacén")
+            payment = body.get("payment_method", "Pago Móvil (Tasa Oficial BCV)")
+            items = body.get("items", [])
+
+            # Buscar o crear cliente
+            client_id = None
+            if phone:
+                cur.execute("SELECT id FROM clients WHERE phone=?", (phone,))
+                r = cur.fetchone()
+                if r:
+                    client_id = r["id"]
+
+            if not client_id:
+                cur.execute("""
+                    INSERT INTO clients (name, phone, location, lead_status, pipeline_stage, notes)
+                    VALUES (?, ?, ?, 'Prospecto Web', 'Cotización Web', ?)
+                """, (name, phone, city, f"Cédula/RIF: {rif} | Registrado automáticamente desde la web"))
+                client_id = cur.lastrowid
+
+            # Procesar ítems solicitados
+            total_price = 0.0
+            total_qty = 0
+            order_items = []
+            for it in items:
+                sku = it.get("sku")
+                qty = int(it.get("qty", 1))
+                cur.execute("SELECT * FROM products WHERE sku=? OR id=?", (sku, it.get("crm_id") or 0))
+                p = cur.fetchone()
+                if p:
+                    u_price = float(p["pvp_usd"] or 20.0)
+                    u_cost = float(p["cost_warehouse"] or 10.0)
+                    total_price += u_price * qty
+                    total_qty += qty
+                    order_items.append({
+                        "product_id": p["id"],
+                        "quantity": qty,
+                        "unit_price": u_price,
+                        "unit_cost": u_cost,
+                        "total_price": u_price * qty,
+                        "net_profit": (u_price - u_cost) * qty
+                    })
+
+            first_pid = order_items[0]["product_id"] if order_items else 1
+            notes = f"Pedido Web | RIF: {rif} | Despacho: {delivery} | Pago: {payment}"
+
+            # Registrar en tabla sales como COTIZACION WEB
+            cur.execute("""
+                INSERT INTO sales (client_id, product_id, quantity, unit_price, unit_cost, total_price, net_profit, payment_method, delivery_method, notes, payment_status, shipping_status)
+                VALUES (?, ?, ?, ?, 0, ?, 0, ?, ?, ?, 'COTIZACION WEB', 'Pendiente Confirmar')
+            """, (client_id, first_pid, total_qty, round(total_price / max(1, total_qty), 2), total_price, payment, delivery, notes))
+            sale_id = cur.lastrowid
+
+            for oi in order_items:
+                cur.execute("""
+                    INSERT INTO sale_items (sale_id, product_id, quantity, unit_price, unit_cost, total_price, net_profit)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                """, (sale_id, oi["product_id"], oi["quantity"], oi["unit_price"], oi["unit_cost"], oi["total_price"], oi["net_profit"]))
+
+            conn.commit()
+            conn.close()
+
+            self._send_json({
+                "status": "ok",
+                "sale_id": sale_id,
+                "message": f"Orden #{sale_id} registrada en el CRM exitosamente."
+            })
+        except Exception as e:
+            self._send_json({"status": "error", "message": str(e)}, 500)
+
+    def handle_sync_web(self):
+        try:
+            from sync_crm_to_web import sync_crm_database_to_manifest
+            count, stock = sync_crm_database_to_manifest()
+            self._send_json({
+                "status": "ok",
+                "message": f"Catálogo web sincronizado con {count} productos y {stock} unidades físicas."
+            })
+        except Exception as e:
+            self._send_json({"status": "error", "message": str(e)}, 500)
 
 def get_local_ip():
     try:
