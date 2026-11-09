@@ -9,11 +9,13 @@ from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-STATIC_DIR = os.path.join(BASE_DIR, "static")
+CRM_STATIC_DIR = os.path.join(BASE_DIR, "static")
+STATIC_DIR = CRM_STATIC_DIR
 DB_PATH = os.path.join(BASE_DIR, "syntra_crm.db")
 ADMIN_PIN = os.environ.get("ADMIN_PIN", "2026")
 STAFF_PIN = os.environ.get("STAFF_PIN", "1234")
 ROOT_DIR = os.path.dirname(BASE_DIR)
+WEB_DIR = os.path.join(ROOT_DIR, "syntraweb")
 sys.path.append(os.path.join(ROOT_DIR, "whatsapp_bridge"))
 
 def get_db():
@@ -316,10 +318,6 @@ class SyntraCRMHandler(BaseHTTPRequestHandler):
             self.handle_get_stats()
         elif path == "/api/products":
             self.handle_get_products()
-        elif path == "/api/public/order":
-            self.handle_post_public_order(body)
-        elif path == "/api/sync-web":
-            self.handle_sync_web()
         elif path == "/api/clients":
             self.handle_get_clients()
         elif path == "/api/sales":
@@ -357,10 +355,6 @@ class SyntraCRMHandler(BaseHTTPRequestHandler):
 
         if path == "/api/sales":
             self.handle_delete_sale(item_id)
-        elif path == "/api/public/order":
-            self.handle_post_public_order(body)
-        elif path == "/api/sync-web":
-            self.handle_sync_web()
         elif path == "/api/clients":
             self.handle_delete_client(item_id)
         elif path == "/api/requests":
@@ -1476,23 +1470,70 @@ class SyntraCRMHandler(BaseHTTPRequestHandler):
             self._send_json({"error": str(e)}, 500)
 
     def serve_static(self, path):
-        if path in ["/", "/index.html"]:
-            filepath = os.path.join(STATIC_DIR, "index.html")
+        host = self.headers.get("Host", "").lower().split(":")[0]
+        is_admin_host = host.startswith("admin.") or host.startswith("crm.")
+
+        if is_admin_host:
+            clean_path = path.lstrip("/")
+            if not clean_path or clean_path == "index.html":
+                filepath = os.path.join(CRM_STATIC_DIR, "index.html")
+            else:
+                filepath = os.path.join(CRM_STATIC_DIR, clean_path)
+                if not os.path.exists(filepath):
+                    filepath = os.path.join(CRM_STATIC_DIR, "index.html")
         else:
-            filepath = os.path.join(STATIC_DIR, path.lstrip("/"))
+            if path == "/admin" or path.startswith("/admin/"):
+                subpath = path[6:].lstrip("/")
+                if not subpath or subpath == "index.html":
+                    filepath = os.path.join(CRM_STATIC_DIR, "index.html")
+                else:
+                    filepath = os.path.join(CRM_STATIC_DIR, subpath)
+                    if not os.path.exists(filepath):
+                        filepath = os.path.join(CRM_STATIC_DIR, "index.html")
+            else:
+                clean_path = path.lstrip("/")
+                if not clean_path or clean_path == "index.html":
+                    filepath = os.path.join(WEB_DIR, "index.html")
+                else:
+                    filepath = os.path.join(WEB_DIR, clean_path)
+                    if not os.path.exists(filepath) and os.path.exists(os.path.join(CRM_STATIC_DIR, clean_path)):
+                        filepath = os.path.join(CRM_STATIC_DIR, clean_path)
 
         if os.path.exists(filepath) and os.path.isfile(filepath):
-            mime_type, _ = mimetypes.guess_type(filepath)
+            if filepath.endswith(".js"):
+                mime_type = "application/javascript; charset=utf-8"
+            elif filepath.endswith(".css"):
+                mime_type = "text/css; charset=utf-8"
+            elif filepath.endswith(".html"):
+                mime_type = "text/html; charset=utf-8"
+            elif filepath.endswith(".svg"):
+                mime_type = "image/svg+xml"
+            else:
+                mime_type, _ = mimetypes.guess_type(filepath)
+                if not mime_type:
+                    mime_type = "application/octet-stream"
+                elif mime_type.startswith("text/") or mime_type == "application/javascript":
+                    mime_type += "; charset=utf-8"
+
             with open(filepath, "rb") as f:
                 content = f.read()
+
             self.send_response(200)
-            self.send_header("Content-Type", mime_type or "text/plain")
+            self.send_header("Content-Type", mime_type)
             self.send_header("Content-Length", str(len(content)))
+            self.send_header("Access-Control-Allow-Origin", "*")
+            if filepath.endswith(".html"):
+                self.send_header("Cache-Control", "no-cache, no-store, must-revalidate")
+            elif filepath.endswith((".js", ".css")):
+                self.send_header("Cache-Control", "no-cache, must-revalidate")
+            else:
+                self.send_header("Cache-Control", "public, max-age=86400")
             self.send_header("Connection", "close")
             self.end_headers()
             self.wfile.write(content)
         else:
             self.send_response(404)
+            self.send_header("Content-Type", "text/plain; charset=utf-8")
             self.send_header("Content-Length", "13")
             self.send_header("Connection", "close")
             self.end_headers()

@@ -128,6 +128,309 @@ def get_color_hex_dict():
         'Silicone Sleeve H2D': '#2C3E50'
     }
 
+CURIOSITIES_3D_POOL = [
+    {
+        "id": 1,
+        "badge": "Tip 1 • Adherencia PEI",
+        "title": "Higiene y Limpieza de Camas PEI",
+        "text": "Lavar la placa PEI con agua tibia y jabón líquido desengrasante para platos restaura el 100% de la adherencia sin usar fijadores químicos ni alcohol isopropílico."
+    },
+    {
+        "id": 2,
+        "badge": "Tip 2 • Flujo Volumétrico",
+        "title": "Flujo Volumétrico Máximo en PLA",
+        "text": "Los filamentos Kingroon alcanzan 21 mm³/s de flujo volumétrico continuo en Bambu Lab, permitiendo velocidades de 500 mm/s sin capas débiles."
+    },
+    {
+        "id": 3,
+        "badge": "Tip 3 • Fibra de Carbono",
+        "title": "Protección Anti-Abrasión de Boquillas",
+        "text": "Filamentos como PETG-CF y PA-CF desgastan una boquilla de latón en menos de 500g. Usa siempre boquillas de Acero Endurecido de 0.4mm o 0.6mm."
+    },
+    {
+        "id": 4,
+        "badge": "Tip 4 • Secado de TPU",
+        "title": "Cero Poros e Hilos en TPU 95A",
+        "text": "El TPU absorbe humedad en 6 horas. Imprimir directo desde un secador Sunlu S2 a 50°C elimina las burbujas de vapor y deja acabados de goma limpios."
+    },
+    {
+        "id": 5,
+        "badge": "Tip 5 • Efecto Seda",
+        "title": "Máximo Brillo Metalizado en PLA Silk",
+        "text": "Imprime las paredes externas de filamentos Silk Dual y Tri-Color a 215°C–220°C y velocidad moderada de 80 mm/s para resaltar el brillo espejo."
+    },
+    {
+        "id": 6,
+        "badge": "Tip 6 • Mantenimiento Bambu A1",
+        "title": "Limpiadores de Silicona de Nozzle",
+        "text": "Reemplazar los limpiadores de silicona en la Bambu Lab A1 Mini evita que restos de filamento quemado manchen la primera capa de tus impresiones."
+    },
+    {
+        "id": 7,
+        "badge": "Tip 7 • Resistencia UV",
+        "title": "ASA vs ABS para Piezas Exteriores",
+        "text": "El ASA posee resistencia natural a rayos solar UV y no amarillea ni se cristaliza expuesto al sol directo, siendo ideal para autopartes y carcasas."
+    },
+    {
+        "id": 8,
+        "badge": "Tip 8 • Factor",
+        "title": "Pressure Advance para Esquinas Afiladas",
+        "text": "Ajustar el Factor K (0.020–0.025 para extrusión directa Bambu) elimina los abultamientos en las esquinas de tus piezas a alta velocidad."
+    },
+    {
+        "id": 9,
+        "badge": "Tip 9 • Scarf Seams",
+        "title": "Costuras Invisibles en Bambu Studio",
+        "text": "Configurar Scarf Seams con altura inicial de 0.02 mm y longitud de 20 mm logra costuras verticales prácticamente imperceptibles en figuras redondas."
+    },
+    {
+        "id": 10,
+        "badge": "Tip 10 • Hop",
+        "title": "Evita Arañazos en Capas Superiores",
+        "text": "Usar Z-Hop en espiral (0.2–0.4 mm) junto con Wipe While Retracting evita que la boquilla arrastre plástico caliente sobre superficies lisas."
+    },
+    {
+        "id": 11,
+        "badge": "Tip 11 • Placas PEO Diamante",
+        "title": "Transferencia Holográfica en la Cama",
+        "text": "Las placas PEO Diamante transfieren el patrón geométrico grabado con láser directamente a la cara inferior de tu modelo sin químicos."
+    },
+    {
+        "id": 12,
+        "badge": "Tip 12 • Adherencia de ABS",
+        "title": "Cámara Cerrada y Temperatura de Cama",
+        "text": "El ABS requiere cama a 90°C–100°C y ambiente cerrado sin corrientes de aire para prevenir el desprendimiento de esquinas (warping)."
+    },
+    {
+        "id": 13,
+        "badge": "Tip 13 • Impresión con Madera",
+        "title": "Lijado y Barnizado de PLA Wood",
+        "text": "El filamento PLA Wood contiene 20% de fibras sintéticas de madera. Puedes lijarlo con lija de agua fina y aplicar barniz de madera real."
+    },
+    {
+        "id": 14,
+        "badge": "Tip 14 • Enfriamiento de Capa",
+        "title": "Ventilador Auxiliar en Bambu X1/P1",
+        "text": "Apagar o reducir el ventilador auxiliar al 10–20% en piezas grandes de PETG evita la deformación por choque térmico unilateral."
+    },
+    {
+        "id": 15,
+        "badge": "Tip 15 • Cambio de Boquilla",
+        "title": "Torque en Caliente de Hotends",
+        "text": "Al cambiar boquillas desmontables en hotends de acero, aprieta la boquilla a 250°C para evitar fugas de plástico caliente por la rosca."
+    },
+    {
+        "id": 16,
+        "badge": "Tip 16 • Tolerancias Mecánicas",
+        "title": "Holgura para Piezas Ensamblables",
+        "text": "Un margen de diseño de 0.2 mm entre piezas móviles garantiza que engranajes y bisagras impresas en PLA giren libremente sin lijar."
+    },
+    {
+        "id": 17,
+        "badge": "Tip 17 • PETG Transparente",
+        "title": "Efecto Vidrio Translucido",
+        "text": "Imprime PETG Transparente a 240°C, altura de capa de 0.1 mm, 100% de relleno en una sola dirección y ventilador al 0% para máxima claridad."
+    },
+    {
+        "id": 18,
+        "badge": "Tip 18 • CF Nylon CF",
+        "title": "Sustituto de Aluminio en Ingeniería",
+        "text": "El Nylon PA-CF ofrece una resistencia a la tracción superior a 110 MPa, siendo ideal para soportes de motores y herramental industrial."
+    },
+    {
+        "id": 19,
+        "badge": "Tip 19 • Horario Continuo",
+        "title": "Atención 6:00 AM a 11:00 PM",
+        "text": "Syntra Supply atiende urgencias de materiales y repuestos en Lechería de Lunes a Domingo de 6am a 11pm."
+    },
+    {
+        "id": 20,
+        "badge": "Tip 20 • Almacén Lechería",
+        "title": "Retiro Directo o Delivery Express",
+        "text": "Ubicados en Sector Morro II, ofrecemos retiro en almacén o despacho en minutos para la Zona Norte de Anzoátegui."
+    },
+    {
+        "id": 21,
+        "badge": "Tip 21 • Envíos Nacionales",
+        "title": "MRW, Zoom y Tealca Diarios",
+        "text": "Despachamos encomiendas nacionales a toda Venezuela el mismo día para compras procesadas antes de las 5:00 PM."
+    },
+    {
+        "id": 22,
+        "badge": "Tip 22 • Múltiples Formas de Pago",
+        "title": "Binance P2P, Zelle y BCV",
+        "text": "Aceptamos Binance USDT, Zelle, Pago Móvil a Tasa Oficial BCV y Efectivo USD en nuestro almacén central."
+    },
+    {
+        "id": 23,
+        "badge": "Tip 23 • Flota de Pruebas",
+        "title": "Validación en Bambu A1 Mini & A2L",
+        "text": "Todos nuestros filamentos son probados en nuestra flota interna para certificar tolerancia de ±0.02 mm y fluidez perfecta."
+    },
+    {
+        "id": 24,
+        "badge": "Tip 24 • Remover Pegamento",
+        "title": "Agua Caliente para Camas de Vidrio",
+        "text": "El pegamento en barra sobre camas de vidrio se disuelve en segundos con un paño humedecido en agua tibia sin usar navajas."
+    },
+    {
+        "id": 25,
+        "badge": "Tip 25 • Engranajes de Extrusor",
+        "title": "Acero Endurecido Helicoidal",
+        "text": "Los engranajes helicoidales traccionan el filamento con menor vibración armónica, reduciendo patrones de bandeo vertical (VFA)."
+    },
+    {
+        "id": 26,
+        "badge": "Tip 26 • Torre de Temperatura",
+        "title": "Encontrar el Punto Dulce del Filamento",
+        "text": "Imprimir una torre de temperatura cada vez que abres una marca nueva identifica la mejor resistencia entre capas y acabado."
+    },
+    {
+        "id": 27,
+        "badge": "Tip 27 • Ancho de Línea",
+        "title": "Regla del 120% del Diámetro de Boquilla",
+        "text": "Ajustar el ancho de línea a 0.48 mm para una boquilla de 0.4 mm mejora la adherencia entre paredes y reduce el tiempo total."
+    },
+    {
+        "id": 28,
+        "badge": "Tip 28 • Flujo Volumétrico TPU",
+        "title": "Límite de Velocidad en Flexibles",
+        "text": "El TPU 95A debe limitarse a un flujo volumétrico de 3–5 mm³/s para evitar que el filamento elástico se enrolle en la rueda del extrusor."
+    },
+    {
+        "id": 29,
+        "badge": "Tip 29 • Deformación Cama Caliente",
+        "title": "Esperar Enfriamiento Antes de Retirar",
+        "text": "Dejar enfriar la placa PEI por debajo de 35°C permite que la pieza se desprenda sola sin doblar ni rayar la lámina magnética."
+    },
+    {
+        "id": 30,
+        "badge": "Tip 30 • Color",
+        "title": "Orientación de Modelo en la Cama",
+        "text": "Rotar la pieza 45° sobre la cama cambia el ángulo de revelación de los dos colores en filamentos Silk Dual-Color."
+    },
+    {
+        "id": 31,
+        "badge": "Tip 31 • Ahorro de Energía",
+        "title": "Fundas de Silicona en Hotends",
+        "text": "La funda aislante de silicona conserva el calor del bloque térmico, reduciendo el consumo eléctrico de la impresora en un 20%."
+    },
+    {
+        "id": 32,
+        "badge": "Tip 32 • Luz UV en Resina",
+        "title": "Post-Curado Uniforme",
+        "text": "Lavar la pieza impresa en resina con alcohol isopropílico al 99% y secar completamente antes del curado UV evita manchas blancas."
+    },
+    {
+        "id": 33,
+        "badge": "Tip 33 • Desatasco de Boquilla",
+        "title": "Método Cold Pull con Nylon / PETG",
+        "text": "Insertar filamento a 230°C, dejar enfriar a 90°C y tirar firmemente remueve micro-residuos de dentro de la garganta del hotend."
+    },
+    {
+        "id": 34,
+        "badge": "Tip 34 • Almacenamiento Sellado",
+        "title": "Bolsas de Vacío con Gel de Sílice",
+        "text": "Guardar tus carretes abiertos en bolsas herméticas con desecante preserva las propiedades del polímero durante meses."
+    },
+    {
+        "id": 35,
+        "badge": "Tip 35 • Etiquetas de Carretes",
+        "title": "Anotar Peso Vacío de la Spool",
+        "text": "Pesar el carrete plástico vacío te permite saber exactamente cuántos gramos de filamento te quedan antes de mandar una impresión larga."
+    },
+    {
+        "id": 36,
+        "badge": "Tip 36 • Primera Capa Perfecta",
+        "title": "Compensación Babystep Z",
+        "text": "Ajustar el offset Z en pasos de 0.01 mm durante las líneas de purga asegura que el plástico quede levemente aplastado sin rozar."
+    },
+    {
+        "id": 37,
+        "badge": "Tip 37 • Velocidad de Purga AMS",
+        "title": "Ajuste de Multiplicador de Purga",
+        "text": "Reducir el volumen de purga en cambios de color similares ahorra hasta un 40% de filamento desperdiciado en torres de purga."
+    },
+    {
+        "id": 38,
+        "badge": "Tip 38 • CF",
+        "title": "Resistencia a Químicos e Impacto",
+        "text": "El PETG-CF combina la rigidez de la fibra de carbono con la tolerancia química a aceites y combustibles del PETG."
+    },
+    {
+        "id": 39,
+        "badge": "Tip 39 • Infill Giroide",
+        "title": "Resistencia Multidireccional Isotrópica",
+        "text": "El relleno Giroide ofrece igual resistencia mecánica en ejes X, Y y Z evitando los colapsos internos del relleno rejilla."
+    },
+    {
+        "id": 40,
+        "badge": "Tip 40 • Flow H2D",
+        "title": "Fundición Ultra Rápida 32 mm³/s",
+        "text": "El hotend H2D de alto flujo cuenta con una zona de fusión extendida para mantener la temperatura en boquillas de 0.8 mm."
+    },
+    {
+        "id": 41,
+        "badge": "Tip 41 • Tolerancia Filamento",
+        "title": "Control Láser de Diámetro ±0.02 mm",
+        "text": "Kingroon utiliza sensores láser duales en fábrica para garantizar diámetro constante de 1.75 mm y evitar atascos."
+    },
+    {
+        "id": 42,
+        "badge": "Tip 42 • Costura de Inicio",
+        "title": "Ubicación en Esquinas Ocultas",
+        "text": "Alinear la costura de inicio en las esquinas traseras del modelo evita puntos visibles en caras frontales estéticas."
+    },
+    {
+        "id": 43,
+        "badge": "Tip 43 • Temperatura de Transición Vitrea",
+        "title": "Límite HDT de Materiales",
+        "text": "El PLA se ablanda a los 55°C, mientras que el PETG resiste 75°C y el ABS/ASA hasta 95°C sin deformarse bajo carga."
+    },
+    {
+        "id": 44,
+        "badge": "Tip 44 • Aislamiento de Cables",
+        "title": "Fundas Ignífugas de Hotend",
+        "text": "Proteger los cables del termistor y cartucho calefactor evita cortocircuitos accidental durante la limpieza de la boquilla."
+    },
+    {
+        "id": 45,
+        "badge": "Tip 45 • Stamping",
+        "title": "Impresión en Frío de PLA",
+        "text": "Las placas Cold-Stamping permiten imprimir PLA con la cama a temperatura ambiente (25°C), ahorrando energía."
+    },
+    {
+        "id": 46,
+        "badge": "Tip 46 • PLA Mármol Decorativo",
+        "title": "Disimulo Total de Capas",
+        "text": "Las micro-motas oscuras del PLA Mármol rompen la luz refractada, logrando esculturas y jarrones donde no se notan las capas."
+    },
+    {
+        "id": 47,
+        "badge": "Tip 47 • Ajuste de Correa",
+        "title": "Frecuencia de Tensión en Ejes X/Y",
+        "text": "Ajustar las correas de distribución a una frecuencia de resonancia de 110 Hz elimina el ghosting y los ecos en las paredes."
+    },
+    {
+        "id": 48,
+        "badge": "Tip 48 • Soporte en Árbol",
+        "title": "Tree Supports con Cero Marcado",
+        "text": "Usar soportes tipo árbol con distancia Z de 0.2 mm permite retirarlos con la mano dejando una interfaz limpia."
+    },
+    {
+        "id": 49,
+        "badge": "Tip 49 • Relleno Variable",
+        "title": "Adaptive Infill por Altura",
+        "text": "Aumentar la densidad de relleno solo cerca de las superficies superiores ahorra tiempo y material en piezas volumétricas grandes."
+    },
+    {
+        "id": 50,
+        "badge": "Tip 50 • Asesoría Syntra Supply",
+        "title": "Soporte Técnico Directo por WhatsApp",
+        "text": "Si tienes dudas sobre qué material usar para tu proyecto, escríbenos a WhatsApp y un ingeniero en impresión 3D te guiará gratis."
+    }
+]
+
 def sync_crm_database_to_manifest():
     script_dir = os.path.dirname(os.path.abspath(__file__))
     root_dir = os.path.dirname(script_dir) if os.path.basename(script_dir) == 'crm' else script_dir
@@ -225,6 +528,7 @@ def sync_crm_database_to_manifest():
             "totalProducts": len(products_list),
             "totalPhysicalStock": sum(p['stock_qty'] for p in products_list)
         },
+        "curiosities3D": CURIOSITIES_3D_POOL,
         "products": products_list
     }
 
