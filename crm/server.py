@@ -411,8 +411,8 @@ class SyntraCRMHandler(BaseHTTPRequestHandler):
             self.handle_post_request_status(body)
         elif path == "/api/state":
             self.handle_post_state(body)
-        elif path == "/api/whatsapp/sync":
-            self.handle_whatsapp_sync()
+        elif path in ("/api/whatsapp/sync", "/api/meta/sync"):
+            self.handle_meta_sync()
         elif path == "/api/expenses":
             self.handle_post_expense(body)
         elif path == "/api/expenses/delete":
@@ -1339,6 +1339,14 @@ class SyntraCRMHandler(BaseHTTPRequestHandler):
         cur.execute("DELETE FROM sqlite_sequence WHERE name IN ('sales', 'sale_items', 'payment_records', 'affiliate_payouts')")
         conn.commit()
         conn.close()
+
+        # Sincronización automática de inventario restablecido con catálogo web
+        try:
+            from sync_crm_to_web import sync_crm_database_to_manifest
+            sync_crm_database_to_manifest()
+        except Exception as _e_sync:
+            print(f"[!] Sincronización Web tras reset: {_e_sync}")
+
         self._send_json({"status": "ok", "message": "Panel limpiado a cero y stock restablecido a 1,750 unidades."})
 
     def handle_post_sale_shipping(self, body):
@@ -1391,91 +1399,213 @@ class SyntraCRMHandler(BaseHTTPRequestHandler):
         conn.close()
         self._send_json({"status": "ok", "message": f"Solicitud #{request_id} eliminada del Radar."})
 
-    def handle_whatsapp_sync(self):
-        """Escanea contactos reales directamente de WhatsApp Web (IndexedDB) y actualiza el CRM"""
+    def handle_meta_sync(self):
+        """Sincroniza prospectos, DMs y conversaciones directamente desde Meta Graph API (Instagram & Messenger)."""
+        if not META_PAGE_ACCESS_TOKEN:
+            self._send_json({"error": "No hay META_PAGE_ACCESS_TOKEN configurado en el servidor."}, 400)
+            return
+
         try:
-            from whatsapp_agent import WhatsAppClient
-            with WhatsAppClient(headless=True) as client:
-                import time
-                time.sleep(3)
-                
-                # Extraer contactos reales directamente del almacenamiento interno de WhatsApp Web
-                contacts = client.page.evaluate("""async () => {
-                    return new Promise((resolve) => {
-                        const req = indexedDB.open('model-storage');
-                        req.onsuccess = () => {
-                            const db = req.result;
-                            if (!db.objectStoreNames.contains('contact')) {
-                                resolve([]);
-                                return;
-                            }
-                            const tx = db.transaction('contact', 'readonly');
-                            const store = tx.objectStore('contact');
-                            const allReq = store.getAll();
-                            allReq.onsuccess = () => {
-                                const list = [];
-                                for (let c of allReq.result) {
-                                    const name = c.name || c.formattedTitle || c.notifyName || '';
-                                    let phone = '';
-                                    
-                                    // El teléfono real suele estar en c.phone o en el ID
-                                    if (c.phone && c.phone.includes('@c.us')) {
-                                        phone = c.phone.replace('@c.us', '');
-                                    } else if (c.id && c.id.includes('@s.whatsapp.net')) {
-                                        phone = c.id.replace('@s.whatsapp.net', '');
-                                    }
-                                    
-                                    if (name && phone && !name.includes('@syntra') && !name.includes('WhatsApp')) {
-                                        list.push({ name, phone });
-                                    }
-                                }
-                                resolve(list);
-                            };
-                            allReq.onerror = () => resolve([]);
-                        };
-                        req.onerror = () => resolve([]);
-                    });
-                }""")
-                
-                conn = get_db()
-                cur = conn.cursor()
-                synced = 0
-                
-                for c in contacts:
-                    name = c.get('name', '').strip()
-                    raw_phone = c.get('phone', '').strip()
-                    if not name or not raw_phone:
-                        continue
-                        
-                    # Formatear a formato internacional limpio: +58 414-7961014
-                    formatted_phone = f"+{raw_phone}"
-                    if len(raw_phone) == 12 and raw_phone.startswith("58"):
-                        formatted_phone = f"+58 {raw_phone[2:5]}-{raw_phone[5:]}"
-                    elif len(raw_phone) == 11 and raw_phone.startswith("58"):
-                        formatted_phone = f"+58 {raw_phone[2:5]}-{raw_phone[5:]}"
-                    elif len(raw_phone) > 10:
-                        formatted_phone = f"+{raw_phone}"
-                        
-                    # Verificar si ya existe por nombre o teléfono
-                    cur.execute("SELECT id, location, printer_model, materials_interest, lead_status, notes FROM clients WHERE name=? OR phone=?", (name, formatted_phone))
-                    existing = cur.fetchone()
-                    
-                    if existing:
-                        # Actualizar teléfono real si estaba incompleto o desactualizado
-                        cur.execute("UPDATE clients SET phone=?, name=? WHERE id=?", (formatted_phone, name, existing['id']))
-                        synced += 1
-                    else:
-                        cur.execute("""
-                        INSERT INTO clients (name, phone, location, printer_model, materials_interest, lead_status, notes)
-                        VALUES (?, ?, 'Lechería / Por definir', 'Por consultar', 'PLA / Insumos', 'Prospecto', 'Importado automáticamente desde WhatsApp')
-                        """, (name, formatted_phone))
-                        synced += 1
-                        
-                conn.commit()
-                conn.close()
-                self._send_json({"status": "ok", "synced_count": synced, "contacts": contacts})
+            import urllib.request
+            page_id = "1261247597069281"
+            url = (
+                f"https://graph.facebook.com/v21.0/me/conversations?"
+                f"access_token={META_PAGE_ACCESS_TOKEN}&"
+                f"fields=id,snippet,updated_time,participants,messages.limit(10)%7Bmessage,from,created_time%7D"
+            )
+            req = urllib.request.Request(url, headers={"User-Agent": "SyntraCRM/2.0"})
+            res = urllib.request.urlopen(req, timeout=10)
+            data = json.loads(res.read().decode("utf-8"))
+
+            conversations = data.get("data", [])
+            conn = get_db()
+            cur = conn.cursor()
+            synced = 0
+            leads_summary = []
+
+            for conv in conversations:
+                participants = conv.get("participants", {}).get("data", [])
+                customer_parts = [p for p in participants if str(p.get("id")) != page_id and p.get("name") != "Syntra Supply"]
+                customer = customer_parts[0] if customer_parts else None
+
+                cust_name = customer.get("name", "Prospecto Meta").strip() if customer else "Prospecto Meta"
+                cust_id = str(customer.get("id", conv.get("id"))) if customer else str(conv.get("id"))
+
+                # Analizar los mensajes intercambiados
+                msgs = conv.get("messages", {}).get("data", [])
+                all_text = " ".join([m.get("message", "") for m in msgs if m.get("message")])
+                snippet = conv.get("snippet", "")
+                full_context = f"{all_text} {snippet}".strip()
+                lower = full_context.lower()
+
+                # Extraer teléfono si está en el texto
+                phone_match = re.search(r'(\+?58\s?|0)?(412|414|424|416|426|281)[-\s]?\d{3}[-\s]?\d{4}', full_context)
+                formatted_phone = phone_match.group(0).strip() if phone_match else f"Meta:{cust_id}"
+
+                # Detectar modelo de impresora 3D
+                detected_printer = canonicalize_printer_model(full_context)
+
+                # Detectar materiales de interés
+                mats = []
+                if "petg" in lower: mats.append("PETG")
+                if "pla+" in lower or "pla plus" in lower: mats.append("PLA+")
+                elif "pla" in lower: mats.append("PLA")
+                if "tpu" in lower: mats.append("TPU 95A")
+                if "asa" in lower: mats.append("ASA")
+                if "cf" in lower or "carbon" in lower or "carbón" in lower: mats.append("Fibra de Carbono")
+                if "silk" in lower or "seda" in lower or "oro" in lower: mats.append("PLA Silk")
+                if "boquilla" in lower or "nozzle" in lower: mats.append("Boquillas")
+                if "cama" in lower or "pei" in lower: mats.append("Camas PEI")
+                if "hotend" in lower: mats.append("Hotends")
+                materials_str = ", ".join(mats) if mats else "PLA / Insumos"
+
+                # Detectar ubicación
+                loc = "Lechería"
+                if "barcelona" in lower: loc = "Barcelona"
+                elif "puerto la cruz" in lower or "plc" in lower: loc = "Puerto La Cruz"
+                elif "guanta" in lower: loc = "Guanta"
+
+                # Estado
+                is_quote = any(w in lower for w in ["precio", "costo", "cuanto", "vale", "comprar", "pedido", "cotiz", "catalogo"])
+                lead_status = "En Cotización" if is_quote else "Prospecto"
+                pipeline_stage = "Negociación / Cotizado" if is_quote else "Contacto Inicial"
+                note_text = f"Meta Graph API [Conv #{conv.get('id')}]: {snippet[:120]}"
+
+                # Upsert en base de datos de Syntra CRM
+                cur.execute("SELECT id, name, printer_model, materials_interest, notes FROM clients WHERE phone=? OR name=? OR notes LIKE ?", (formatted_phone, cust_name, f"%{conv.get('id')}%"))
+                existing = cur.fetchone()
+
+                if existing:
+                    upd_fields = ["name=?"]
+                    upd_params = [cust_name]
+                    if detected_printer and (not existing['printer_model'] or existing['printer_model'] in ['Por consultar', 'Por definir']):
+                        upd_fields.append("printer_model=?")
+                        upd_params.append(detected_printer)
+                    if mats and (not existing['materials_interest'] or existing['materials_interest'] in ['PLA / Insumos', 'Consumibles 3D']):
+                        upd_fields.append("materials_interest=?")
+                        upd_params.append(materials_str)
+                    if is_quote:
+                        upd_fields.append("lead_status=?")
+                        upd_params.append("En Cotización")
+                    upd_params.append(existing['id'])
+                    cur.execute(f"UPDATE clients SET {', '.join(upd_fields)} WHERE id=?", tuple(upd_params))
+                    synced += 1
+                else:
+                    cur.execute("""
+                    INSERT INTO clients (name, phone, location, printer_model, materials_interest, lead_status, pipeline_stage, notes)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    """, (
+                        cust_name,
+                        formatted_phone,
+                        loc,
+                        detected_printer or "Por consultar",
+                        materials_str,
+                        lead_status,
+                        pipeline_stage,
+                        note_text
+                    ))
+                    synced += 1
+
+                leads_summary.append({
+                    "name": cust_name,
+                    "phone": formatted_phone,
+                    "printer": detected_printer or "Por consultar",
+                    "materials": materials_str
+                })
+
+            conn.commit()
+            conn.close()
+            self._send_json({
+                "status": "ok",
+                "source": "Meta Cloud API (Graph v21.0)",
+                "synced_count": synced,
+                "leads": leads_summary
+            })
         except Exception as e:
-            self._send_json({"error": str(e)}, 500)
+            self._send_json({"error": f"Error en Meta Cloud API Sync: {str(e)}"}, 500)
+
+    def handle_whatsapp_sync(self):
+        """Alias retrocompatible para el botón del CRM hacia Meta Cloud API."""
+        return self.handle_meta_sync()
+
+    def _auto_save_meta_lead(self, sender_id, text, platform="Instagram"):
+        """Guarda o actualiza automáticamente el lead en la BD local del CRM con todos sus parámetros."""
+        try:
+            conn = get_db()
+            cur = conn.cursor()
+            lower = text.lower()
+
+            # 1. Detectar impresora
+            detected_printer = canonicalize_printer_model(text)
+
+            # 2. Detectar materiales de interés
+            mats = []
+            if "petg" in lower: mats.append("PETG")
+            if "pla+" in lower or "pla plus" in lower: mats.append("PLA+")
+            elif "pla" in lower: mats.append("PLA")
+            if "tpu" in lower: mats.append("TPU 95A")
+            if "asa" in lower: mats.append("ASA")
+            if "cf" in lower or "carbon" in lower or "carbón" in lower: mats.append("Fibra de Carbono")
+            if "silk" in lower or "seda" in lower or "oro" in lower: mats.append("PLA Silk")
+            if "boquilla" in lower or "nozzle" in lower: mats.append("Boquillas")
+            if "cama" in lower or "pei" in lower: mats.append("Camas PEI")
+            if "hotend" in lower: mats.append("Hotends")
+            materials_str = ", ".join(mats) if mats else "Consumibles 3D"
+
+            # 3. Detectar ubicación
+            location = "Lechería"
+            if "barcelona" in lower: location = "Barcelona"
+            elif "puerto la cruz" in lower or "plc" in lower: location = "Puerto La Cruz"
+            elif "guanta" in lower: location = "Guanta"
+            elif "caracas" in lower: location = "Caracas (Envío MRW)"
+
+            # 4. Detectar teléfono en el texto si lo proporcionó
+            phone_match = re.search(r'(\+?58\s?|0)?(412|414|424|416|426|281)[-\s]?\d{3}[-\s]?\d{4}', text)
+            phone_val = phone_match.group(0).strip() if phone_match else f"{platform}:{sender_id}"
+
+            # 5. Estado del lead
+            is_quote = any(w in lower for w in ["precio", "costo", "cuanto", "vale", "comprar", "pedido", "cotiz"])
+            lead_status = "En Cotización" if is_quote else "Prospecto"
+            pipeline_stage = "Negociación / Cotizado" if is_quote else "Contacto Inicial"
+
+            # Verificar si ya existe por phone_val o notas con sender_id
+            cur.execute("SELECT id, printer_model, materials_interest, notes FROM clients WHERE phone=? OR notes LIKE ?", (phone_val, f"%{sender_id}%"))
+            existing = cur.fetchone()
+
+            if existing:
+                upd_fields = []
+                upd_params = []
+                if detected_printer and (not existing['printer_model'] or existing['printer_model'] in ['Por consultar', 'Por definir']):
+                    upd_fields.append("printer_model=?")
+                    upd_params.append(detected_printer)
+                if mats and (not existing['materials_interest'] or existing['materials_interest'] in ['PLA / Insumos', 'Consumibles 3D']):
+                    upd_fields.append("materials_interest=?")
+                    upd_params.append(materials_str)
+                if is_quote:
+                    upd_fields.append("lead_status=?")
+                    upd_params.append("En Cotización")
+                if upd_fields:
+                    upd_params.append(existing['id'])
+                    cur.execute(f"UPDATE clients SET {', '.join(upd_fields)} WHERE id=?", tuple(upd_params))
+            else:
+                cur.execute("""
+                INSERT INTO clients (name, phone, location, printer_model, materials_interest, lead_status, pipeline_stage, notes)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """, (
+                    f"Lead {platform} {sender_id[-6:]}",
+                    phone_val,
+                    location,
+                    detected_printer or "Por consultar",
+                    materials_str,
+                    lead_status,
+                    pipeline_stage,
+                    f"Contacto {platform} [{sender_id}]: {text[:150]}"
+                ))
+
+            conn.commit()
+            conn.close()
+        except Exception as e:
+            print(f"[!] Error auto-guardando lead de Meta: {e}")
 
     def serve_static(self, path):
         host = self.headers.get("Host", "").lower().split(":")[0]
@@ -1686,6 +1816,14 @@ class SyntraCRMHandler(BaseHTTPRequestHandler):
 
         conn.commit()
         conn.close()
+
+        # Sincronización automática de inventario ajustado con catálogo web
+        try:
+            from sync_crm_to_web import sync_crm_database_to_manifest
+            sync_crm_database_to_manifest()
+        except Exception as _e_sync:
+            print(f"[!] Sincronización Web tras ajuste de inventario: {_e_sync}")
+
         self._send_json({
             "status": "ok", 
             "message": f"Ajuste registrado exitosamente ({qty} unds descontadas por: {reason})"
@@ -2507,6 +2645,12 @@ class SyntraCRMHandler(BaseHTTPRequestHandler):
                 urllib.request.urlopen(req, timeout=5)
             except Exception:
                 pass
+
+        # Auto-capturar el lead en el CRM local con todos los parámetros
+        try:
+            self._auto_save_meta_lead(sender_id, text, platform="Instagram")
+        except Exception:
+            pass
 
     def _process_and_reply_instagram_comment(self, comment_id, comment_text, from_user):
         """Responde automáticamente a comentarios públicos en posts invitando a ver el catálogo."""

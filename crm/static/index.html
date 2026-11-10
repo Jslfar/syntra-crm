@@ -348,10 +348,10 @@
             <span>Tienda Pública</span>
             <i data-lucide="globe" class="w-3 h-3 text-cyan-400"></i>
           </div>
-          <a href="https://jslfar.github.io/syntraweb/" target="_blank" rel="noopener noreferrer" class="nav-item w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-cyan-300 hover:text-cyan-200 bg-cyan-950/20 hover:bg-cyan-950/40 border border-cyan-800/30 transition">
+          <a href="https://syntrasupply.vercel.app" target="_blank" rel="noopener noreferrer" class="nav-item w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-cyan-300 hover:text-cyan-200 bg-cyan-950/20 hover:bg-cyan-950/40 border border-cyan-800/30 transition">
             <div class="flex items-center space-x-3">
               <i data-lucide="external-link" class="w-4 h-4 text-cyan-400"></i>
-              <span>Ver Web en GitHub</span>
+              <span>Ver Web en Vivo</span>
             </div>
             <span class="px-1.5 py-0.5 rounded text-[9px] font-mono bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/30">Live</span>
           </a>
@@ -368,9 +368,9 @@
       <div class="flex items-center justify-between text-xs text-slate-400 px-2 py-1 bg-slate-900/60 rounded-lg border border-slate-800">
         <span class="flex items-center space-x-1.5">
           <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span>WhatsApp Bridge</span>
+          <span>Meta API Cloud</span>
         </span>
-        <span class="text-emerald-400 font-mono font-medium">Activo</span>
+        <span class="text-emerald-400 font-mono font-medium">Conectado</span>
       </div>
       <!-- Botón Cerrar Sesión en Sidebar -->
       <div class="pt-2">
@@ -964,6 +964,10 @@
           </div>
 
           <div class="flex items-center space-x-2">
+            <button id="btn-sync-meta" onclick="syncMetaCloud()" class="px-3.5 py-2 bg-indigo-600/30 hover:bg-indigo-600 text-indigo-300 hover:text-white border border-indigo-500/40 rounded-xl text-xs font-semibold flex items-center space-x-1.5 transition shadow-sm">
+              <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+              <span>Sincronizar Meta API</span>
+            </button>
             <button onclick="openClientModal()" class="px-4 py-2 bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-xl text-xs flex items-center space-x-2 shadow-lg shadow-cyan-500/20 transition">
               <i data-lucide="user-plus" class="w-4 h-4"></i>
               <span>+ Nuevo Cliente</span>
@@ -7713,21 +7717,33 @@ Se reintegrarán ${qty} unidades de nuevo al inventario físico.` : '';
       renderInventory(filtered);
     }
 
-    async function syncWhatsApp() {
-      const btn = document.getElementById('btn-sync-wa');
-      btn.innerHTML = `<i data-lucide="loader" class="w-3.5 h-3.5 animate-spin"></i> Sincronizando...`;
-      lucide.createIcons();
-
-      try {
-        const res = await fetch('/api/whatsapp/sync', { method: 'POST' }).then(r => r.json());
-        alert(`Sincronización completada. Se importaron/actualizaron ${res.synced_count || 0} prospectos.`);
-        await fetchAll();
-      } catch (err) {
-        alert('Error al conectar con WhatsApp');
-      } finally {
-        btn.innerHTML = `<i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Sincronizar WhatsApp`;
+    async function syncMetaCloud() {
+      const btn = document.getElementById('btn-sync-meta') || document.getElementById('btn-sync-wa');
+      if (btn) {
+        btn.innerHTML = `<i data-lucide="loader" class="w-3.5 h-3.5 animate-spin"></i> Sincronizando...`;
         lucide.createIcons();
       }
+
+      try {
+        const res = await fetch('/api/meta/sync', { method: 'POST' }).then(r => r.json());
+        if (res.status === 'ok') {
+          alert(`Sincronización con Meta Cloud API exitosa 🚀\nSe escanearon y actualizaron ${res.synced_count || 0} prospectos y conversaciones de Instagram / Meta.`);
+          await fetchAll();
+        } else {
+          alert('Error en respuesta de Meta: ' + (res.error || 'Respuesta no válida'));
+        }
+      } catch (err) {
+        alert('Error al conectar con el servidor local o Meta API: ' + err.message);
+      } finally {
+        if (btn) {
+          btn.innerHTML = `<i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Sincronizar Meta API`;
+          lucide.createIcons();
+        }
+      }
+    }
+
+    async function syncWhatsApp() {
+      return syncMetaCloud();
     }
 
     function exportClientsCSV() {
