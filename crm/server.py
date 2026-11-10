@@ -391,6 +391,8 @@ class SyntraCRMHandler(BaseHTTPRequestHandler):
             self.handle_sync_web()
         elif path == "/api/clients":
             self.handle_post_client(body)
+        elif path == "/api/clients/import-text":
+            self.handle_post_client_import_text(body)
         elif path == "/api/clients/delete":
             self.handle_delete_client(body.get("id"))
         elif path == "/api/sales":
@@ -884,6 +886,108 @@ class SyntraCRMHandler(BaseHTTPRequestHandler):
         conn.commit()
         conn.close()
         self._send_json({"status": "ok", "message": "Cliente guardado con éxito"})
+
+    def handle_post_client_import_text(self, body):
+        """Parsea y guarda un cliente a partir de un texto o chat pegado de WhatsApp."""
+        import time
+        raw_text = body.get("text", "").strip()
+        custom_name = body.get("contact_name", "").strip()
+        custom_phone = body.get("contact_phone", "").strip()
+
+        if not raw_text and not custom_name and not custom_phone:
+            self._send_json({"error": "Debes proporcionar texto del chat o datos de contacto."}, 400)
+            return
+
+        lower = raw_text.lower()
+
+        # 1. Detectar teléfono si no viene explícito
+        phone = custom_phone
+        if not phone:
+            phone_match = re.search(r'(?:\+?58\s?|0)?(412|414|424|416|426|281)[-.\s]?(\d{3})[-.\s]?(\d{4})', raw_text)
+            if phone_match:
+                prefix, p1, p2 = phone_match.groups()
+                phone = f"+58 {prefix}-{p1}{p2}"
+
+        # 2. Detectar nombre si no viene explícito
+        name = custom_name
+        if not name:
+            wa_name_match = re.search(r'\]\s*([^:\n]+):', raw_text)
+            if wa_name_match:
+                candidate = wa_name_match.group(1).strip()
+                if not any(admin in candidate.lower() for admin in ["syntra", "usted", "you"]):
+                    name = candidate
+            if not name:
+                name = f"Cliente WhatsApp {phone[-4:] if phone else 'Nuevo'}"
+
+        if not phone:
+            phone = f"+58 414-{int(time.time()) % 10000000:07d}"
+
+        # 3. Detectar impresora
+        detected_printer = canonicalize_printer_model(raw_text) or "Por consultar"
+
+        # 4. Detectar materiales
+        mats = []
+        if "petg" in lower: mats.append("PETG")
+        if "pla+" in lower or "pla plus" in lower: mats.append("PLA+")
+        elif "pla" in lower: mats.append("PLA")
+        if "tpu" in lower: mats.append("TPU 95A")
+        if "asa" in lower: mats.append("ASA")
+        if "cf" in lower or "carbon" in lower or "carbón" in lower: mats.append("Fibra de Carbono")
+        if "silk" in lower or "seda" in lower or "oro" in lower: mats.append("PLA Silk")
+        if "boquilla" in lower or "nozzle" in lower: mats.append("Boquillas")
+        if "cama" in lower or "pei" in lower: mats.append("Camas PEI")
+        if "hotend" in lower: mats.append("Hotends")
+        materials_str = ", ".join(mats) if mats else "PLA / Insumos"
+
+        # 5. Detectar ubicación
+        loc = "Lechería"
+        if "barcelona" in lower: loc = "Barcelona"
+        elif "puerto la cruz" in lower or "plc" in lower: loc = "Puerto La Cruz"
+        elif "guanta" in lower: loc = "Guanta"
+
+        conn = get_db()
+        cur = conn.cursor()
+
+        cur.execute("SELECT id, name, printer_model, materials_interest, notes FROM clients WHERE phone=? OR name=?", (phone, name))
+        existing = cur.fetchone()
+
+        if existing:
+            upd_fields = []
+            upd_params = []
+            if detected_printer != "Por consultar":
+                upd_fields.append("printer_model=?")
+                upd_params.append(detected_printer)
+            if mats:
+                upd_fields.append("materials_interest=?")
+                upd_params.append(materials_str)
+            upd_fields.append("notes=notes || ' | ' || ?")
+            upd_params.append(f"Importado WA: {raw_text[:120]}")
+            upd_params.append(existing['id'])
+
+            cur.execute(f"UPDATE clients SET {', '.join(upd_fields)} WHERE id=?", tuple(upd_params))
+            client_id = existing['id']
+            action = "actualizado"
+        else:
+            cur.execute("""
+            INSERT INTO clients (name, phone, location, printer_model, materials_interest, lead_status, pipeline_stage, notes)
+            VALUES (?, ?, ?, ?, ?, 'Cliente VIP Fundador', 'Contacto Inicial', ?)
+            """, (name, phone, loc, detected_printer, materials_str, f"Chat WhatsApp Business: {raw_text[:150]}"))
+            client_id = cur.lastrowid
+            action = "registrado"
+
+        conn.commit()
+        conn.close()
+
+        self._send_json({
+            "status": "ok",
+            "message": f"Cliente {name} ({phone}) {action} exitosamente con impresora '{detected_printer}' y materiales '{materials_str}'.",
+            "client_id": client_id,
+            "name": name,
+            "phone": phone,
+            "printer_model": detected_printer,
+            "materials": materials_str,
+            "location": loc
+        })
 
     def handle_post_sale(self, body):
         conn = get_db()
