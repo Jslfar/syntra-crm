@@ -14,6 +14,8 @@ STATIC_DIR = CRM_STATIC_DIR
 DB_PATH = os.path.join(BASE_DIR, "syntra_crm.db")
 ADMIN_PIN = os.environ.get("ADMIN_PIN", "2026")
 STAFF_PIN = os.environ.get("STAFF_PIN", "1234")
+META_VERIFY_TOKEN = os.environ.get("META_VERIFY_TOKEN", "syntra_meta_secure_token_2026")
+META_PAGE_ACCESS_TOKEN = os.environ.get("META_PAGE_ACCESS_TOKEN", "")
 ROOT_DIR = os.path.dirname(BASE_DIR)
 WEB_DIR = os.path.join(ROOT_DIR, "syntraweb")
 sys.path.append(os.path.join(ROOT_DIR, "whatsapp_bridge"))
@@ -344,6 +346,10 @@ class SyntraCRMHandler(BaseHTTPRequestHandler):
             self.handle_get_affiliate_payouts()
         elif path == "/api/affiliates/commissions":
             self.handle_get_affiliate_commissions()
+        elif path == "/api/instagram/webhook":
+            self.handle_get_instagram_webhook(parsed.query)
+        elif path == "/api/fx/live":
+            self.handle_get_fx_live()
         else:
             self.serve_static(path)
 
@@ -379,6 +385,8 @@ class SyntraCRMHandler(BaseHTTPRequestHandler):
             self.handle_post_auth_login(body)
         elif path == "/api/public/order":
             self.handle_post_public_order(body)
+        elif path == "/api/instagram/webhook":
+            self.handle_post_instagram_webhook(body)
         elif path == "/api/sync-web":
             self.handle_sync_web()
         elif path == "/api/clients":
@@ -2384,6 +2392,175 @@ class SyntraCRMHandler(BaseHTTPRequestHandler):
             self._send_json({
                 "status": "ok",
                 "message": f"Catálogo web sincronizado con {count} productos y {stock} unidades físicas."
+            })
+        except Exception as e:
+            self._send_json({"status": "error", "message": str(e)}, 500)
+
+    # =========================================================================
+    # META INSTAGRAM GRAPH API & WEBHOOK INTEGRATION
+    # =========================================================================
+    def handle_get_instagram_webhook(self, query_str):
+        """Verificación inicial del webhook por parte de los servidores de Meta."""
+        try:
+            qs = parse_qs(query_str)
+            mode = qs.get("hub.mode", [""])[0]
+            token = qs.get("hub.verify_token", [""])[0]
+            challenge = qs.get("hub.challenge", [""])[0]
+
+            if mode == "subscribe" and token == META_VERIFY_TOKEN:
+                challenge_bytes = challenge.encode("utf-8")
+                self.send_response(200)
+                self.send_header("Content-Type", "text/plain; charset=utf-8")
+                self.send_header("Content-Length", str(len(challenge_bytes)))
+                self.send_header("Connection", "close")
+                self.end_headers()
+                self.wfile.write(challenge_bytes)
+            else:
+                self.send_response(403)
+                self.send_header("Content-Type", "text/plain")
+                self.send_header("Connection", "close")
+                self.end_headers()
+                self.wfile.write(b"Forbidden: Token invalido")
+        except Exception:
+            self.send_response(500)
+            self.end_headers()
+
+    def handle_post_instagram_webhook(self, body):
+        """Recepción de eventos, DMs y comentarios en tiempo real desde Instagram."""
+        try:
+            # Responder 200 de inmediato a Meta (requerido para no reintentar)
+            self._send_json({"status": "EVENT_RECEIVED"})
+
+            entry_list = body.get("entry", [])
+            for entry in entry_list:
+                # 1. Eventos de Mensajería Directa (DMs)
+                for messaging_event in entry.get("messaging", []):
+                    sender = messaging_event.get("sender", {}).get("id")
+                    message = messaging_event.get("message", {})
+                    text = message.get("text", "").strip()
+
+                    # Evitar bucles con mensajes enviados por la propia página
+                    if sender and text and not message.get("is_echo", False):
+                        self._process_and_reply_instagram_message(sender, text)
+
+                # 2. Eventos de Cambios (Comentarios en publicaciones/Reels)
+                for change in entry.get("changes", []):
+                    val = change.get("value", {})
+                    comment_text = val.get("text", "").strip()
+                    comment_id = val.get("id")
+                    from_user = val.get("from", {}).get("id")
+                    if comment_text and comment_id and from_user:
+                        self._process_and_reply_instagram_comment(comment_id, comment_text, from_user)
+        except Exception:
+            pass
+
+    def _process_and_reply_instagram_message(self, sender_id, text):
+        """Genera respuesta comercial inteligente basada en stock real y la despacha al DM."""
+        import urllib.request
+        lower = text.lower()
+
+        if any(w in lower for w in ["precio", "costo", "cuanto", "vale", "catalogo", "catálogo", "colores", "stock"]):
+            reply_text = (
+                "¡Hola! 👋 En Syntra Supply contamos con más de 1.750 consumibles 3D originales con entrega inmediata en Lechería.\n\n"
+                "📦 Precios Contado Divisa (USDT / Cash Lechería):\n"
+                "• PETG High-Speed (17 tonos): $17.50\n"
+                "• PLA Basic High-Flow: $18.00\n"
+                "• PLA Silk Oro Imperial / Multicolor: $21.00\n"
+                "• TPU 95A / ASA Anti-UV: $25.00\n"
+                "• Repuestos Bambu Lab (Camas PEI, Hotends, Boquillas endurecidas)\n\n"
+                "🌐 Catálogo interactivo: https://syntrasupply.vercel.app\n"
+                "📲 WhatsApp directo: https://wa.me/584223446675\n"
+                "¿Qué impresora tienes para recomendarte el material ideal?"
+            )
+        elif any(w in lower for w in ["ubicacion", "ubicación", "donde", "tienda", "retiro", "local"]):
+            reply_text = (
+                "📍 Punto de Retiro Syntra: Sector Morro II, Lechería, Anzoátegui.\n"
+                "🛵 Despacho express en Lechería, Puerto La Cruz y Barcelona, y envíos nacionales por MRW, Tealca y Zoom.\n\n"
+                "Escríbenos al WhatsApp para pasarte la ubicación exacta: https://wa.me/584223446675"
+            )
+        elif any(w in lower for w in ["pago", "bcv", "transferencia", "binance", "zelle", "pago movil", "bolivares"]):
+            reply_text = (
+                "💳 Métodos de Pago Disponibles en Syntra:\n"
+                "1. Binance Pay (USDT) y Efectivo USD (Precio especial de contado)\n"
+                "2. Zelle y Banesco Panamá\n"
+                "3. Pago Móvil / Transferencia VES a Tasa Oficial BCV\n\n"
+                "Escríbenos a WhatsApp para coordinar tu orden: https://wa.me/584223446675"
+            )
+        else:
+            reply_text = (
+                "¡Hola! Gracias por escribir a Syntra Supply Lechería 🚀\n"
+                "Somos distribuidores de consumibles 3D Kingroon y repuestos de alta velocidad con entrega hoy mismo.\n\n"
+                "Puedes explorar nuestro stock en vivo aquí: https://syntrasupply.vercel.app\n"
+                "O si prefieres atención técnica inmediata por WhatsApp: https://wa.me/584223446675\n"
+                "¿En qué te podemos ayudar?"
+            )
+
+        # Si tenemos el token de Meta configurado, enviar DM via Graph API
+        if META_PAGE_ACCESS_TOKEN:
+            try:
+                url = f"https://graph.facebook.com/v21.0/me/messages?access_token={META_PAGE_ACCESS_TOKEN}"
+                payload = json.dumps({
+                    "recipient": {"id": sender_id},
+                    "message": {"text": reply_text}
+                }).encode("utf-8")
+                req = urllib.request.Request(url, data=payload, headers={"Content-Type": "application/json"})
+                urllib.request.urlopen(req, timeout=5)
+            except Exception:
+                pass
+
+    def _process_and_reply_instagram_comment(self, comment_id, comment_text, from_user):
+        """Responde automáticamente a comentarios públicos en posts invitando a ver el catálogo."""
+        import urllib.request
+        lower = comment_text.lower()
+        if any(w in lower for w in ["precio", "info", "catalogo", "cuanto", "disponible", "lecheria", "lechería"]):
+            reply_text = "¡Hola! Te enviamos todos los detalles con entrega inmediata en Lechería al privado 📩 O mira el catálogo en https://syntrasupply.vercel.app"
+            if META_PAGE_ACCESS_TOKEN:
+                try:
+                    url = f"https://graph.facebook.com/v21.0/{comment_id}/replies?access_token={META_PAGE_ACCESS_TOKEN}"
+                    payload = json.dumps({"message": reply_text}).encode("utf-8")
+                    req = urllib.request.Request(url, data=payload, headers={"Content-Type": "application/json"})
+                    urllib.request.urlopen(req, timeout=5)
+                except Exception:
+                    pass
+
+    # =========================================================================
+    # LIVE EXCHANGE RATE SYNC (DOLARAPI / BCV EN TIEMPO REAL)
+    # =========================================================================
+    def handle_get_fx_live(self):
+        try:
+            import urllib.request
+            req = urllib.request.Request("https://ve.dolarapi.com/v1/dolares", headers={"User-Agent": "Mozilla/5.0"})
+            res = urllib.request.urlopen(req, timeout=5)
+            data = json.loads(res.read())
+
+            bcv_rate = 899.27
+            p2p_rate = 1051.12
+            for item in data:
+                fuente = item.get("fuente")
+                if fuente == "oficial":
+                    bcv_rate = float(item.get("promedio", bcv_rate))
+                elif fuente == "paralelo":
+                    p2p_rate = float(item.get("promedio", p2p_rate))
+
+            conn = get_db()
+            cur = conn.cursor()
+            cur.execute("SELECT state_json FROM dashboard_state WHERE state_key='main'")
+            row = cur.fetchone()
+            if row:
+                st = json.loads(row["state_json"])
+                if "calcFx" not in st:
+                    st["calcFx"] = {}
+                st["calcFx"]["bcv"] = f"{bcv_rate:.2f}"
+                st["calcFx"]["p2p"] = f"{p2p_rate:.2f}"
+                cur.execute("UPDATE dashboard_state SET state_json=?, updated_at=CURRENT_TIMESTAMP WHERE state_key='main'", (json.dumps(st),))
+                conn.commit()
+            conn.close()
+
+            self._send_json({
+                "status": "ok",
+                "bcv": bcv_rate,
+                "paralelo": p2p_rate,
+                "message": "Tasas actualizadas exitosamente en el CRM."
             })
         except Exception as e:
             self._send_json({"status": "error", "message": str(e)}, 500)
