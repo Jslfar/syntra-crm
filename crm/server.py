@@ -1490,10 +1490,22 @@ class SyntraCRMHandler(BaseHTTPRequestHandler):
                     filepath = os.path.join(CRM_STATIC_DIR, subpath)
                     if not os.path.exists(filepath):
                         filepath = os.path.join(CRM_STATIC_DIR, "index.html")
+            elif path == "/" or path == "/index.html":
+                self.send_response(302)
+                self.send_header("Location", "/admin")
+                self.send_header("Connection", "close")
+                self.end_headers()
+                return
+            elif path == "/web" or path == "/web/" or path == "/store" or path == "/store/":
+                filepath = os.path.join(WEB_DIR, "index.html")
             else:
                 clean_path = path.lstrip("/")
-                if not clean_path or clean_path == "index.html":
-                    filepath = os.path.join(WEB_DIR, "index.html")
+                if clean_path.startswith("web/"):
+                    sub_web = clean_path[4:].lstrip("/")
+                    filepath = os.path.join(WEB_DIR, sub_web or "index.html")
+                elif clean_path.startswith("store/"):
+                    sub_store = clean_path[6:].lstrip("/")
+                    filepath = os.path.join(WEB_DIR, sub_store or "index.html")
                 else:
                     filepath = os.path.join(WEB_DIR, clean_path)
                     if not os.path.exists(filepath) and os.path.exists(os.path.join(CRM_STATIC_DIR, clean_path)):
