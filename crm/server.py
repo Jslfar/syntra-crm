@@ -308,9 +308,7 @@ class SyntraCRMHandler(BaseHTTPRequestHandler):
         path = parsed.path
 
         if path == "/favicon.ico":
-            self.send_response(204)
-            self.send_header("Connection", "close")
-            self.end_headers()
+            self.serve_static("/favicon.ico")
             return
         elif path == "/api/public/catalog":
             self.handle_get_public_catalog()
@@ -1715,8 +1713,33 @@ class SyntraCRMHandler(BaseHTTPRequestHandler):
         host = self.headers.get("Host", "").lower().split(":")[0]
         is_admin_host = host.startswith("admin.") or host.startswith("crm.")
 
-        if is_admin_host:
-            clean_path = path.lstrip("/")
+        clean_path = path.split("?")[0].lstrip("/")
+
+        # Direct static asset handlers (Images, styles, fonts, branding)
+        if clean_path.startswith("static/"):
+            sub_static = clean_path[7:].lstrip("/")
+            filepath = os.path.join(CRM_STATIC_DIR, sub_static)
+            if not os.path.exists(filepath):
+                filepath = os.path.join(CRM_STATIC_DIR, clean_path)
+        elif clean_path.startswith("assets/"):
+            filepath = os.path.join(WEB_DIR, clean_path)
+            if not os.path.exists(filepath):
+                filepath = os.path.join(CRM_STATIC_DIR, clean_path)
+        elif clean_path.startswith("img/"):
+            filepath = os.path.join(CRM_STATIC_DIR, clean_path)
+            if not os.path.exists(filepath):
+                filepath = os.path.join(CRM_STATIC_DIR, "img", clean_path[4:])
+            if not os.path.exists(filepath):
+                filepath = os.path.join(WEB_DIR, "assets", clean_path)
+        elif clean_path.startswith("branding_8k/"):
+            filepath = os.path.join(ROOT_DIR, clean_path)
+        elif clean_path in ("favicon.ico", "favicon-32x32.png", "apple-touch-icon.png", "syntra_icon.png"):
+            filepath = os.path.join(CRM_STATIC_DIR, "img", clean_path)
+            if not os.path.exists(filepath):
+                filepath = os.path.join(CRM_STATIC_DIR, clean_path)
+            if not os.path.exists(filepath):
+                filepath = os.path.join(WEB_DIR, "assets", "img", clean_path)
+        elif is_admin_host:
             if not clean_path or clean_path == "index.html":
                 filepath = os.path.join(CRM_STATIC_DIR, "index.html")
             else:
@@ -1725,11 +1748,15 @@ class SyntraCRMHandler(BaseHTTPRequestHandler):
                     filepath = os.path.join(CRM_STATIC_DIR, "index.html")
         else:
             if path == "/admin" or path.startswith("/admin/"):
-                subpath = path[6:].lstrip("/")
+                subpath = path[6:].split("?")[0].lstrip("/")
                 if not subpath or subpath == "index.html":
                     filepath = os.path.join(CRM_STATIC_DIR, "index.html")
                 else:
                     filepath = os.path.join(CRM_STATIC_DIR, subpath)
+                    if not os.path.exists(filepath):
+                        filepath = os.path.join(CRM_STATIC_DIR, "img", subpath)
+                    if not os.path.exists(filepath):
+                        filepath = os.path.join(WEB_DIR, "assets", subpath)
                     if not os.path.exists(filepath):
                         filepath = os.path.join(CRM_STATIC_DIR, "index.html")
             elif path == "/" or path == "/index.html":
@@ -1741,7 +1768,6 @@ class SyntraCRMHandler(BaseHTTPRequestHandler):
             elif path == "/web" or path == "/web/" or path == "/store" or path == "/store/":
                 filepath = os.path.join(WEB_DIR, "index.html")
             else:
-                clean_path = path.lstrip("/")
                 if clean_path.startswith("web/"):
                     sub_web = clean_path[4:].lstrip("/")
                     filepath = os.path.join(WEB_DIR, sub_web or "index.html")
@@ -1749,9 +1775,9 @@ class SyntraCRMHandler(BaseHTTPRequestHandler):
                     sub_store = clean_path[6:].lstrip("/")
                     filepath = os.path.join(WEB_DIR, sub_store or "index.html")
                 else:
-                    filepath = os.path.join(WEB_DIR, clean_path)
-                    if not os.path.exists(filepath) and os.path.exists(os.path.join(CRM_STATIC_DIR, clean_path)):
-                        filepath = os.path.join(CRM_STATIC_DIR, clean_path)
+                    filepath = os.path.join(CRM_STATIC_DIR, clean_path)
+                    if not os.path.exists(filepath):
+                        filepath = os.path.join(WEB_DIR, clean_path)
 
         if os.path.exists(filepath) and os.path.isfile(filepath):
             if filepath.endswith(".js"):
