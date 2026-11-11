@@ -1,0 +1,2521 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Catálogo Maestro Syntra Supply 2026</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&family=Space+Grotesk:wght@600;700;800;900&display=swap');
+  
+  @page {
+    size: A4 portrait;
+    margin: 0;
+  }
+  
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  body {
+    background: #090C12;
+    color: #F8FAFC;
+    font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Contenedor A4 de precisión milimétrica (210mm x 297mm) */
+  .page {
+    width: 210mm;
+    height: 297mm;
+    max-height: 297mm;
+    overflow: hidden;
+    position: relative;
+    page-break-after: always;
+    background: #090C12;
+    padding: 12mm 15mm;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .page::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-image: 
+      radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.06) 0%, transparent 65%),
+      linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+    background-size: 100% 100%, 20px 20px, 20px 20px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .content-layer {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: space-between;
+  }
+
+  /* Header Superior */
+  .page-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding-bottom: 8px;
+    margin-bottom: 10px;
+  }
+
+  .page-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .page-brand img {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+  }
+
+  .page-brand-text {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px;
+    font-weight: 900;
+    letter-spacing: 0.12em;
+    color: #FFFFFF;
+    line-height: 1;
+  }
+
+  .page-brand-sub {
+    font-size: 8.5px;
+    font-weight: 700;
+    color: #94A3B8;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  .page-meta-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8.5px;
+    font-weight: 700;
+    color: #E2E8F0;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.14);
+    padding: 4px 10px;
+    border-radius: 9999px;
+  }
+
+  /* Footer Común */
+  .page-footer {
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding-top: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 8.5px;
+    color: #94A3B8;
+  }
+
+  .page-footer strong {
+    color: #F8FAFC;
+  }
+
+  .footer-legal {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .footer-legal-dot {
+    width: 6px;
+    height: 6px;
+    background: #10B981;
+    border-radius: 50%;
+  }
+
+  /* Banner de Llamado a la Acción y Descuentos Privados */
+  .promo-strip {
+    background: linear-gradient(90deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.95) 100%);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 10px;
+    padding: 8px 14px;
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .promo-text {
+    font-size: 9px;
+    color: #CBD5E1;
+    line-height: 1.35;
+  }
+
+  .promo-text strong {
+    color: #FFFFFF;
+  }
+
+  .promo-cta-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 800;
+    color: #FFFFFF;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.25);
+    padding: 5px 12px;
+    border-radius: 7px;
+    white-space: nowrap;
+  }
+
+  /* Hero Visual de la Sección con Fotos de Exhibición */
+  .section-hero {
+    display: flex;
+    gap: 14px;
+    background: #111520;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 12px;
+    align-items: center;
+  }
+
+  .section-hero-img-box {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .section-hero-img {
+    width: 105px;
+    height: 105px;
+    border-radius: 10px;
+    object-fit: cover;
+    border: 1px solid rgba(255,255,255,0.18);
+    background: #000;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  }
+
+  .section-hero-info {
+    flex: 1;
+  }
+
+  .section-hero-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 16px;
+    font-weight: 800;
+    color: #FFFFFF;
+    letter-spacing: 0.04em;
+    margin-bottom: 4px;
+  }
+
+  .section-hero-desc {
+    font-size: 9.5px;
+    color: #94A3B8;
+    line-height: 1.45;
+    margin-bottom: 8px;
+  }
+
+  .spec-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+  }
+
+  .spec-pill {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 7px;
+    padding: 5px 8px;
+  }
+
+  .spec-k {
+    font-size: 7.5px;
+    color: #64748B;
+    text-transform: uppercase;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+  }
+
+  .spec-v {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    color: #F1F5F9;
+    margin-top: 1px;
+  }
+
+  /* Grilla de 16 Productos / Colores */
+  .catalog-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 7px;
+    flex: 1;
+    align-content: start;
+    margin-bottom: 8px;
+  }
+
+  .prod-card {
+    background: #111520;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 9px;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.2s ease;
+  }
+
+  .prod-swatch-box {
+    flex-shrink: 0;
+  }
+
+  .prod-swatch {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.6);
+  }
+
+  .prod-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .prod-color {
+    font-size: 10px;
+    font-weight: 800;
+    color: #F8FAFC;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .prod-meta {
+    display: flex;
+    gap: 8px;
+    font-size: 8px;
+    margin-top: 2px;
+  }
+
+  .prod-sku {
+    font-family: 'JetBrains Mono', monospace;
+    color: #64748B;
+  }
+
+  .prod-stock {
+    color: #34D399;
+    font-weight: 700;
+  }
+
+  .prod-price-box {
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .ref-label {
+    font-size: 7px;
+    color: #64748B;
+    text-transform: uppercase;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+  }
+
+  .ref-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 800;
+    color: #FFFFFF;
+  }
+
+  /* Grid para Repuestos en 2 Columnas */
+  .parts-grid-2col {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 7px;
+    flex: 1;
+    align-content: start;
+    margin-bottom: 8px;
+  }
+
+  .part-card {
+    background: #111520;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 9px;
+    padding: 8px 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .part-thumb {
+    width: 36px;
+    height: 36px;
+    border-radius: 7px;
+    object-fit: cover;
+    background: #000;
+    border: 1px solid rgba(255,255,255,0.12);
+  }
+
+  .part-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .part-name {
+    font-size: 9.5px;
+    font-weight: 800;
+    color: #F8FAFC;
+    line-height: 1.25;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .part-meta {
+    display: flex;
+    gap: 8px;
+    font-size: 8px;
+    margin-top: 2px;
+  }
+
+  /* PORTADA DE LUJO (PÁGINA 1) */
+  .cover-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    text-align: center;
+    padding: 8mm 6mm;
+  }
+
+  .cover-top-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.18);
+    color: #FFFFFF;
+    padding: 7px 20px;
+    border-radius: 9999px;
+    font-size: 10.5px;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+  }
+
+  .cover-logo-box {
+    margin: 10px auto 20px auto;
+  }
+
+  .cover-logo-box img {
+    width: 170px;
+    height: 170px;
+    object-fit: contain;
+    filter: drop-shadow(0 20px 40px rgba(0,0,0,0.9));
+  }
+
+  .cover-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 42px;
+    font-weight: 900;
+    letter-spacing: 0.12em;
+    color: #FFFFFF;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .cover-subtitle {
+    font-size: 13.5px;
+    font-weight: 800;
+    letter-spacing: 0.22em;
+    color: #94A3B8;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .cover-divider {
+    width: 80px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #FFFFFF, transparent);
+    margin: 0 auto 22px auto;
+  }
+
+  .cover-gallery-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 22px;
+  }
+
+  .cover-gallery-item {
+    background: #111520;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .cover-gallery-item img {
+    width: 100%;
+    height: 80px;
+    object-fit: cover;
+  }
+
+  .cover-gallery-caption {
+    font-size: 7.5px;
+    font-weight: 800;
+    color: #E2E8F0;
+    padding: 5px 6px;
+    text-align: center;
+    background: #0E121A;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .cover-specs-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .cover-stat-box {
+    background: #111520;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    padding: 10px 6px;
+  }
+
+  .cover-stat-num {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 22px;
+    font-weight: 900;
+    color: #FFFFFF;
+    margin-bottom: 2px;
+  }
+
+  .cover-stat-lbl {
+    font-size: 7.5px;
+    font-weight: 800;
+    color: #94A3B8;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .cover-warehouse-card {
+    background: radial-gradient(circle at 50% 50%, #151A26 0%, #0D1017 100%);
+    border: 1px solid rgba(255,255,255,0.14);
+    border-radius: 12px;
+    padding: 14px 18px;
+    text-align: left;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  .warehouse-title {
+    font-size: 12.5px;
+    font-weight: 900;
+    color: #FFFFFF;
+    margin-bottom: 3px;
+  }
+
+  .warehouse-desc {
+    font-size: 9.5px;
+    color: #94A3B8;
+    line-height: 1.4;
+  }
+
+  .warehouse-pill {
+    background: rgba(16, 185, 129, 0.15);
+    color: #34D399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 9.5px;
+    font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+    white-space: nowrap;
+  }
+
+  .cover-bottom-legal {
+    font-size: 8px;
+    color: #64748B;
+    line-height: 1.4;
+  }
+
+  /* PAGINA 2: EL ESTÁNDAR SYNTRA */
+  .standard-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .standard-card {
+    background: #111520;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 14px;
+  }
+
+  .standard-card-icon {
+    font-size: 20px;
+    margin-bottom: 8px;
+  }
+
+  .standard-card-title {
+    font-size: 12.5px;
+    font-weight: 800;
+    color: #FFFFFF;
+    margin-bottom: 6px;
+  }
+
+  .standard-card-desc {
+    font-size: 9.5px;
+    color: #94A3B8;
+    line-height: 1.45;
+  }
+
+  .exhibition-duo {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .exhibition-box {
+    background: #111520;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .exhibition-box img {
+    width: 100%;
+    height: 145px;
+    object-fit: cover;
+  }
+
+  .exhibition-caption {
+    padding: 10px 14px;
+  }
+
+  .exhibition-title {
+    font-size: 11px;
+    font-weight: 800;
+    color: #FFFFFF;
+  }
+
+  .exhibition-sub {
+    font-size: 8.5px;
+    color: #64748B;
+    margin-top: 2px;
+  }
+
+  /* PAGINA 8: CONTACTO & GUIA VIP */
+  .order-steps-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .step-card {
+    background: #111520;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 14px;
+    text-align: center;
+  }
+
+  .step-num {
+    width: 28px;
+    height: 28px;
+    background: rgba(255,255,255,0.12);
+    color: #FFFFFF;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 800;
+    margin: 0 auto 10px auto;
+  }
+
+  .step-title {
+    font-size: 11.5px;
+    font-weight: 800;
+    color: #FFFFFF;
+    margin-bottom: 4px;
+  }
+
+  .step-desc {
+    font-size: 8.5px;
+    color: #94A3B8;
+    line-height: 1.4;
+  }
+
+  .contact-hub-card {
+    background: radial-gradient(circle at 30% 0%, #1A2130 0%, #0F131D 100%);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 14px;
+    padding: 20px;
+    display: flex;
+    gap: 24px;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  .contact-qr-box {
+    background: #FFFFFF;
+    padding: 10px;
+    border-radius: 12px;
+    flex-shrink: 0;
+  }
+
+  .contact-qr-box img {
+    width: 115px;
+    height: 115px;
+    display: block;
+  }
+
+  .contact-info-col {
+    flex: 1;
+  }
+
+  .contact-headline {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 18px;
+    font-weight: 900;
+    color: #FFFFFF;
+    margin-bottom: 6px;
+  }
+
+  .contact-sub {
+    font-size: 10px;
+    color: #94A3B8;
+    line-height: 1.45;
+    margin-bottom: 14px;
+  }
+
+  .contact-btn {
+    display: inline-block;
+    background: #25D366;
+    color: #000000;
+    font-weight: 900;
+    font-size: 11px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-family: 'Space Grotesk', sans-serif;
+    letter-spacing: 0.05em;
+  }
+
+  .vip-box {
+    background: #111520;
+    border: 1px solid rgba(245, 158, 11, 0.4);
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin-bottom: 14px;
+  }
+
+  .vip-title {
+    font-size: 12px;
+    font-weight: 900;
+    color: #FBBF24;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .vip-desc {
+    font-size: 9px;
+    color: #CBD5E1;
+    line-height: 1.45;
+  }
+
+  .faq-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .faq-item {
+    background: #111520;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 8px;
+    padding: 8px 12px;
+  }
+
+  .faq-q {
+    font-size: 9px;
+    font-weight: 800;
+    color: #FFFFFF;
+    margin-bottom: 2px;
+  }
+
+  .faq-a {
+    font-size: 8px;
+    color: #94A3B8;
+    line-height: 1.35;
+  }
+</style>
+</head>
+<body>
+
+  <!-- ==================== PÁGINA 1: PORTADA ==================== -->
+  <div class="page">
+    <div class="content-layer cover-container">
+      <div>
+        <div class="cover-top-badge">Stock Físico Inmediato &bull; Almacén Central Lechería</div>
+        <div class="cover-logo-box">
+          <img src="file:///C:/Users/UNK/Desktop/EXPORT IA/SYNTRA GROUP/branding_8k/syntra_logo_whatsapp_2k.png" alt="Syntra Supply Logo">
+        </div>
+        <h1 class="cover-title">SYNTRA SUPPLY</h1>
+        <div class="cover-subtitle">Catálogo Maestro de Consumibles &bull; Manufactura 3D</div>
+        <div class="cover-divider"></div>
+      </div>
+
+      <!-- Fila de Renders de Exhibición -->
+      <div class="cover-gallery-row">
+        <div class="cover-gallery-item">
+          <img src="file:///C:/Users/UNK/Desktop/EXPORT IA/SYNTRA GROUP/crm/static/img/catalog_assets/silk_dual_dragon.jpg">
+          <div class="cover-gallery-caption">Silk Dual Dragon</div>
+        </div>
+        <div class="cover-gallery-item">
+          <img src="file:///C:/Users/UNK/Desktop/EXPORT IA/SYNTRA GROUP/crm/static/img/catalog_assets/plaplus_prints.jpg">
+          <div class="cover-gallery-caption">PLA+ Pro Benchy</div>
+        </div>
+        <div class="cover-gallery-item">
+          <img src="file:///C:/Users/UNK/Desktop/EXPORT IA/SYNTRA GROUP/crm/static/img/catalog_assets/tpu_shoe_flex.jpg">
+          <div class="cover-gallery-caption">TPU 95A Flexible</div>
+        </div>
+        <div class="cover-gallery-item">
+          <img src="file:///C:/Users/UNK/Desktop/EXPORT IA/SYNTRA GROUP/crm/static/img/catalog_assets/pacf_drone_parts.jpg">
+          <div class="cover-gallery-caption">Carbon Fiber Drone</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="cover-specs-row">
+          <div class="cover-stat-box">
+            <div class="cover-stat-num">1.750</div>
+            <div class="cover-stat-lbl">Unidades en Físico</div>
+          </div>
+          <div class="cover-stat-box">
+            <div class="cover-stat-num">117</div>
+            <div class="cover-stat-lbl">SKUs y Variantes</div>
+          </div>
+          <div class="cover-stat-box">
+            <div class="cover-stat-num">&plusmn;0.02</div>
+            <div class="cover-stat-lbl">Tolerancia Láser mm</div>
+          </div>
+          <div class="cover-stat-box">
+            <div class="cover-stat-num">100%</div>
+            <div class="cover-stat-lbl">Resina Virgen</div>
+          </div>
+        </div>
+
+        <div class="cover-warehouse-card">
+          <div>
+            <div class="warehouse-title">📍 Despacho Exprés &bull; Zona Norte Anzoátegui</div>
+            <div class="warehouse-desc">Retiro en mano en Morro II, Lechería (6:00 AM &ndash; 11:00 PM) o entrega rápida en Puerto La Cruz y Barcelona. Envíos protegidos a toda Venezuela por MRW, Tealca y Zoom.</div>
+          </div>
+          <div class="warehouse-pill">● ALMACÉN ACTIVO</div>
+        </div>
+      </div>
+
+      <div class="cover-bottom-legal">
+        <strong>Syntra Group C.A.</strong> &bull; Edición Oficial 2026 &bull; Conforme a normativa oficial BCV.<br>
+        Las cotizaciones formales se emiten en Bolívares (VES) a Tasa Oficial BCV. Consulta a tu asesor por WhatsApp para bonificaciones comerciales directas.
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== PÁGINA 2: EL ESTÁNDAR SYNTRA ==================== -->
+  <div class="page">
+    <div class="content-layer">
+      <div class="page-top">
+        <div class="page-brand">
+          <img src="file:///C:/Users/UNK/Desktop/EXPORT IA/SYNTRA GROUP/branding_8k/syntra_logo_whatsapp_2k.png">
+          <div>
+            <div class="page-brand-text">SYNTRA SUPPLY</div>
+            <div class="page-brand-sub">Estándar de Calidad</div>
+          </div>
+        </div>
+        <div class="page-meta-badge">INGENIERÍA PARA LA COSTA VENEZOLANA</div>
+      </div>
+
+      <div class="standard-grid">
+        <div class="standard-card">
+          <div class="standard-card-icon">🛡️</div>
+          <div class="standard-card-title">Desecante Industrial de 10g</div>
+          <div class="standard-card-desc">La salinidad y humedad relativa de Lechería y Puerto La Cruz superan el 80%. Cada bobina Syntra viene sellada al vacío de fábrica con desecante de 10g para evitar el hilado (stringing) y la fragilidad por hidrólisis.</div>
+        </div>
+        <div class="standard-card">
+          <div class="standard-card-icon">⚡</div>
+          <div class="standard-card-title">Calibrado Láser Dual &plusmn;0.02mm</div>
+          <div class="standard-card-desc">Fabricado con resina 100% virgen sin impurezas ni plásticos reciclados. Permite flujos volumétricos continuos de hasta 32 mm³/s en impresoras de alta velocidad (Bambu Lab X1/P1/A1, Creality K1, Neptune 4).</div>
+        </div>
+        <div class="standard-card">
+          <div class="standard-card-icon">⏱️</div>
+          <div class="standard-card-title">Entrega Local en 30 a 90 Minutos</div>
+          <div class="standard-card-desc">Se acabó esperar 3 a 5 días por encomiendas de Caracas o pagar fletes exorbitantes de $15. Retiras de inmediato en Morro II, Lechería o te despachamos directo a tu taller en Barcelona y PLC.</div>
+        </div>
+        <div class="standard-card">
+          <div class="standard-card-icon">⚖️</div>
+          <div class="standard-card-title">Marco Legal &amp; Respaldo Técnico</div>
+          <div class="standard-card-desc">Operamos con total transparencia fiscal según la Tasa Oficial del Banco Central de Venezuela (BCV). Somos ingenieros makers activos: probamos cada lote a diario en nuestras propias granjas de impresión.</div>
+        </div>
+      </div>
+
+      <div class="exhibition-duo">
+        <div class="exhibition-box">
+          <img src="file:///C:/Users/UNK/Desktop/EXPORT IA/SYNTRA GROUP/crm/static/img/catalog_assets/plaplus_winding.jpg">
+          <div class="exhibition-caption">
+            <div class="exhibition-title">Bobinado Milimétrico Automatizado</div>
+            <div class="exhibition-sub">Cero nudos cruzados y cero atascos en alimentadores automáticos AMS.</div>
+          </div>
+        </div>
+        <div class="exhibition-box">
+          <img src="file:///C:/Users/UNK/Desktop/EXPORT IA/SYNTRA GROUP/crm/static/img/catalog_assets/plaplus_toughness.jpg">
+          <div class="exhibition-caption">
+            <div class="exhibition-title">Ensayos de Resistencia &amp; Tenacidad</div>
+            <div class="exhibition-sub">Fórmula modificada de alto impacto que previene fracturas en piezas mecánicas.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="promo-strip">
+        <div class="promo-text">
+          <strong>¿Requieres asesoría sobre qué material utilizar para tu proyecto?</strong><br>
+          Nuestros ingenieros analizan tu diseño y te recomiendan la configuración ideal en Bambu Studio / OrcaSlicer.
+        </div>
+        <div class="promo-cta-btn">WhatsApp +58 422-3446675</div>
+      </div>
+
+      <div class="page-footer">
+        <div class="footer-legal">
+          <span class="footer-legal-dot"></span>
+          <span>Facturación formal en Bolívares (VES) conforme a Tasa Oficial BCV</span>
+        </div>
+        <div>Página 02 &bull; Calidad y Garantía Syntra</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== PÁGINA 3: PLA & PLA+ ==================== -->
+  <div class="page">
+    <div class="content-layer">
+      <div class="page-top">
+        <div class="page-brand">
+          <img src="file:///C:/Users/UNK/Desktop/EXPORT IA/SYNTRA GROUP/branding_8k/syntra_logo_whatsapp_2k.png">
+          <div>
+            <div class="page-brand-text">SYNTRA SUPPLY</div>
+            <div class="page-brand-sub">Consumibles de Impresión 3D</div>
+          </div>
+        </div>
+        <div class="page-meta-badge">SERIE BÁSICA &amp; RESISTENCIA &bull; 1.75 MM &bull; 1 KG</div>
+      </div>
+
+      <div class="section-hero">
+        <div class="section-hero-img-box">
+          <img src="file:///C:/Users/UNK/Desktop/EXPORT IA/SYNTRA GROUP/crm/static/img/catalog_assets/plaplus_prints.jpg" class="section-hero-img">
+          <img src="file:///C:/Users/UNK/Desktop/EXPORT IA/SYNTRA GROUP/crm/static/img/catalog_assets/plaplus_spool.jpg" class="section-hero-img">
+        </div>
+        <div class="section-hero-info">
+          <div class="section-hero-title">FILAMENTOS PLA BASIC &amp; PLA+ PRO</div>
+          <div class="section-hero-desc">El estándar de oro para prototipado rápido, figuras estéticas y piezas comerciales de alta definición. El PLA+ ofrece hasta 5 veces más resistencia al impacto que el PLA estándar.</div>
+          <div class="spec-grid">
+            <div class="spec-pill"><div class="spec-k">Boquilla</div><div class="spec-v">190&ndash;220 &deg;C</div></div>
+            <div class="spec-pill"><div class="spec-k">Cama</div><div class="spec-v">50&ndash;60 &deg;C</div></div>
+            <div class="spec-pill"><div class="spec-k">Velocidad</div><div class="spec-v">&le; 300 mm/s</div></div>
+            <div class="spec-pill"><div class="spec-k">Enfriamiento</div><div class="spec-v">100% Ventilador</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="promo-strip">
+        <div class="promo-text">
+          <strong>💡 Beneficios Comerciales:</strong> Precios de referencia oficial BCV. Solicita cotización directa para descuentos especiales por volumen (Cajas Master de 10 rollos).
+        </div>
+        <div class="promo-cta-btn">WhatsApp +58 422-3446675</div>
+      </div>
+
+      <div class="catalog-grid">
+        
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: #EAB308; border: 1px solid rgba(255,255,255,0.15);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Amarillo (Yellow)</div>
+        <div class="prod-meta">
+          <span class="prod-sku">NPLA005</span>
+          <span class="prod-stock">● 10 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$20.00</div>
+      </div>
+    </div>
+    
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: #38BDF8; border: 1px solid rgba(255,255,255,0.15);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Azul Cielo (Sky Blue)</div>
+        <div class="prod-meta">
+          <span class="prod-sku">NPLA019</span>
+          <span class="prod-stock">● 10 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$20.00</div>
+      </div>
+    </div>
+    
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: #FFFFFF; border: 1px solid rgba(255,255,255,0.4);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Blanco Puro (White)</div>
+        <div class="prod-meta">
+          <span class="prod-sku">NPLA001</span>
+          <span class="prod-stock">● 50 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$20.00</div>
+      </div>
+    </div>
+    
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: #64748B; border: 1px solid rgba(255,255,255,0.15);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Gris (Gray)</div>
+        <div class="prod-meta">
+          <span class="prod-sku">NPLA004</span>
+          <span class="prod-stock">● 10 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$20.00</div>
+      </div>
+    </div>
+    
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: #64748B; border: 1px solid rgba(255,255,255,0.15);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Gris Oscuro (Dark Gray)</div>
+        <div class="prod-meta">
+          <span class="prod-sku">NPLA018</span>
+          <span class="prod-stock">● 10 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$20.00</div>
+      </div>
+    </div>
+    
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: #78350F; border: 1px solid rgba(255,255,255,0.15);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Marrón (Brown)</div>
+        <div class="prod-meta">
+          <span class="prod-sku">NPLA003</span>
+          <span class="prod-stock">● 10 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$20.00</div>
+      </div>
+    </div>
+    
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: #9333EA; border: 1px solid rgba(255,255,255,0.15);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Morado (Purple)</div>
+        <div class="prod-meta">
+          <span class="prod-sku">NPLA009</span>
+          <span class="prod-stock">● 10 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$20.00</div>
+      </div>
+    </div>
+    
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: #EA580C; border: 1px solid rgba(255,255,255,0.15);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Naranja (Orange)</div>
+        <div class="prod-meta">
+          <span class="prod-sku">NPLA008</span>
+          <span class="prod-stock">● 10 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$20.00</div>
+      </div>
+    </div>
+    
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: #18181B; border: 1px solid rgba(255,255,255,0.15);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Negro (Black)</div>
+        <div class="prod-meta">
+          <span class="prod-sku">NPLA002</span>
+          <span class="prod-stock">● 30 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$20.00</div>
+      </div>
+    </div>
+    
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: #EF4444; border: 1px solid rgba(255,255,255,0.15);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Rojo (Red)</div>
+        <div class="prod-meta">
+          <span class="prod-sku">NPLA010</span>
+          <span class="prod-stock">● 30 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$20.00</div>
+      </div>
+    </div>
+    
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: #EC4899; border: 1px solid rgba(255,255,255,0.15);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Rosado (Pink)</div>
+        <div class="prod-meta">
+          <span class="prod-sku">NPLA016</span>
+          <span class="prod-stock">● 10 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$20.00</div>
+      </div>
+    </div>
+    
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: #16A34A; border: 1px solid rgba(255,255,255,0.15);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Verde (Green)</div>
+        <div class="prod-meta">
+          <span class="prod-sku">NPLA007</span>
+          <span class="prod-stock">● 10 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$20.00</div>
+      </div>
+    </div>
+    
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: radial-gradient(circle, #F8FAFC 20%, #94A3B8 80%); border: 1px solid rgba(255,255,255,0.15);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Mármol Piedra (Marble)</div>
+        <div class="prod-meta">
+          <span class="prod-sku">KR-PLA901Y-1CH</span>
+          <span class="prod-stock">● 10 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$27.00</div>
+      </div>
+    </div>
+    
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: #EF4444; border: 1px solid rgba(255,255,255,0.15);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Rojo Mate (Red)</div>
+        <div class="prod-meta">
+          <span class="prod-sku">KR-PLA305Y-1CH</span>
+          <span class="prod-stock">● 10 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$21.50</div>
+      </div>
+    </div>
+    
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: #D2B48C; border: 1px solid rgba(255,255,255,0.15);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Tono Piel (Skin Tone)</div>
+        <div class="prod-meta">
+          <span class="prod-sku">KR-PLA307Y-1CH</span>
+          <span class="prod-stock">● 10 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$21.50</div>
+      </div>
+    </div>
+    
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: #EAB308; border: 1px solid rgba(255,255,255,0.15);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Amarillo (Yellow)</div>
+        <div class="prod-meta">
+          <span class="prod-sku">KR-PLA108Y-1CH</span>
+          <span class="prod-stock">● 10 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$21.50</div>
+      </div>
+    </div>
+    
+      </div>
+
+      <div class="page-footer">
+        <div class="footer-legal"><span class="footer-legal-dot"></span><span>Facturación formal en Bolívares (VES) conforme a Tasa Oficial BCV</span></div>
+        <div>Página 03 &bull; Filamentos PLA &amp; PLA+</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== PÁGINA 4: SILK ORO & MULTICOLOR ==================== -->
+  <div class="page">
+    <div class="content-layer">
+      <div class="page-top">
+        <div class="page-brand">
+          <img src="file:///C:/Users/UNK/Desktop/EXPORT IA/SYNTRA GROUP/branding_8k/syntra_logo_whatsapp_2k.png">
+          <div>
+            <div class="page-brand-text">SYNTRA SUPPLY</div>
+            <div class="page-brand-sub">Línea Artística &amp; Acabados Especiales</div>
+          </div>
+        </div>
+        <div class="page-meta-badge">SERIE SEDA ESPECTRAL &bull; 1.75 MM &bull; 1 KG</div>
+      </div>
+
+      <div class="section-hero">
+        <div class="section-hero-img-box">
+          <img src="file:///C:/Users/UNK/Desktop/EXPORT IA/SYNTRA GROUP/crm/static/img/catalog_assets/silk_dual_dragon.jpg" class="section-hero-img">
+          <img src="file:///C:/Users/UNK/Desktop/EXPORT IA/SYNTRA GROUP/crm/static/img/catalog_assets/silk_dual_vase.jpg" class="section-hero-img">
+          <img src="file:///C:/Users/UNK/Desktop/EXPORT IA/SYNTRA GROUP/crm/static/img/catalog_assets/silk_tri_showcase.jpg" class="section-hero-img">
+        </div>
+        <div class="section-hero-info">
+          <div class="section-hero-title">PLA SILK &bull; ORO IMPERIAL &amp; MULTICOLOR</div>
+          <div class="section-hero-desc">Acabado sedoso metalizado de alto brillo. Oculta de forma natural las líneas de capa sin necesidad de lijado ni pintura. Ideal para dragones articulados, trofeos, joyería y floreros de diseño.</div>
+          <div class="spec-grid">
+            <div class="spec-pill"><div class="spec-k">Boquilla</div><div class="spec-v">205&ndash;225 &deg;C</div></div>
+            <div class="spec-pill"><div class="spec-k">Cama</div><div class="spec-v">55&ndash;65 &deg;C</div></div>
+            <div class="spec-pill"><div class="spec-k">Efecto</div><div class="spec-v">Perlado Espejo</div></div>
+            <div class="spec-pill"><div class="spec-k">Co-Extrusión</div><div class="spec-v">Dual / Tricolor</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="promo-strip">
+        <div class="promo-text">
+          <strong>🔥 Los favoritos de venta en Anzoátegui:</strong> El Oro Imperial y el Bicolor Oro/Morado tienen alta rotación. Aparta tus colores vía WhatsApp.
+        </div>
+        <div class="promo-cta-btn">WhatsApp +58 422-3446675</div>
+      </div>
+
+      <div class="catalog-grid">
+        
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: #2563EB; border: 1px solid rgba(255,255,255,0.15);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Azul/Morado (Blue-Purple)</div>
+        <div class="prod-meta">
+          <span class="prod-sku">KR-Silk108Y-1CH</span>
+          <span class="prod-stock">● 10 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$27.00</div>
+      </div>
+    </div>
+    
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: #2563EB; border: 1px solid rgba(255,255,255,0.15);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Azul/Verde (Blue-Green)</div>
+        <div class="prod-meta">
+          <span class="prod-sku">KR-Silk102Y-1CH</span>
+          <span class="prod-stock">● 10 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$27.00</div>
+      </div>
+    </div>
+    
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: linear-gradient(135deg, #FDE68A, #D97706, #92400E); border: 1px solid rgba(255,255,255,0.15);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Oro/Morado (Gold-Purple)</div>
+        <div class="prod-meta">
+          <span class="prod-sku">KR-Silk107Y-1CH</span>
+          <span class="prod-stock">● 10 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$27.00</div>
+      </div>
+    </div>
+    
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: linear-gradient(135deg, #FDE68A, #D97706, #92400E); border: 1px solid rgba(255,255,255,0.15);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Oro/Plata (Gold-Silver)</div>
+        <div class="prod-meta">
+          <span class="prod-sku">KR-Silk105Y-1CH</span>
+          <span class="prod-stock">● 10 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$27.00</div>
+      </div>
+    </div>
+    
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: #EF4444; border: 1px solid rgba(255,255,255,0.15);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Rojo/Azul (Red-Blue)</div>
+        <div class="prod-meta">
+          <span class="prod-sku">KR-Silk104Y-1CH</span>
+          <span class="prod-stock">● 10 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$27.00</div>
+      </div>
+    </div>
+    
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: #18181B; border: 1px solid rgba(255,255,255,0.15);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Rojo/Negro (Red-Black)</div>
+        <div class="prod-meta">
+          <span class="prod-sku">KR-Silk111Y-1CH</span>
+          <span class="prod-stock">● 10 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$27.00</div>
+      </div>
+    </div>
+    
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: #18181B; border: 1px solid rgba(255,255,255,0.15);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Verde/Negro (Green-Black)</div>
+        <div class="prod-meta">
+          <span class="prod-sku">KR-Silk110Y-1CH</span>
+          <span class="prod-stock">● 10 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$27.00</div>
+      </div>
+    </div>
+    
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: linear-gradient(135deg, #EF4444, #F97316, #EAB308, #10B981, #3B82F6, #8B5CF6); border: 1px solid rgba(255,255,255,0.15);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Rainbow Gradient</div>
+        <div class="prod-meta">
+          <span class="prod-sku">KR-Silk303Y-1CH</span>
+          <span class="prod-stock">● 10 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$27.00</div>
+      </div>
+    </div>
+    
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: #38BDF8; border: 1px solid rgba(255,255,255,0.15);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Ice Cream Gradient</div>
+        <div class="prod-meta">
+          <span class="prod-sku">KR-Silk304Y-1CH</span>
+          <span class="prod-stock">● 10 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$27.00</div>
+      </div>
+    </div>
+    
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: #38BDF8; border: 1px solid rgba(255,255,255,0.15);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Macaron Gradient</div>
+        <div class="prod-meta">
+          <span class="prod-sku">KR-Silk301Y-1CH</span>
+          <span class="prod-stock">● 10 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$27.00</div>
+      </div>
+    </div>
+    
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: #38BDF8; border: 1px solid rgba(255,255,255,0.15);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Pastel Gradient</div>
+        <div class="prod-meta">
+          <span class="prod-sku">KR-Silk302Y-1CH</span>
+          <span class="prod-stock">● 10 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$27.00</div>
+      </div>
+    </div>
+    
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: #2563EB; border: 1px solid rgba(255,255,255,0.15);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Azul Zafiro (Blue)</div>
+        <div class="prod-meta">
+          <span class="prod-sku">KR-Silk007Y-1CH</span>
+          <span class="prod-stock">● 10 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$24.00</div>
+      </div>
+    </div>
+    
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: #FFFFFF; border: 1px solid rgba(255,255,255,0.4);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Blanco Perlado (Pearl White)</div>
+        <div class="prod-meta">
+          <span class="prod-sku">KR-Silk012Y-1CH</span>
+          <span class="prod-stock">● 10 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$24.00</div>
+      </div>
+    </div>
+    
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: #38BDF8; border: 1px solid rgba(255,255,255,0.15);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Bronce Seda (Bronze)</div>
+        <div class="prod-meta">
+          <span class="prod-sku">KR-Silk005Y-1CH</span>
+          <span class="prod-stock">● 10 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$24.00</div>
+      </div>
+    </div>
+    
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: #EA580C; border: 1px solid rgba(255,255,255,0.15);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Naranja Cobre (Orange)</div>
+        <div class="prod-meta">
+          <span class="prod-sku">KR-Silk008Y-1CH</span>
+          <span class="prod-stock">● 10 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$24.00</div>
+      </div>
+    </div>
+    
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: #18181B; border: 1px solid rgba(255,255,255,0.15);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Negro Seda (Black)</div>
+        <div class="prod-meta">
+          <span class="prod-sku">KR-Silk003Y-1CH</span>
+          <span class="prod-stock">● 10 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$24.00</div>
+      </div>
+    </div>
+    
+      </div>
+
+      <div class="page-footer">
+        <div class="footer-legal"><span class="footer-legal-dot"></span><span>Facturación formal en Bolívares (VES) conforme a Tasa Oficial BCV</span></div>
+        <div>Página 04 &bull; Filamentos PLA Seda &amp; Especiales</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== PÁGINA 5: PETG & FIBRAS DE CARBONO ==================== -->
+  <div class="page">
+    <div class="content-layer">
+      <div class="page-top">
+        <div class="page-brand">
+          <img src="file:///C:/Users/UNK/Desktop/EXPORT IA/SYNTRA GROUP/branding_8k/syntra_logo_whatsapp_2k.png">
+          <div>
+            <div class="page-brand-text">SYNTRA SUPPLY</div>
+            <div class="page-brand-sub">Línea de Ingeniería &amp; Estructuras</div>
+          </div>
+        </div>
+        <div class="page-meta-badge">INGENIERÍA &bull; PETG &amp; CARBON FIBER &bull; 1.75 MM</div>
+      </div>
+
+      <div class="section-hero">
+        <div class="section-hero-img-box">
+          <img src="file:///C:/Users/UNK/Desktop/EXPORT IA/SYNTRA GROUP/crm/static/img/catalog_assets/petg_prints_showcase.jpg" class="section-hero-img">
+          <img src="file:///C:/Users/UNK/Desktop/EXPORT IA/SYNTRA GROUP/crm/static/img/catalog_assets/pacf_drone_parts.jpg" class="section-hero-img">
+        </div>
+        <div class="section-hero-info">
+          <div class="section-hero-title">PETG BASIC &amp; FIBRAS DE CARBONO (CF)</div>
+          <div class="section-hero-desc">Materiales para aplicaciones exigentes. El PETG combina la facilidad del PLA con la resistencia térmica y química del ABS. La serie Carbon Fiber (CF) ofrece rigidez estructural extrema y acabado mate industrial.</div>
+          <div class="spec-grid">
+            <div class="spec-pill"><div class="spec-k">PETG Boq.</div><div class="spec-v">230&ndash;250 &deg;C</div></div>
+            <div class="spec-pill"><div class="spec-k">CF Boquilla</div><div class="spec-v">260&ndash;290 &deg;C</div></div>
+            <div class="spec-pill"><div class="spec-k">Cama</div><div class="spec-v">70&ndash;85 &deg;C</div></div>
+            <div class="spec-pill"><div class="spec-k">Resistencia</div><div class="spec-v">Hasta 85 &deg;C</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="promo-strip">
+        <div class="promo-text">
+          <strong>🛠️ Atención Talleres:</strong> Para filamento con fibra de carbono recomendamos boquilla de acero endurecido (Hardened Steel) disponible en nuestra sección de repuestos.
+        </div>
+        <div class="promo-cta-btn">WhatsApp +58 422-3446675</div>
+      </div>
+
+      <div class="catalog-grid">
+        
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: #EAB308; border: 1px solid rgba(255,255,255,0.15);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Amarillo (Yellow)</div>
+        <div class="prod-meta">
+          <span class="prod-sku">NPETG003</span>
+          <span class="prod-stock">● 10 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$19.50</div>
+      </div>
+    </div>
+    
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: #84CC16; border: 1px solid rgba(255,255,255,0.15);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Amarillo Flúor (Fluorescent Yellow)</div>
+        <div class="prod-meta">
+          <span class="prod-sku">NPETG013</span>
+          <span class="prod-stock">● 10 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$19.50</div>
+      </div>
+    </div>
+    
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: #38BDF8; border: 1px solid rgba(255,255,255,0.15);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Azul Cielo (Sky Blue)</div>
+        <div class="prod-meta">
+          <span class="prod-sku">NPETG002</span>
+          <span class="prod-stock">● 10 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$19.50</div>
+      </div>
+    </div>
+    
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: #2563EB; border: 1px solid rgba(255,255,255,0.15);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Azul Flúor (Fluorescent Blue)</div>
+        <div class="prod-meta">
+          <span class="prod-sku">NPETG014</span>
+          <span class="prod-stock">● 10 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$19.50</div>
+      </div>
+    </div>
+    
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: #2563EB; border: 1px solid rgba(255,255,255,0.15);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Azul Oscuro (Dark Blue)</div>
+        <div class="prod-meta">
+          <span class="prod-sku">NPETG019</span>
+          <span class="prod-stock">● 10 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$19.50</div>
+      </div>
+    </div>
+    
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: #FFFFFF; border: 1px solid rgba(255,255,255,0.4);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Blanco (White)</div>
+        <div class="prod-meta">
+          <span class="prod-sku">NPETG088</span>
+          <span class="prod-stock">● 10 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$19.50</div>
+      </div>
+    </div>
+    
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: #38BDF8; border: 1px solid rgba(255,255,255,0.15);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Cobre (Copper)</div>
+        <div class="prod-meta">
+          <span class="prod-sku">NPETG009</span>
+          <span class="prod-stock">● 10 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$19.50</div>
+      </div>
+    </div>
+    
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: #64748B; border: 1px solid rgba(255,255,255,0.15);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Gris (Gray)</div>
+        <div class="prod-meta">
+          <span class="prod-sku">NPETG006</span>
+          <span class="prod-stock">● 10 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$19.50</div>
+      </div>
+    </div>
+    
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: #EA580C; border: 1px solid rgba(255,255,255,0.15);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Naranja (Orange)</div>
+        <div class="prod-meta">
+          <span class="prod-sku">NPETG017</span>
+          <span class="prod-stock">● 10 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$19.50</div>
+      </div>
+    </div>
+    
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: #18181B; border: 1px solid rgba(255,255,255,0.15);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Negro (Black)</div>
+        <div class="prod-meta">
+          <span class="prod-sku">NPETG087</span>
+          <span class="prod-stock">● 10 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$19.50</div>
+      </div>
+    </div>
+    
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: linear-gradient(135deg, #F8FAFC, #94A3B8, #475569); border: 1px solid rgba(255,255,255,0.15);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Plata Brillante (Silver Metallic)</div>
+        <div class="prod-meta">
+          <span class="prod-sku">NPETG016</span>
+          <span class="prod-stock">● 10 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$19.50</div>
+      </div>
+    </div>
+    
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: linear-gradient(135deg, #F8FAFC, #94A3B8, #475569); border: 1px solid rgba(255,255,255,0.15);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Plata Metálico (Silver)</div>
+        <div class="prod-meta">
+          <span class="prod-sku">NPETG008</span>
+          <span class="prod-stock">● 10 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$19.50</div>
+      </div>
+    </div>
+    
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: linear-gradient(135deg, #27272A, #09090B); border: 1px solid rgba(255,255,255,0.15);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Diamante / Carbon Fiber 257x257</div>
+        <div class="prod-meta">
+          <span class="prod-sku">B02653</span>
+          <span class="prod-stock">● 10 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$36.00</div>
+      </div>
+    </div>
+    
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: linear-gradient(135deg, #27272A, #09090B); border: 1px solid rgba(255,255,255,0.15);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Carbon Fiber PET + PEO 355x346</div>
+        <div class="prod-meta">
+          <span class="prod-sku">B03196</span>
+          <span class="prod-stock">● 10 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$48.00</div>
+      </div>
+    </div>
+    
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: linear-gradient(135deg, #27272A, #09090B); border: 1px solid rgba(255,255,255,0.15);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Doble Carbon PET 355x346</div>
+        <div class="prod-meta">
+          <span class="prod-sku">B03197</span>
+          <span class="prod-stock">● 10 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$48.00</div>
+      </div>
+    </div>
+    
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: #18181B; border: 1px solid rgba(255,255,255,0.15);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Negro (Black)</div>
+        <div class="prod-meta">
+          <span class="prod-sku">KR-PETG902Y-1CH</span>
+          <span class="prod-stock">● 10 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$42.00</div>
+      </div>
+    </div>
+    
+      </div>
+
+      <div class="page-footer">
+        <div class="footer-legal"><span class="footer-legal-dot"></span><span>Facturación formal en Bolívares (VES) conforme a Tasa Oficial BCV</span></div>
+        <div>Página 05 &bull; PETG &amp; Fibra de Carbono</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== PÁGINA 6: FLEXIBLES TPU & ASA ==================== -->
+  <div class="page">
+    <div class="content-layer">
+      <div class="page-top">
+        <div class="page-brand">
+          <img src="file:///C:/Users/UNK/Desktop/EXPORT IA/SYNTRA GROUP/branding_8k/syntra_logo_whatsapp_2k.png">
+          <div>
+            <div class="page-brand-text">SYNTRA SUPPLY</div>
+            <div class="page-brand-sub">Polímeros Técnicos Especializados</div>
+          </div>
+        </div>
+        <div class="page-meta-badge">SERIE FLEXIBLE 95A &bull; ASA ANTI-UV SOLAR &bull; 1 KG</div>
+      </div>
+
+      <div class="section-hero">
+        <div class="section-hero-img-box">
+          <img src="file:///C:/Users/UNK/Desktop/EXPORT IA/SYNTRA GROUP/crm/static/img/catalog_assets/tpu_shoe_flex.jpg" class="section-hero-img">
+          <img src="file:///C:/Users/UNK/Desktop/EXPORT IA/SYNTRA GROUP/crm/static/img/catalog_assets/tpu_models_test.jpg" class="section-hero-img">
+        </div>
+        <div class="section-hero-info">
+          <div class="section-hero-title">TPU 95A FLEXIBLE &amp; ASA SOLAR UV</div>
+          <div class="section-hero-desc">TPU 95A: Poliuretano termoplástico de alta elasticidad, absorción de impacto y retorno de memoria. ASA: El termoplástico definitivo para exteriores en Anzoátegui, inmune a los rayos ultravioleta y al salitre costero.</div>
+          <div class="spec-grid">
+            <div class="spec-pill"><div class="spec-k">TPU Boq.</div><div class="spec-v">210&ndash;230 &deg;C</div></div>
+            <div class="spec-pill"><div class="spec-k">ASA Boq.</div><div class="spec-v">240&ndash;260 &deg;C</div></div>
+            <div class="spec-pill"><div class="spec-k">Dureza TPU</div><div class="spec-v">Shore 95A</div></div>
+            <div class="spec-pill"><div class="spec-k">ASA Cama</div><div class="spec-v">90&ndash;105 &deg;C</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="promo-strip">
+        <div class="promo-text">
+          <strong>🌊 Especial para la Costa:</strong> El ASA es el material ideal para soportes náuticos, accesorios de lanchas en El Morro y piezas automotrices expuestas al sol tropical.
+        </div>
+        <div class="promo-cta-btn">WhatsApp +58 422-3446675</div>
+      </div>
+
+      <div class="catalog-grid">
+        
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: #EAB308; border: 1px solid rgba(255,255,255,0.15);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Amarillo (Yellow)</div>
+        <div class="prod-meta">
+          <span class="prod-sku">KR-TPU007Y-1CH</span>
+          <span class="prod-stock">● 10 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$28.50</div>
+      </div>
+    </div>
+    
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: #2563EB; border: 1px solid rgba(255,255,255,0.15);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Azul (Blue)</div>
+        <div class="prod-meta">
+          <span class="prod-sku">KR-TPU008Y-1CH</span>
+          <span class="prod-stock">● 10 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$28.50</div>
+      </div>
+    </div>
+    
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: #FFFFFF; border: 1px solid rgba(255,255,255,0.4);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Blanco (White)</div>
+        <div class="prod-meta">
+          <span class="prod-sku">KR-TPU002Y-1CH</span>
+          <span class="prod-stock">● 10 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$28.50</div>
+      </div>
+    </div>
+    
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: #64748B; border: 1px solid rgba(255,255,255,0.15);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Gris (Gray)</div>
+        <div class="prod-meta">
+          <span class="prod-sku">KR-TPU006Y-1CH</span>
+          <span class="prod-stock">● 20 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$28.50</div>
+      </div>
+    </div>
+    
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: #38BDF8; border: 1px solid rgba(255,255,255,0.15);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Mandarina Flúor (Tangerine)</div>
+        <div class="prod-meta">
+          <span class="prod-sku">KR-TPU010Y-1CH</span>
+          <span class="prod-stock">● 10 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$28.50</div>
+      </div>
+    </div>
+    
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: #EA580C; border: 1px solid rgba(255,255,255,0.15);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Naranja (Orange)</div>
+        <div class="prod-meta">
+          <span class="prod-sku">KR-TPU009Y-1CH</span>
+          <span class="prod-stock">● 10 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$28.50</div>
+      </div>
+    </div>
+    
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: #18181B; border: 1px solid rgba(255,255,255,0.15);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Negro (Black)</div>
+        <div class="prod-meta">
+          <span class="prod-sku">KR-TPU001Y-1CH</span>
+          <span class="prod-stock">● 20 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$28.50</div>
+      </div>
+    </div>
+    
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: #EF4444; border: 1px solid rgba(255,255,255,0.15);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Rojo (Red)</div>
+        <div class="prod-meta">
+          <span class="prod-sku">KR-TPU003Y-1CH</span>
+          <span class="prod-stock">● 10 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$28.50</div>
+      </div>
+    </div>
+    
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: #38BDF8; border: 1px solid rgba(255,255,255,0.15);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Transparente (Transparent)</div>
+        <div class="prod-meta">
+          <span class="prod-sku">KR-TPU004Y-1CH</span>
+          <span class="prod-stock">● 10 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$28.50</div>
+      </div>
+    </div>
+    
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: #16A34A; border: 1px solid rgba(255,255,255,0.15);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Verde (Green)</div>
+        <div class="prod-meta">
+          <span class="prod-sku">KR-TPU005Y-1CH</span>
+          <span class="prod-stock">● 10 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$28.50</div>
+      </div>
+    </div>
+    
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: #FFFFFF; border: 1px solid rgba(255,255,255,0.4);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Blanco (White)</div>
+        <div class="prod-meta">
+          <span class="prod-sku">KR-ASA001Y-1CH</span>
+          <span class="prod-stock">● 10 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$28.50</div>
+      </div>
+    </div>
+    
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: #64748B; border: 1px solid rgba(255,255,255,0.15);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Gris (Gray)</div>
+        <div class="prod-meta">
+          <span class="prod-sku">KR-ASA002Y-1CH</span>
+          <span class="prod-stock">● 10 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$28.50</div>
+      </div>
+    </div>
+    
+    <div class="prod-card">
+      <div class="prod-swatch-box">
+        <div class="prod-swatch" style="background: #18181B; border: 1px solid rgba(255,255,255,0.15);"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-color">Negro (Black)</div>
+        <div class="prod-meta">
+          <span class="prod-sku">KR-ASA003Y-1CH</span>
+          <span class="prod-stock">● 10 bobinas</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$28.50</div>
+      </div>
+    </div>
+    
+      </div>
+
+      <div class="page-footer">
+        <div class="footer-legal"><span class="footer-legal-dot"></span><span>Facturación formal en Bolívares (VES) conforme a Tasa Oficial BCV</span></div>
+        <div>Página 06 &bull; TPU 95A Flexible &amp; ASA Anti-UV</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== PÁGINA 7: REPUESTOS BAMBU LAB (2 COLUMNAS) ==================== -->
+  <div class="page">
+    <div class="content-layer">
+      <div class="page-top">
+        <div class="page-brand">
+          <img src="file:///C:/Users/UNK/Desktop/EXPORT IA/SYNTRA GROUP/branding_8k/syntra_logo_whatsapp_2k.png">
+          <div>
+            <div class="page-brand-text">SYNTRA SUPPLY</div>
+            <div class="page-brand-sub">Repuestos &amp; Accesorios Críticos</div>
+          </div>
+        </div>
+        <div class="page-meta-badge">ECOSISTEMA BAMBU LAB &bull; KINGROON &bull; ENTREGA INMEDIATA</div>
+      </div>
+
+      <div class="section-hero">
+        <div class="section-hero-img-box">
+          <img src="file:///C:/Users/UNK/Desktop/EXPORT IA/SYNTRA GROUP/crm/static/img/catalog_assets/bambu_a1_hotend.jpg" class="section-hero-img">
+          <img src="file:///C:/Users/UNK/Desktop/EXPORT IA/SYNTRA GROUP/crm/static/img/catalog_assets/bambu_pei_golden.jpg" class="section-hero-img">
+          <img src="file:///C:/Users/UNK/Desktop/EXPORT IA/SYNTRA GROUP/crm/static/img/catalog_assets/bambu_peo_diamond.jpg" class="section-hero-img">
+        </div>
+        <div class="section-hero-info">
+          <div class="section-hero-title">HOTENDS, PLACAS PEI &amp; COMPONENTES</div>
+          <div class="section-hero-desc">Tu taller nunca debe detenerse. Stock físico en Lechería de hotends completos intercambiables, boquillas templadas de acero para filamentos abrasivos y placas texturizadas PEI y PEO Diamante.</div>
+          <div class="spec-grid">
+            <div class="spec-pill"><div class="spec-k">Compatibilidad</div><div class="spec-v">A1 / P1 / X1 / H2D</div></div>
+            <div class="spec-pill"><div class="spec-k">Boquillas</div><div class="spec-v">0.2 &bull; 0.4 &bull; 0.6 mm</div></div>
+            <div class="spec-pill"><div class="spec-k">Acabados</div><div class="spec-v">PEI Oro &bull; PEO Diamante</div></div>
+            <div class="spec-pill"><div class="spec-k">Resistencia</div><div class="spec-v">Hasta 300 &deg;C</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="promo-strip">
+        <div class="promo-text">
+          <strong>⚡ Despacho de Emergencia:</strong> ¿Se rompió un termistor o se tapó el hotend en plena producción? Retira de inmediato en Lechería y reanuda tu trabajo en 40 minutos.
+        </div>
+        <div class="promo-cta-btn">WhatsApp +58 422-3446675</div>
+      </div>
+
+      <div class="parts-grid-2col">
+        
+    <div class="part-card">
+      <img src="file:///C:/Users/UNK/Desktop/EXPORT IA/SYNTRA GROUP/crm/static/img/catalog_assets/bambu_a1_hotend.jpg" class="part-thumb">
+      <div class="part-info">
+        <div class="part-name">Hot End Bambu A1/A1m Disipador Latón Hardened 0.4mm</div>
+        <div class="part-meta">
+          <span class="prod-sku">B03165</span>
+          <span class="prod-stock">● 10 disp.</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$30.00</div>
+      </div>
+    </div>
+    
+    <div class="part-card">
+      <img src="file:///C:/Users/UNK/Desktop/EXPORT IA/SYNTRA GROUP/crm/static/img/catalog_assets/bambu_a1_hotend.jpg" class="part-thumb">
+      <div class="part-info">
+        <div class="part-name">Hot End Desmontable Hardened Steel Bambu A1/A1m 0.2mm</div>
+        <div class="part-meta">
+          <span class="prod-sku">B02759</span>
+          <span class="prod-stock">● 20 disp.</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$24.00</div>
+      </div>
+    </div>
+    
+    <div class="part-card">
+      <img src="file:///C:/Users/UNK/Desktop/EXPORT IA/SYNTRA GROUP/crm/static/img/catalog_assets/bambu_a1_hotend.jpg" class="part-thumb">
+      <div class="part-info">
+        <div class="part-name">Hot End Desmontable Hardened Steel Bambu A1/A1m 0.4mm</div>
+        <div class="part-meta">
+          <span class="prod-sku">B02760</span>
+          <span class="prod-stock">● 20 disp.</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$24.00</div>
+      </div>
+    </div>
+    
+    <div class="part-card">
+      <img src="file:///C:/Users/UNK/Desktop/EXPORT IA/SYNTRA GROUP/crm/static/img/catalog_assets/bambu_a1_hotend.jpg" class="part-thumb">
+      <div class="part-info">
+        <div class="part-name">Hot End Desmontable Hardened Steel Bambu A1/A1m 0.6mm</div>
+        <div class="part-meta">
+          <span class="prod-sku">B02761</span>
+          <span class="prod-stock">● 20 disp.</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$24.00</div>
+      </div>
+    </div>
+    
+    <div class="part-card">
+      <img src="file:///C:/Users/UNK/Desktop/EXPORT IA/SYNTRA GROUP/crm/static/img/catalog_assets/bambu_a1_hotend.jpg" class="part-thumb">
+      <div class="part-info">
+        <div class="part-name">Hot End Desmontable Hardened Steel Bambu A1/A1m 0.8mm</div>
+        <div class="part-meta">
+          <span class="prod-sku">B02762</span>
+          <span class="prod-stock">● 20 disp.</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$24.00</div>
+      </div>
+    </div>
+    
+    <div class="part-card">
+      <img src="file:///C:/Users/UNK/Desktop/EXPORT IA/SYNTRA GROUP/crm/static/img/catalog_assets/bambu_a1_hotend.jpg" class="part-thumb">
+      <div class="part-info">
+        <div class="part-name">Hot End Desmontable Inox Bambu A1/A1m 0.2mm</div>
+        <div class="part-meta">
+          <span class="prod-sku">B02755</span>
+          <span class="prod-stock">● 20 disp.</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$19.00</div>
+      </div>
+    </div>
+    
+    <div class="part-card">
+      <img src="file:///C:/Users/UNK/Desktop/EXPORT IA/SYNTRA GROUP/crm/static/img/catalog_assets/bambu_a1_hotend.jpg" class="part-thumb">
+      <div class="part-info">
+        <div class="part-name">Hot End Desmontable Inox Bambu A1/A1m 0.4mm</div>
+        <div class="part-meta">
+          <span class="prod-sku">B02756</span>
+          <span class="prod-stock">● 20 disp.</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$19.00</div>
+      </div>
+    </div>
+    
+    <div class="part-card">
+      <img src="file:///C:/Users/UNK/Desktop/EXPORT IA/SYNTRA GROUP/crm/static/img/catalog_assets/bambu_a1_hotend.jpg" class="part-thumb">
+      <div class="part-info">
+        <div class="part-name">Hot End Desmontable Inox Bambu A1/A1m 0.6mm</div>
+        <div class="part-meta">
+          <span class="prod-sku">B02757</span>
+          <span class="prod-stock">● 20 disp.</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$19.00</div>
+      </div>
+    </div>
+    
+    <div class="part-card">
+      <img src="file:///C:/Users/UNK/Desktop/EXPORT IA/SYNTRA GROUP/crm/static/img/catalog_assets/bambu_a1_hotend.jpg" class="part-thumb">
+      <div class="part-info">
+        <div class="part-name">Hot End Desmontable Inox Bambu A1/A1m 0.8mm</div>
+        <div class="part-meta">
+          <span class="prod-sku">B02758</span>
+          <span class="prod-stock">● 20 disp.</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$19.00</div>
+      </div>
+    </div>
+    
+    <div class="part-card">
+      <img src="file:///C:/Users/UNK/Desktop/EXPORT IA/SYNTRA GROUP/crm/static/img/catalog_assets/bambu_hardened_hotend.jpg" class="part-thumb">
+      <div class="part-info">
+        <div class="part-name">Hot End Kingroon H2D High-Flow Integrado Hardened 0.4mm</div>
+        <div class="part-meta">
+          <span class="prod-sku">XP250418</span>
+          <span class="prod-stock">● 10 disp.</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$36.00</div>
+      </div>
+    </div>
+    
+    <div class="part-card">
+      <img src="file:///C:/Users/UNK/Desktop/EXPORT IA/SYNTRA GROUP/crm/static/img/catalog_assets/bambu_a1_hotend.jpg" class="part-thumb">
+      <div class="part-info">
+        <div class="part-name">Placa Cold-Stamping Serigrafiada 256x256 (X1/P1/A1)</div>
+        <div class="part-meta">
+          <span class="prod-sku">B03199</span>
+          <span class="prod-stock">● 10 disp.</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$40.00</div>
+      </div>
+    </div>
+    
+    <div class="part-card">
+      <img src="file:///C:/Users/UNK/Desktop/EXPORT IA/SYNTRA GROUP/crm/static/img/catalog_assets/bambu_a1_hotend.jpg" class="part-thumb">
+      <div class="part-info">
+        <div class="part-name">Placa Diamante + PEO Grande 184x184 (A1 Mini)</div>
+        <div class="part-meta">
+          <span class="prod-sku">B03151</span>
+          <span class="prod-stock">● 20 disp.</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$24.00</div>
+      </div>
+    </div>
+    
+    <div class="part-card">
+      <img src="file:///C:/Users/UNK/Desktop/EXPORT IA/SYNTRA GROUP/crm/static/img/catalog_assets/bambu_a1_hotend.jpg" class="part-thumb">
+      <div class="part-info">
+        <div class="part-name">Placa Diamante + PEO Grande 257x257 (X1/P1/A1)</div>
+        <div class="part-meta">
+          <span class="prod-sku">B03152</span>
+          <span class="prod-stock">● 10 disp.</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$36.00</div>
+      </div>
+    </div>
+    
+    <div class="part-card">
+      <img src="file:///C:/Users/UNK/Desktop/EXPORT IA/SYNTRA GROUP/crm/static/img/catalog_assets/bambu_a1_hotend.jpg" class="part-thumb">
+      <div class="part-info">
+        <div class="part-name">Placa Doble Cara PEI + Film 257x257 (X1/P1/A1)</div>
+        <div class="part-meta">
+          <span class="prod-sku">B02716</span>
+          <span class="prod-stock">● 10 disp.</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$38.00</div>
+      </div>
+    </div>
+    
+    <div class="part-card">
+      <img src="file:///C:/Users/UNK/Desktop/EXPORT IA/SYNTRA GROUP/crm/static/img/catalog_assets/bambu_a1_hotend.jpg" class="part-thumb">
+      <div class="part-info">
+        <div class="part-name">Placa Doble Cara Texturizada PEI 184x184 (A1 Mini)</div>
+        <div class="part-meta">
+          <span class="prod-sku">B02553</span>
+          <span class="prod-stock">● 20 disp.</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$22.00</div>
+      </div>
+    </div>
+    
+    <div class="part-card">
+      <img src="file:///C:/Users/UNK/Desktop/EXPORT IA/SYNTRA GROUP/crm/static/img/catalog_assets/bambu_pei_golden.jpg" class="part-thumb">
+      <div class="part-info">
+        <div class="part-name">Placa Gold PEI Doble Cara Texturada 257x257 (ID Bambu)</div>
+        <div class="part-meta">
+          <span class="prod-sku">B03035</span>
+          <span class="prod-stock">● 20 disp.</span>
+        </div>
+      </div>
+      <div class="prod-price-box">
+        <div class="ref-label">Ref. Oficial BCV</div>
+        <div class="ref-val">$34.00</div>
+      </div>
+    </div>
+    
+      </div>
+
+      <div class="page-footer">
+        <div class="footer-legal"><span class="footer-legal-dot"></span><span>Facturación formal en Bolívares (VES) conforme a Tasa Oficial BCV</span></div>
+        <div>Página 07 &bull; Repuestos &amp; Placas Bambu Lab</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== PÁGINA 8: GUÍA DE PEDIDOS & CONTACTO ==================== -->
+  <div class="page">
+    <div class="content-layer">
+      <div class="page-top">
+        <div class="page-brand">
+          <img src="file:///C:/Users/UNK/Desktop/EXPORT IA/SYNTRA GROUP/branding_8k/syntra_logo_whatsapp_2k.png">
+          <div>
+            <div class="page-brand-text">SYNTRA SUPPLY</div>
+            <div class="page-brand-sub">Canal de Pedidos &amp; Despachos</div>
+          </div>
+        </div>
+        <div class="page-meta-badge">ATENCIÓN LUNES A DOMINGO &bull; 6:00 AM A 11:00 PM</div>
+      </div>
+
+      <div class="order-steps-grid">
+        <div class="step-card">
+          <div class="step-num">1</div>
+          <div class="step-title">Selecciona tus Ítems</div>
+          <div class="step-desc">Elige los materiales, colores y repuestos que necesitas de este catálogo o en nuestra tienda web syntrasupply.vercel.app.</div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">2</div>
+          <div class="step-title">Escríbenos por WhatsApp</div>
+          <div class="step-desc">Envíanos tu lista al <strong>+58 422-3446675</strong> para confirmar stock en vivo y generar tu cotización formal con bonificaciones.</div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">3</div>
+          <div class="step-title">Retira o Recibe Hoy</div>
+          <div class="step-desc">Retiro inmediato en Morro II, Lechería, delivery express en Barcelona y PLC o encomienda nacional asegurada.</div>
+        </div>
+      </div>
+
+      <div class="contact-hub-card">
+        <div class="contact-qr-box">
+          <img src="file:///C:/Users/UNK/Desktop/EXPORT IA/SYNTRA GROUP/crm/static/img/catalog_assets/whatsapp_qr.png" alt="Código QR WhatsApp">
+        </div>
+        <div class="contact-info-col">
+          <div class="contact-headline">ESCANEA Y CHATEA DIRECTO CON NOSOTROS</div>
+          <div class="contact-sub">
+            Atención personalizada por ingenieros 3D. Resolvemos dudas de materiales, tolerancias de extrusión y compatibilidad de repuestos para tu máquina.
+          </div>
+          <a href="https://wa.me/584223446675" class="contact-btn">ABRIR CHAT DE WHATSAPP: +58 422-3446675</a>
+        </div>
+      </div>
+
+      <div class="vip-box">
+        <div class="vip-title">👑 PROGRAMA PARA TALLERES &amp; GRANJAS 3D (CAJAS MASTER)</div>
+        <div class="vip-desc">
+          Si imprimes a volumen o requieres suministro mensual constante para tu taller, accede a tarifas preferenciales por <strong>Cajas Master de 10 bobinas</strong> con colores a tu elección y soporte técnico prioritario. Consulta disponibilidad con tu asesor por WhatsApp.
+        </div>
+      </div>
+
+      <div class="faq-grid">
+        <div class="faq-item">
+          <div class="faq-q">¿Cuáles son los métodos de pago?</div>
+          <div class="faq-a">Pago Móvil y transferencias bancarias a Tasa Oficial BCV del día. Consulta con tu asesor por WhatsApp sobre bonificaciones por pago directo.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">¿Dónde puedo retirar hoy mismo?</div>
+          <div class="faq-a">En nuestro almacén en Morro II, Lechería (6:00 AM a 11:00 PM con coordinación previa). También tenemos puntos de entrega en PLC y Barcelona.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">¿Hacen envíos a nivel nacional?</div>
+          <div class="faq-a">Sí, despachamos a diario a toda Venezuela bien empaquetado a través de MRW, Tealca y Zoom con cobro en destino.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">¿Tienen perfiles para Bambu Studio?</div>
+          <div class="faq-a">Sí, te compartimos perfiles pre-calibrados para Kingroon PLA, PETG y TPU probados en nuestras propias impresoras Bambu Lab.</div>
+        </div>
+      </div>
+
+      <div class="page-footer">
+        <div class="footer-legal">
+          <span class="footer-legal-dot"></span>
+          <span>Syntra Group C.A. &bull; RIF &amp; Facturación conforme a normativa legal BCV &bull; Todos los derechos reservados 2026</span>
+        </div>
+        <div>Página 08 &bull; Contacto &amp; Pedidos</div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
