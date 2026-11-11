@@ -1,121 +1,126 @@
 import os
-import sqlite3
+import sys
+import json
 import base64
-import asyncio
-from playwright.async_api import async_playwright
+import sqlite3
 from PIL import Image
+from playwright.sync_api import sync_playwright
 
-def get_b64(path):
-    if not os.path.exists(path):
-        print(f"ERROR: File not found: {path}")
-        return ""
-    ext = os.path.splitext(path)[1].lower().replace('.', '')
-    mime = 'image/jpeg' if ext in ['jpg', 'jpeg'] else 'image/png'
-    with open(path, 'rb') as f:
-        data = base64.b64encode(f.read()).decode('utf-8')
-    return f"data:{mime};base64,{data}"
+print("=== INICIANDO CONSTRUCCIÓN CATÁLOGO FLUIDO 1080p SYNTRA ===")
 
-ASSETS = r"c:\Users\UNK\Desktop\EXPORT IA\SYNTRA GROUP\syntraweb\assets\img"
-CAT_ASSETS = os.path.join(ASSETS, "catalog_assets")
+# Paths
+BASE_DIR = r"C:\Users\UNK\Desktop\EXPORT IA\SYNTRA GROUP"
+DB_PATH = os.path.join(BASE_DIR, "crm", "syntra_crm.db")
+ASSETS_DIR = os.path.join(BASE_DIR, "syntraweb", "assets", "img", "catalog_assets")
+BRAIN_DIR = r"C:\Users\UNK\.gemini\antigravity\brain\1fbe410f-c733-4b9d-841e-cf76d3274e44"
+SCRATCH_DIR = os.path.join(BRAIN_DIR, "scratch")
+HTML_OUT = os.path.join(SCRATCH_DIR, "catalogo_1080p_master.html")
+PDF_OUT = os.path.join(BASE_DIR, "crm", "static", "catalogo.pdf")
+PDF_OUT_FULL = os.path.join(BASE_DIR, "crm", "static", "catalogo_syntra_supply.pdf")
+SYNTRAWEB_PDF = os.path.join(BASE_DIR, "syntraweb", "catalogo.pdf")
+SYNTRAWEB_PDF_FULL = os.path.join(BASE_DIR, "syntraweb", "catalogo_syntra_supply.pdf")
 
-# Load real photography base64 (using the optimized assets)
-img_logo_3d = get_b64(os.path.join(ASSETS, "syntralogo1.png"))
-img_qr = get_b64(os.path.join(CAT_ASSETS, "whatsapp_qr.png"))
-
-# Filament photos
-img_pla_spool = get_b64(os.path.join(CAT_ASSETS, "pla_basic_spool.jpg"))
-img_pla_prints = get_b64(os.path.join(CAT_ASSETS, "pla_basic_prints.jpg"))
-img_pla_tolerance = get_b64(os.path.join(CAT_ASSETS, "pla_basic_tolerance.jpg"))
-
-img_plaplus_spool = get_b64(os.path.join(CAT_ASSETS, "plaplus_spool.jpg"))
-img_plaplus_prints = get_b64(os.path.join(CAT_ASSETS, "plaplus_prints.jpg"))
-img_plaplus_tough = get_b64(os.path.join(CAT_ASSETS, "plaplus_toughness.jpg"))
-img_plaplus_winding = get_b64(os.path.join(CAT_ASSETS, "plaplus_winding.jpg"))
-
-img_petg_spool = get_b64(os.path.join(CAT_ASSETS, "petg_spool.jpg"))
-img_petg_prints = get_b64(os.path.join(CAT_ASSETS, "petg_prints_showcase.jpg"))
-img_petg_adhesion = get_b64(os.path.join(CAT_ASSETS, "petg_adhesion.jpg"))
-img_petg_toughness = get_b64(os.path.join(CAT_ASSETS, "petg_toughness.jpg"))
-img_matte_prints = get_b64(os.path.join(CAT_ASSETS, "matte_prints.jpg"))
-
-img_silk_single_spool = get_b64(os.path.join(CAT_ASSETS, "silk_single_spool.jpg"))
-img_silk_single_prints = get_b64(os.path.join(CAT_ASSETS, "silk_single_prints.jpg"))
-img_silk_single_gold = get_b64(os.path.join(CAT_ASSETS, "silk_single_gold.jpg"))
-
-img_silk_dual_spool = get_b64(os.path.join(CAT_ASSETS, "silk_dual_spool.jpg"))
-img_silk_dual_dragon = get_b64(os.path.join(CAT_ASSETS, "silk_dual_dragon.jpg"))
-img_silk_dual_vase = get_b64(os.path.join(CAT_ASSETS, "silk_dual_vase.jpg"))
-
-img_silk_tri = get_b64(os.path.join(CAT_ASSETS, "silk_tri_showcase.jpg"))
-img_silk_multi = get_b64(os.path.join(CAT_ASSETS, "silk_multi_prints.jpg"))
-
-img_tpu_spool = get_b64(os.path.join(CAT_ASSETS, "tpu_spool.jpg"))
-img_tpu_shoe = get_b64(os.path.join(CAT_ASSETS, "tpu_shoe_flex.jpg"))
-img_tpu_models = get_b64(os.path.join(CAT_ASSETS, "tpu_models_test.jpg"))
-
-img_pacf_spool = get_b64(os.path.join(CAT_ASSETS, "pacf_spool.jpg"))
-img_pacf_drone = get_b64(os.path.join(CAT_ASSETS, "pacf_drone_parts.jpg"))
-img_placf_spool = get_b64(os.path.join(CAT_ASSETS, "placf_spool_parts.jpg"))
-
-# Hardware photos
-img_bambu_hotend = get_b64(os.path.join(CAT_ASSETS, "bambu_a1_hotend.jpg"))
-img_bambu_hardened = get_b64(os.path.join(CAT_ASSETS, "bambu_hardened_hotend.jpg"))
-img_bambu_pei = get_b64(os.path.join(CAT_ASSETS, "bambu_pei_golden.jpg"))
-img_bambu_peo = get_b64(os.path.join(CAT_ASSETS, "bambu_peo_diamond.jpg"))
-img_bambu_h2d = get_b64(os.path.join(CAT_ASSETS, "bambu_h2d_pei.jpg"))
-
-# Database products
-conn = sqlite3.connect('crm/syntra_crm.db')
+# Connect DB
+conn = sqlite3.connect(DB_PATH)
 c = conn.cursor()
-c.execute("SELECT id, category, name, material_type, color, sku, current_stock, pvp_usd, pvp_cash_usd FROM products ORDER BY id")
-db_products = c.fetchall()
+c.execute("SELECT category, material_type, name, color, pvp_usd, pvp_cash_usd, current_stock FROM products ORDER BY category, material_type, color")
+all_products = c.fetchall()
+conn.close()
 
 products_by_material = {}
-for p in db_products:
-    mat = p[3]
-    products_by_material.setdefault(mat, []).append(p)
+for p in all_products:
+    cat, mat, name, color, pvp, cash, stock = p
+    if mat not in products_by_material:
+        products_by_material[mat] = []
+    products_by_material[mat].append({
+        'category': cat,
+        'material_type': mat,
+        'name': name,
+        'color': color,
+        'pvp_usd': pvp,
+        'pvp_cash_usd': cash,
+        'current_stock': stock
+    })
 
-def get_base_hex(name):
-    n = name.lower().strip()
-    if 'blanco' in n or 'white' in n: return '#F8FAFC'
-    if 'negro' in n or 'black' in n: return '#18181B'
-    if 'gris oscuro' in n: return '#334155'
-    if 'gris' in n or 'gray' in n: return '#64748B'
-    if 'plata' in n or 'silver' in n: return '#C0C7D0'
-    if 'oro viejo' in n or 'dark gold' in n: return '#B48A14'
-    if 'oro' in n or 'gold' in n: return '#E5B80B'
-    if 'cobre' in n or 'copper' in n: return '#C87533'
-    if 'bronce' in n or 'bronze' in n: return '#CD7F32'
-    if 'rojo flúor' in n: return '#FF2D55'
-    if 'rojo' in n or 'red' in n: return '#EF4444'
-    if 'azul cielo' in n or 'sky blue' in n: return '#38BDF8'
-    if 'azul flúor' in n: return '#0091FF'
-    if 'azul oscuro' in n or 'dark blue' in n: return '#1E3A8A'
-    if 'azul' in n or 'blue' in n or 'zafiro' in n: return '#2563EB'
-    if 'amarillo flúor' in n: return '#CCFF00'
-    if 'amarillo' in n or 'yellow' in n: return '#EAB308'
-    if 'verde esmeralda' in n: return '#059669'
-    if 'verde' in n or 'green' in n: return '#10B981'
-    if 'mandarina' in n or 'naranja' in n or 'orange' in n: return '#F97316'
-    if 'rosado' in n or 'rosa' in n or 'pink' in n: return '#EC4899'
-    if 'morado' in n or 'púrpura' in n or 'purple' in n: return '#9333EA'
-    if 'marrón' in n or 'brown' in n or 'café' in n: return '#78350F'
-    if 'piel' in n or 'skin' in n or 'beige' in n: return '#E2A97E'
-    return '#94A3B8'
+print(f"Productos cargados desde DB: {len(all_products)} SKUs en {len(products_by_material)} categorías")
 
-def get_color_style(col_str):
+# Helper to load image as base64
+def get_img_base64(filename):
+    path = os.path.join(ASSETS_DIR, filename)
+    if not os.path.exists(path):
+        return ""
+    ext = os.path.splitext(filename)[1].lower()
+    mime = "image/png" if ext == ".png" else "image/jpeg"
+    with open(path, "rb") as f:
+        b64 = base64.b64encode(f.read()).decode("utf-8")
+    return f"data:{mime};base64,{b64}"
+
+# Images
+img_logo = get_img_base64("bambu_pei_golden.jpg") # fallback
+# Let's check logo in branding_8k
+logo_path = os.path.join(BASE_DIR, "branding_8k", "logo_3d_glow.png")
+if os.path.exists(logo_path):
+    with open(logo_path, "rb") as f:
+        img_logo = "data:image/png;base64," + base64.b64encode(f.read()).decode("utf-8")
+
+img_silk_dual_dragon = get_img_base64("silk_dual_dragon.jpg")
+img_plaplus_prints = get_img_base64("plaplus_prints.jpg")
+img_tpu_shoe = get_img_base64("tpu_shoe_flex.jpg")
+img_petg_prints = get_img_base64("petg_prints_showcase.jpg")
+img_petg_toughness = get_img_base64("petg_toughness.jpg")
+img_pacf_drone = get_img_base64("pacf_drone_parts.jpg")
+img_bambu_hotend = get_img_base64("bambu_a1_hotend.jpg")
+img_bambu_hardened = get_img_base64("bambu_hardened_hotend.jpg")
+img_bambu_pei = get_img_base64("bambu_pei_golden.jpg")
+img_bambu_peo = get_img_base64("bambu_peo_diamond.jpg")
+img_h2d_pei = get_img_base64("bambu_h2d_pei.jpg")
+img_pla_basic_spool = get_img_base64("pla_basic_spool.jpg")
+img_plaplus_spool = get_img_base64("plaplus_spool.jpg")
+img_petg_spool = get_img_base64("petg_spool.jpg")
+img_silk_single_gold = get_img_base64("silk_single_gold.jpg")
+img_silk_tri_showcase = get_img_base64("silk_tri_showcase.jpg")
+img_tpu_spool = get_img_base64("tpu_spool.jpg")
+img_pacf_spool = get_img_base64("pacf_spool.jpg")
+img_matte_prints = get_img_base64("matte_prints.jpg")
+img_qr = get_img_base64("whatsapp_qr.png")
+
+# Color mapping helper
+def get_base_hex(c):
+    c = c.strip().lower()
+    mapping = {
+        'blanco': '#FFFFFF', 'white': '#FFFFFF', 'black': '#111827', 'negro': '#111827',
+        'gris': '#94A3B8', 'silver': '#CBD5E1', 'plata': '#CBD5E1', 'space grey': '#4B5563',
+        'rojo': '#EF4444', 'red': '#EF4444', 'azul': '#2563EB', 'blue': '#2563EB',
+        'azul cielo': '#38BDF8', 'sky blue': '#38BDF8', 'azul cobalto': '#1D4ED8',
+        'verde': '#10B981', 'green': '#10B981', 'verde manzana': '#84CC16',
+        'verde militar': '#4D7C0F', 'amarillo': '#FACC15', 'yellow': '#FACC15',
+        'naranja': '#F97316', 'orange': '#F97316', 'púrpura': '#8B5CF6', 'purple': '#8B5CF6',
+        'magenta': '#D946EF', 'rosa': '#F472B6', 'pink': '#F472B6',
+        'oro': '#EAB308', 'gold': '#EAB308', 'cobre': '#F97316', 'copper': '#F97316',
+        'bronce': '#CD7F32', 'bronze': '#CD7F32', 'marrón': '#78350F', 'brown': '#78350F',
+        'piel': '#FBCFE8', 'beige': '#FDE68A', 'cyan': '#06B6D4', 'turquesa': '#14B8A6'
+    }
+    for k, v in mapping.items():
+        if k in c:
+            return v
+    return '#64748B'
+
+def get_swatch_css(col_str):
     col_clean = col_str.split('(')[0].strip().lower()
     
     if 'cf' in col_clean or 'carbon' in col_clean or 'fibra de carbono' in col_clean:
-        return 'background: repeating-linear-gradient(45deg, #111 0, #111 2px, #333 2px, #333 4px); border: 1px solid rgba(255,255,255,0.4);'
-    
+        return 'background: repeating-linear-gradient(45deg, #181E29 0, #181E29 3px, #2A364F 3px, #2A364F 6px); border: 1px solid #4B5563;'
     if 'macaron' in col_clean:
         return 'background: linear-gradient(135deg, #FFB3BA, #FFDFBA, #FFFFBA, #BAFFC9, #BAE1FF);'
     if 'pastel' in col_clean:
         return 'background: linear-gradient(135deg, #FAD02C, #F49AC2, #B5EAD7, #C7CEEA);'
-    if 'rainbow' in col_clean or 'ice cream' in col_clean:
+    if 'rainbow' in col_clean or 'ice cream' in col_clean or 'candy' in col_clean:
         return 'background: linear-gradient(135deg, #EF4444, #F59E0B, #10B981, #3B82F6, #8B5CF6);'
-    
+    if 'mármol' in col_clean or 'marble' in col_clean:
+        return 'background: radial-gradient(circle, #CBD5E1 25%, #64748B 26%, #E2E8F0 50%, #475569 51%, #F8FAFC 85%); border: 1px solid #94A3B8;'
+    if 'transparente' in col_clean or 'traslúcido' in col_clean:
+        return 'background: #1E293B; border: 1.5px dashed #94A3B8;'
+
     if '/' in col_str:
         parts = col_str.split('(')[0].split('/')
         if len(parts) == 3:
@@ -127,1930 +132,1449 @@ def get_color_style(col_str):
             c1 = get_base_hex(parts[0])
             c2 = get_base_hex(parts[1])
             return f'background: linear-gradient(135deg, {c1} 0%, {c1} 50%, {c2} 50%, {c2} 100%);'
-            
-    if 'mármol' in col_clean or 'marble' in col_clean:
-        return 'background: radial-gradient(circle, #CBD5E1 20%, #64748B 21%, #E2E8F0 40%, #475569 41%, #F8FAFC 80%); border: 1px solid rgba(255,255,255,0.4);'
-        
-    if 'transparente' in col_clean or 'traslúcido' in col_clean:
-        return 'background: rgba(220, 235, 255, 0.25); border: 1.5px dashed rgba(255,255,255,0.6); box-shadow: inset 0 0 6px rgba(255,255,255,0.3);'
-        
-    hex_val = get_base_hex(col_clean)
-    border = 'border: 1px solid rgba(255,255,255,0.5);' if hex_val in ['#FFFFFF', '#F8FAFC', '#18181B', '#000000', '#111113'] else 'border: 1px solid rgba(255,255,255,0.15);'
-    return f'background: {hex_val}; {border}'
 
-def render_swatch_grid(items, cols=4):
-    html = f'<div class="swatches-grid grid-cols-{cols}">'
-    for item in items:
-        pid, cat, name, mat, col, sku, stock, pvp, pvp_cash = item
-        clean_name = col.split('(')[0].strip()
-        style = get_color_style(col)
+    hex_col = get_base_hex(col_clean)
+    border = '#4B5563' if hex_col in ['#FFFFFF', '#F8FAFC', '#111827'] else 'transparent'
+    return f'background-color: {hex_col}; border: 1px solid {border};'
+
+def render_swatches(items, cols=3):
+    html = f'<div style="display: grid; grid-template-columns: repeat({cols}, 1fr); gap: 6px;">'
+    for it in items:
+        style = get_swatch_css(it['color'])
         html += f'''
-        <div class="swatch-card">
-          <div class="swatch-dot" style="{style}"></div>
-          <div class="swatch-content">
-            <span class="swatch-title" title="{col}">{clean_name}</span>
-            <div class="swatch-meta">
-              <span class="swatch-sku">{sku}</span>
-              <span class="swatch-stock">{stock} un</span>
-            </div>
+        <div style="background: #0E1420; border: 1px solid #1E2838; border-radius: 6px; padding: 5px 8px; display: flex; align-items: center; gap: 8px;">
+          <div style="width: 14px; height: 14px; border-radius: 50%; {style} flex-shrink: 0;"></div>
+          <div style="font-size: 10.5px; font-weight: 600; color: #E2E8F0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+            {it['color']}
           </div>
-        </div>'''
+        </div>
+        '''
     html += '</div>'
     return html
 
-css_styles = """
-  /* 100% Native Vector System Fonts for Crisp Sharp PDF */
-
-  @page {
-    size: 210mm 297mm;
-    margin: 0mm;
-  }
-
-  *, *::before, *::after {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
-
-  html, body {
-    width: 210mm;
-    margin: 0;
-    padding: 0;
-    background-color: #090A0F;
-    color: #F1F5F9;
-    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-
-  .page {
-    width: 210mm;
-    height: 297mm;
-    max-height: 297mm;
-    box-sizing: border-box;
-    page-break-after: always;
-    break-after: page;
-    overflow: hidden;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    padding: 10mm 12mm 9mm 12mm;
-    background-color: #090A0F;
-    background-image: 
-      radial-gradient(circle at 50% 0%, rgba(200, 210, 225, 0.08) 0%, transparent 60%),
-      linear-gradient(rgba(200, 210, 225, 0.02) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(200, 210, 225, 0.02) 1px, transparent 1px);
-    background-size: 100% 100%, 20px 20px, 20px 20px;
-    gap: 10px;
-  }
-
-  /* Universal Header */
-  .page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid rgba(200, 210, 225, 0.14);
-    padding-bottom: 6px;
-    margin-bottom: 2px;
-    flex-shrink: 0;
-  }
-  .header-brand {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .header-logo {
-    width: 28px;
-    height: 28px;
-    border-radius: 6px;
-    object-fit: contain;
-  }
-  .header-brand-title {
-    font-family: 'Segoe UI', sans-serif;
-    font-size: 13px;
-    font-weight: 800;
-    letter-spacing: 0.08em;
-    color: #FFFFFF;
-  }
-  .header-brand-sub {
-    font-family: 'Segoe UI', sans-serif;
-    font-size: 8px;
-    font-weight: 700;
-    color: #8F9AA9;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-  }
-  .header-badge {
-    background: rgba(200, 210, 225, 0.08);
-    border: 1px solid rgba(200, 210, 225, 0.22);
-    border-radius: 9999px;
-    padding: 3.5px 12px;
-    font-family: 'Consolas', monospace;
-    font-size: 8.5px;
-    font-weight: 700;
-    color: #E2E8F0;
-    letter-spacing: 0.05em;
-  }
-
-  /* Universal Footer */
-  .page-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-top: 1px solid rgba(200, 210, 225, 0.12);
-    padding-top: 6px;
-    font-size: 8px;
-    color: #8F9AA9;
-    flex-shrink: 0;
-    margin-top: auto;
-  }
-  .page-footer strong {
-    color: #C8D0DC;
-  }
-
-  /* Typography & Titles */
-  .section-tag {
-    font-family: 'Consolas', monospace;
-    font-size: 8.5px;
-    font-weight: 700;
-    color: #C8D0DC;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    margin-bottom: 2px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .section-tag::before {
-    content: '';
-    display: inline-block;
-    width: 5px;
-    height: 5px;
-    background: #C8D0DC;
-    border-radius: 1px;
-  }
-  .page-title {
-    font-family: 'Segoe UI', sans-serif;
-    font-size: 19px;
-    font-weight: 800;
-    letter-spacing: -0.01em;
-    color: #FFFFFF;
-    line-height: 1.15;
-    margin-bottom: 2px;
-  }
-  .page-desc {
-    font-size: 9.5px;
-    color: #94A3B8;
-    line-height: 1.35;
-    margin-bottom: 1px;
-  }
-
-  /* Pricing Bar */
-  .pricing-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: linear-gradient(90deg, rgba(200, 210, 225, 0.12) 0%, rgba(14, 18, 26, 0.95) 100%);
-    border: 1px solid rgba(200, 210, 225, 0.22);
-    border-radius: 8px;
-    padding: 7px 14px;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.25);
-  }
-  .pricing-item {
-    display: flex;
-    align-items: baseline;
-    gap: 8px;
-  }
-  .pricing-label {
-    font-size: 9.5px;
-    color: #8F9AA9;
-    text-transform: uppercase;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-  }
-  .pricing-amount {
-    font-family: 'Segoe UI', sans-serif;
-    font-size: 17px;
-    font-weight: 900;
-    color: #FFFFFF;
-    letter-spacing: -0.02em;
-  }
-  .pricing-legal-note {
-    font-size: 8px;
-    color: #8F9AA9;
-    line-height: 1.25;
-    text-align: right;
-    max-width: 250px;
-  }
-  .pricing-legal-note strong {
-    color: #E2E8F0;
-  }
-
-  /* Galleries & Real Photos */
-  .photo-gallery-2col {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 9px;
-  }
-  .photo-gallery-3col {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 9px;
-  }
-  .photo-gallery-4col {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
-    gap: 8px;
-  }
-  .photo-card {
-    background: #0E121A;
-    border: 1px solid rgba(200, 210, 225, 0.16);
-    border-radius: 8px;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.3);
-  }
-  .photo-card img {
-    width: 100%;
-    height: 145px;
-    object-fit: cover;
-    display: block;
-    border-bottom: 1px solid rgba(200, 210, 225, 0.10);
-  }
-  .photo-card-body {
-    padding: 6px 9px;
-    display: flex;
-    flex-direction: column;
-    gap: 1.5px;
-  }
-  .photo-card-title {
-    font-family: 'Segoe UI', sans-serif;
-    font-size: 9.5px;
-    font-weight: 700;
-    color: #FFFFFF;
-  }
-  .photo-card-caption {
-    font-size: 7.8px;
-    color: #8F9AA9;
-    line-height: 1.25;
-  }
-
-  /* Swatches Grid */
-  .swatches-container {
-    background: #0E121A;
-    border: 1px solid rgba(200, 210, 225, 0.14);
-    border-radius: 8px;
-    padding: 8px 11px;
-  }
-  .swatches-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 6px;
-    border-bottom: 1px solid rgba(200, 210, 225, 0.08);
-    padding-bottom: 4px;
-  }
-  .swatches-header-title {
-    font-family: 'Segoe UI', sans-serif;
-    font-size: 9.8px;
-    font-weight: 800;
-    color: #FFFFFF;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-  }
-  .swatches-header-badge {
-    font-size: 8px;
-    color: #C8D0DC;
-    font-family: 'Consolas', monospace;
-  }
-  .swatches-grid {
-    display: grid;
-    gap: 6px;
-  }
-  .grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
-  .grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
-  .grid-cols-5 { grid-template-columns: repeat(5, 1fr); }
-
-  .swatch-card {
-    background: #141923;
-    border: 1px solid rgba(200, 210, 225, 0.12);
-    border-radius: 6px;
-    padding: 7px 9px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .swatch-dot {
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    flex-shrink: 0;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.5);
-  }
-  .swatch-content {
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    width: 100%;
-  }
-  .swatch-title {
-    font-size: 9px;
-    font-weight: 700;
-    color: #F8FAFC;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    line-height: 1.2;
-  }
-  .swatch-meta {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 2px;
-  }
-  .swatch-sku {
-    font-family: 'Consolas', monospace;
-    font-size: 7.2px;
-    color: #8F9AA9;
-  }
-  .swatch-stock {
-    font-family: 'Consolas', monospace;
-    font-size: 7.5px;
-    font-weight: 700;
-    color: #FFFFFF;
-    background: rgba(200, 210, 225, 0.15);
-    padding: 1.5px 5px;
-    border-radius: 3px;
-  }
-
-  /* Technical Specs Banner */
-  .tech-specs-bar {
-    background: #0E121A;
-    border: 1px solid rgba(200, 210, 225, 0.12);
-    border-radius: 7px;
-    padding: 7px 11px;
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 6px;
-    text-align: center;
-  }
-  .spec-item {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5px;
-  }
-  .spec-label {
-    font-size: 7px;
-    font-weight: 700;
-    color: #8F9AA9;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-  }
-  .spec-value {
-    font-family: 'Consolas', monospace;
-    font-size: 9px;
-    font-weight: 700;
-    color: #E2E8F0;
-  }
-
-  /* Technical Guide Panel */
-  .tech-guide-panel {
-    background: #0E121A;
-    border: 1px solid rgba(200, 210, 225, 0.14);
-    border-radius: 8px;
-    padding: 8px 11px;
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-  }
-  .tech-guide-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid rgba(200, 210, 225, 0.08);
-    padding-bottom: 4px;
-  }
-  .tech-guide-title {
-    font-family: 'Segoe UI', sans-serif;
-    font-size: 9px;
-    font-weight: 800;
-    color: #FFFFFF;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .tech-guide-tag {
-    font-family: 'Consolas', monospace;
-    font-size: 7.8px;
-    color: #C8D0DC;
-  }
-  .tech-guide-grid-3 {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 7px;
-  }
-  .tech-guide-grid-2 {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 7px;
-  }
-  .tech-guide-grid-4 {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 7px;
-  }
-  .guide-card {
-    background: #141923;
-    border: 1px solid rgba(200, 210, 225, 0.10);
-    border-radius: 6px;
-    padding: 7px 9px;
-    display: flex;
-    flex-direction: column;
-    gap: 2.5px;
-  }
-  .guide-card-title {
-    font-family: 'Segoe UI', sans-serif;
-    font-size: 8.5px;
-    font-weight: 700;
-    color: #FFFFFF;
-  }
-  .guide-card-desc {
-    font-size: 7.5px;
-    color: #94A3B8;
-    line-height: 1.35;
-  }
-
-  /* Hardware Table */
-  .hardware-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 8.2px;
-    background: #0E121A;
-    border: 1px solid rgba(200, 210, 225, 0.14);
-    border-radius: 7px;
-    overflow: hidden;
-  }
-  .hardware-table th {
-    background: #141923;
-    padding: 6px 9px;
-    text-align: left;
-    font-family: 'Segoe UI', sans-serif;
-    font-size: 7.8px;
-    font-weight: 800;
-    color: #C8D0DC;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    border-bottom: 1px solid rgba(200, 210, 225, 0.16);
-  }
-  .hardware-table td {
-    padding: 5.5px 9px;
-    border-bottom: 1px solid rgba(200, 210, 225, 0.08);
-    color: #CBD5E1;
-  }
-  .hardware-table tr:last-child td {
-    border-bottom: none;
-  }
-  .hardware-table td strong {
-    color: #FFFFFF;
-  }
-
-  /* Bottom Order Bar */
-  .order-action-bar {
-    background: rgba(200, 210, 225, 0.06);
-    border: 1px solid rgba(200, 210, 225, 0.16);
-    border-radius: 7px;
-    padding: 6px 12px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-"""
-
-html_pages = []
-
-# =========================================================================
-# PAGE 1: PORTADA & GUÍA MAESTRA DE NAVEGACIÓN
-# =========================================================================
-html_pages.append(f"""
-<div class="page" style="gap: 12px;">
-  <div class="page-header" style="border-bottom: none; margin-bottom: 0;">
-    <div class="header-brand">
-      <img src="{img_logo_3d}" class="header-logo" style="width: 34px; height: 34px;" />
-      <div>
-        <div class="header-brand-title">SYNTRA GROUP</div>
-        <div class="header-brand-sub">DIVISIÓN MANUFACTURA ADITIVA & CONSUMIBLES 3D</div>
-      </div>
-    </div>
-    <div class="header-badge">EDICIÓN 2026 • CATÁLOGO MAESTRO</div>
-  </div>
-
-  <div style="display: flex; flex-direction: column; align-items: center; text-align: center; margin: 4px 0;">
-    <img src="{img_logo_3d}" style="width: 95px; height: 95px; border-radius: 20px; box-shadow: 0 12px 35px rgba(0,0,0,0.65); filter: drop-shadow(0 0 28px rgba(200, 210, 225, 0.28)); margin-bottom: 10px;" />
-    <h1 style="font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 34px; font-weight: 900; letter-spacing: 0.02em; color: #FFFFFF; text-shadow: 0 2px 10px rgba(0,0,0,0.5); margin-bottom: 4px;">
-      SYNTRA SUPPLY
-    </h1>
-    <div style="font-family: 'Segoe UI', sans-serif; font-size: 11.5px; font-weight: 700; color: #C8D0DC; letter-spacing: 0.18em; text-transform: uppercase; margin-bottom: 5px;">
-      DISTRIBUIDOR AUTORIZADO KINGROON • ALMACÉN LECHERÍA
-    </div>
-    <div style="font-size: 10.5px; color: #94A3B8; max-width: 530px; line-height: 1.45;">
-      El inventario físico más completo de filamentos de grado técnico, placas magnéticas y hotends de alto rendimiento en el oriente venezolano.
-    </div>
-  </div>
-
-  <div class="photo-gallery-3col" style="gap: 10px;">
-    <div class="photo-card">
-      <img src="{img_silk_dual_dragon}" style="height: 175px;" />
-      <div class="photo-card-body" style="padding: 8px 10px;">
-        <span class="photo-card-title">PLA Silk Bicolor Coaxial</span>
-        <span class="photo-card-caption">Brillo metálico perlado y coextrusión bicromática continua.</span>
-      </div>
-    </div>
-    <div class="photo-card">
-      <img src="{img_plaplus_prints}" style="height: 175px;" />
-      <div class="photo-card-body" style="padding: 8px 10px;">
-        <span class="photo-card-title">PLA+ High Speed Pro</span>
-        <span class="photo-card-caption">Precisión geométrica y tolerancia micrométrica de ±0.02mm.</span>
-      </div>
-    </div>
-    <div class="photo-card">
-      <img src="{img_tpu_shoe}" style="height: 175px;" />
-      <div class="photo-card-body" style="padding: 8px 10px;">
-        <span class="photo-card-title">TPU 95A Elastómero Flexible</span>
-        <span class="photo-card-caption">450% de elongación a la rotura y memoria elástica estructural.</span>
-      </div>
-    </div>
-  </div>
-
-  <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
-    <div style="background: #0E121A; border: 1px solid rgba(200, 210, 225, 0.16); border-radius: 8px; padding: 15px 10px; text-align: center;">
-      <div style="font-family: 'Segoe UI', sans-serif; font-size: 21px; font-weight: 800; color: #FFFFFF; margin-bottom: 2px;">1.750 UN</div>
-      <div style="font-size: 8px; font-weight: 600; color: #8F9AA9; text-transform: uppercase;">Stock Físico Real</div>
-    </div>
-    <div style="background: #0E121A; border: 1px solid rgba(200, 210, 225, 0.16); border-radius: 8px; padding: 15px 10px; text-align: center;">
-      <div style="font-family: 'Segoe UI', sans-serif; font-size: 21px; font-weight: 800; color: #FFFFFF; margin-bottom: 2px;">117 SKUs</div>
-      <div style="font-size: 8px; font-weight: 600; color: #8F9AA9; text-transform: uppercase;">Variedad Inmediata</div>
-    </div>
-    <div style="background: #0E121A; border: 1px solid rgba(200, 210, 225, 0.16); border-radius: 8px; padding: 15px 10px; text-align: center;">
-      <div style="font-family: 'Segoe UI', sans-serif; font-size: 21px; font-weight: 800; color: #FFFFFF; margin-bottom: 2px;">±0.02 mm</div>
-      <div style="font-size: 8px; font-weight: 600; color: #8F9AA9; text-transform: uppercase;">Calibración Láser</div>
-    </div>
-    <div style="background: #0E121A; border: 1px solid rgba(200, 210, 225, 0.16); border-radius: 8px; padding: 15px 10px; text-align: center;">
-      <div style="font-family: 'Segoe UI', sans-serif; font-size: 21px; font-weight: 800; color: #FFFFFF; margin-bottom: 2px;">15 - 30 MIN</div>
-      <div style="font-size: 8px; font-weight: 600; color: #8F9AA9; text-transform: uppercase;">Despacho Lechería</div>
-    </div>
-  </div>
-
-  <!-- NAVIGATION INDEX (Fills dead space cleanly) -->
-  <div class="tech-guide-panel" style="padding: 12px 14px;">
-    <div class="tech-guide-header">
-      <span class="tech-guide-title">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C8D0DC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
-        ÍNDICE DE SECCIONES & ESTRUCTURA DEL CATÁLOGO
-      </span>
-      <span class="tech-guide-tag">GUÍA DE NAVEGACIÓN</span>
-    </div>
-    <div class="tech-guide-grid-4" style="gap: 7px;">
-      <div class="guide-card" style="padding: 7px 8px;">
-        <span class="guide-card-title">PÁG. 02 • INFRAESTRUCTURA</span>
-        <span class="guide-card-desc">Ventaja local Lechería vs pedidos foráneos y matriz de valor.</span>
-      </div>
-      <div class="guide-card" style="padding: 7px 8px;">
-        <span class="guide-card-title">PÁG. 03 • PLA & PLA+</span>
-        <span class="guide-card-desc">Alta velocidad, prototipado rápido y 19 colores en inventario.</span>
-      </div>
-      <div class="guide-card" style="padding: 7px 8px;">
-        <span class="guide-card-title">PÁG. 04 • PETG & MATTE</span>
-        <span class="guide-card-desc">Termoplásticos mecánicos, acabado cerámico y mármol.</span>
-      </div>
-      <div class="guide-card" style="padding: 7px 8px;">
-        <span class="guide-card-title">PÁG. 05 • SILK BICOLOR</span>
-        <span class="guide-card-desc">Efecto seda reflectante y coextrusión a 180° tornasol.</span>
-      </div>
-      <div class="guide-card" style="padding: 7px 8px;">
-        <span class="guide-card-title">PÁG. 06 • SILK TRICOLOR</span>
-        <span class="guide-card-desc">Coextrusión a 120° y arcoíris continuo sin purga.</span>
-      </div>
-      <div class="guide-card" style="padding: 7px 8px;">
-        <span class="guide-card-title">PÁG. 07 • TÉCNICOS & CF</span>
-        <span class="guide-card-desc">TPU 95A, ASA solar UV y fibra de carbono estructural.</span>
-      </div>
-      <div class="guide-card" style="padding: 7px 8px;">
-        <span class="guide-card-title">PÁG. 08 • BAMBU & H2D</span>
-        <span class="guide-card-desc">Hotends ensamblados, boquillas y placas PEI / PEO.</span>
-      </div>
-      <div class="guide-card" style="padding: 7px 8px;">
-        <span class="guide-card-title">PÁG. 09 • LOGÍSTICA & WA</span>
-        <span class="guide-card-desc">Matriz de entregas, pagos en BCV/divisa y canal WhatsApp.</span>
-      </div>
-    </div>
-  </div>
-
-  <div style="background: linear-gradient(90deg, rgba(200, 210, 225, 0.12), rgba(14, 18, 26, 0.85)); border: 1px solid rgba(200, 210, 225, 0.22); border-radius: 8px; padding: 13px 18px; display: flex; justify-content: space-between; align-items: center;">
-    <div>
-      <div style="font-family: 'Segoe UI', sans-serif; font-size: 11.5px; font-weight: 800; color: #FFFFFF;">TU TALLER 3D, SIN INTERRUPCIONES NI FLETES COSTOSOS.</div>
-      <div style="font-size: 8.5px; color: #94A3B8; margin-top: 2px;">Cobertura prioritaria: Lechería, Puerto La Cruz, Barcelona y envíos exprés a toda Venezuela.</div>
-    </div>
-    <div style="font-family: 'Consolas', monospace; font-size: 10px; font-weight: 700; color: #FFFFFF; background: rgba(200, 210, 225, 0.18); padding: 5px 13px; border-radius: 6px; border: 1px solid rgba(200, 210, 225, 0.3);">
-      WA: +58 422-3446675
-    </div>
-  </div>
-
-  <div class="page-footer">
-    <div>SYNTRA SUPPLY • CATÁLOGO INDUSTRIAL 2026</div>
-    <div>ALMACÉN CENTRAL: LECHERÍA, ANZOÁTEGUI</div>
-    <div>PÁG. 01 / 09</div>
-  </div>
-</div>
-""")
-
-# =========================================================================
-# PAGE 2: MANIFIESTO Y PROPUESTA DE VALOR INDUSTRIAL
-# =========================================================================
-html_pages.append(f"""
-<div class="page" style="gap: 9px;">
-  <div class="page-header">
-    <div class="header-brand">
-      <img src="{img_logo_3d}" class="header-logo" />
-      <div>
-        <div class="header-brand-title">SYNTRA SUPPLY</div>
-        <div class="header-brand-sub">ESTÁNDAR TÉCNICO & PROPUESTA DE VALOR</div>
-      </div>
-    </div>
-    <div class="header-badge">01 / INFRAESTRUCTURA</div>
-  </div>
-
-  <div>
-    <div class="section-tag">INGENIERÍA & OPERACIONES</div>
-    <h2 class="page-title">La Ventaja Estratégica de Syntra Supply</h2>
-    <div class="page-desc">Solución directa a las dos mayores fallas del ecosistema 3D en Venezuela: la rotura de stock por envíos lejanos y la degradación por la agresiva humedad costera.</div>
-  </div>
-
-  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-    <div style="background: #0E121A; border: 1px solid rgba(200, 210, 225, 0.16); border-radius: 8px; padding: 11px 13px;">
-      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
-        <span style="font-family: 'Consolas', monospace; font-size: 9px; font-weight: 700; color: #FFFFFF; background: rgba(200, 210, 225, 0.15); padding: 2px 6px; border-radius: 4px;">01</span>
-        <span style="font-family: 'Segoe UI', sans-serif; font-size: 10px; font-weight: 800; color: #FFFFFF;">DISPONIBILIDAD FÍSICA INMEDIATA</span>
-      </div>
-      <div style="font-size: 8px; color: #94A3B8; line-height: 1.4;">
-        Stock en Lechería. Retira en 15 minutos o recibe en tu taller el mismo día en Barcelona, PLC y Lechería. Elimina los 3 a 5 días de incertidumbre y los $15+ de flete desde Caracas.
-      </div>
-    </div>
-
-    <div style="background: #0E121A; border: 1px solid rgba(200, 210, 225, 0.16); border-radius: 8px; padding: 11px 13px;">
-      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
-        <span style="font-family: 'Consolas', monospace; font-size: 9px; font-weight: 700; color: #FFFFFF; background: rgba(200, 210, 225, 0.15); padding: 2px 6px; border-radius: 4px;">02</span>
-        <span style="font-family: 'Segoe UI', sans-serif; font-size: 10px; font-weight: 800; color: #FFFFFF;">SELLADO ACTIVO ANTI-HUMEDAD</span>
-      </div>
-      <div style="font-size: 8px; color: #94A3B8; line-height: 1.4;">
-        La humedad de la costa (>75% RH) arruina los filamentos. Cada bobina Kingroon viene envasada al vacío en film de alta barrera con 10g de desecante activo que garantiza cero burbujeo.
-      </div>
-    </div>
-
-    <div style="background: #0E121A; border: 1px solid rgba(200, 210, 225, 0.16); border-radius: 8px; padding: 11px 13px;">
-      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
-        <span style="font-family: 'Consolas', monospace; font-size: 9px; font-weight: 700; color: #FFFFFF; background: rgba(200, 210, 225, 0.15); padding: 2px 6px; border-radius: 4px;">03</span>
-        <span style="font-family: 'Segoe UI', sans-serif; font-size: 10px; font-weight: 800; color: #FFFFFF;">TOLERANCIA LÁSER ±0.02MM</span>
-      </div>
-      <div style="font-size: 8px; color: #94A3B8; line-height: 1.4;">
-        Inspección óptica continua durante la extrusión y bobinado computarizado Tidy Winding libre de solapamientos o nudos. Diseñado para tiradas industriales de más de 48 horas continuas.
-      </div>
-    </div>
-
-    <div style="background: #0E121A; border: 1px solid rgba(200, 210, 225, 0.16); border-radius: 8px; padding: 11px 13px;">
-      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
-        <span style="font-family: 'Consolas', monospace; font-size: 9px; font-weight: 700; color: #FFFFFF; background: rgba(200, 210, 225, 0.15); padding: 2px 6px; border-radius: 4px;">04</span>
-        <span style="font-family: 'Segoe UI', sans-serif; font-size: 10px; font-weight: 800; color: #FFFFFF;">FACTURACIÓN FORMAL & RESPALDO BCV</span>
-      </div>
-      <div style="font-size: 8px; color: #94A3B8; line-height: 1.4;">
-        Operaciones 100% transparentes conforme a la ley venezolana. Precios de lista referenciados a tasa oficial BCV con facturación fiscal en Bolívares y atención directa para empresas y makers.
-      </div>
-    </div>
-  </div>
-
-  <!-- 3-COL REAL PHOTO SHOWCASE -->
-  <div class="photo-gallery-3col" style="gap: 9px;">
-    <div class="photo-card">
-      <img src="{img_plaplus_winding}" style="height: 145px;" />
-      <div class="photo-card-body" style="padding: 7px 10px;">
-        <span class="photo-card-title">Bobinado Computarizado Tidy Winding</span>
-        <span class="photo-card-caption">Alineación micrométrica capa por capa que elimina atascos y paradas críticas.</span>
-      </div>
-    </div>
-    <div class="photo-card">
-      <img src="{img_pla_tolerance}" style="height: 145px;" />
-      <div class="photo-card-body" style="padding: 7px 10px;">
-        <span class="photo-card-title">Calibración Láser ±0.02mm</span>
-        <span class="photo-card-caption">Control de flujo uniforme que evita subextrusión en boquillas de 0.2 a 0.8mm.</span>
-      </div>
-    </div>
-    <div class="photo-card">
-      <img src="{img_petg_adhesion}" style="height: 145px;" />
-      <div class="photo-card-body" style="padding: 7px 10px;">
-        <span class="photo-card-title">Fusión Interfacial & Cohesión</span>
-        <span class="photo-card-caption">Capas químicamente coalescentes que previenen la deslaminación mecánica.</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- COMPARISON TABLE: LOCAL VS REMOTE -->
-  <div class="tech-guide-panel" style="padding: 9px 12px;">
-    <div class="tech-guide-header">
-      <span class="tech-guide-title">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C8D0DC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><polyline points="16 11 18 13 22 9"></polyline></svg>
-        MATRIZ DE VALOR: COMPRA LOCAL EN LECHERÍA VS. DISTRIBUIDOR FORÁNEO (CARACAS)
-      </span>
-      <span class="tech-guide-tag">BENEFICIO ECONÓMICO</span>
-    </div>
-    <table class="hardware-table" style="font-size: 7.8px; margin-top: 3px;">
-      <thead>
-        <tr>
-          <th style="width: 25%;">FACTOR OPERATIVO</th>
-          <th style="width: 37.5%; color: #FFFFFF;">SYNTRA SUPPLY (LECHERÍA)</th>
-          <th style="width: 37.5%;">PEDIDOS A CARACAS / MERCADOLIBRE</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><strong>Tiempo de Abastecimiento</strong></td>
-          <td style="color: #FFFFFF;"><strong>15 a 30 minutos</strong> (Retiro en almacén o Express)</td>
-          <td>3 a 5 días hábiles de espera con agencia</td>
-        </tr>
-        <tr>
-          <td><strong>Costo de Flete / Encomienda</strong></td>
-          <td style="color: #FFFFFF;"><strong>$0 Flete Local</strong> (Retiro en mano sin recargos)</td>
-          <td>$12 a $18 USD por bulto según la agencia</td>
-        </tr>
-        <tr>
-          <td><strong>Integridad del Empaque</strong></td>
-          <td style="color: #FFFFFF;"><strong>100% verificado en físico</strong> (Bolsa al vacío intacta)</td>
-          <td>Riesgo de golpes y pérdida de vacío en transporte</td>
-        </tr>
-        <tr>
-          <td><strong>Soporte Técnico de Slicer</strong></td>
-          <td style="color: #FFFFFF;"><strong>Asistencia por WhatsApp</strong> con perfiles Bambu/Orca</td>
-          <td>Atención genérica sin conocimiento en impresión</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <!-- LECHERIA STORAGE PROTOCOL (Fills dead space) -->
-  <div class="tech-guide-panel" style="padding: 9px 12px;">
-    <div class="tech-guide-header">
-      <span class="tech-guide-title">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C8D0DC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-        ESTÁNDAR OPERATIVO EN ALMACÉN LECHERÍA
-      </span>
-      <span class="tech-guide-tag">CONTROL CLIMÁTICO</span>
-    </div>
-    <div class="tech-guide-grid-3">
-      <div class="guide-card" style="padding: 8px 10px;">
-        <span class="guide-card-title">Ambiente Climatizado a &lt;45% RH</span>
-        <span class="guide-card-desc">Instalaciones con deshumidificación activa permanente. Protegemos cada lote de la humedad marina de la Bahía de Pozuelos.</span>
-      </div>
-      <div class="guide-card" style="padding: 8px 10px;">
-        <span class="guide-card-title">Inspección de Vacío al Despacho</span>
-        <span class="guide-card-desc">Cada caja se verifica al momento de la entrega. Si un empaque pierde el vacío en almacén, se descarta de la línea de venta.</span>
-      </div>
-      <div class="guide-card" style="padding: 8px 10px;">
-        <span class="guide-card-title">Trazabilidad por Lote y SKU</span>
-        <span class="guide-card-desc">117 SKUs registrados individualmente por color y fecha de arribo. Garantía de rotación FIFO y frescura del polímero.</span>
-      </div>
-    </div>
-  </div>
-
-  <div style="background: #0E121A; border: 1px solid rgba(200, 210, 225, 0.16); border-radius: 8px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between;">
-    <div style="display: flex; align-items: center; gap: 11px;">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C8D0DC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
-      <div>
-        <div style="font-family: 'Segoe UI', sans-serif; font-size: 9.5px; font-weight: 800; color: #FFFFFF;">GARANTÍA TÉCNICA SYNTRA GROUP</div>
-        <div style="font-size: 8px; color: #94A3B8;">Reposición inmediata ante cualquier defecto de fábrica o pérdida de vacío comprobada al abrir el empaque.</div>
-      </div>
-    </div>
-    <div style="font-family: 'Consolas', monospace; font-size: 8.5px; color: #C8D0DC; font-weight: 700;">CALIDAD CERTIFICADA</div>
-  </div>
-
-  <div class="page-footer">
-    <div>SYNTRA SUPPLY • CATÁLOGO INDUSTRIAL 2026</div>
-    <div>ALMACÉN CENTRAL: LECHERÍA, ANZOÁTEGUI</div>
-    <div>PÁG. 02 / 09</div>
-  </div>
-</div>
-""")
-
-# =========================================================================
-# PAGE 3: PLA BASIC & PLA+ HIGH SPEED
-# =========================================================================
-pla_basic_items = products_by_material.get('PLA Basic', [])
-plaplus_items = products_by_material.get('PLA+ Alta Resistencia', [])
-
-html_pages.append(f"""
-<div class="page" style="gap: 9px;">
-  <div class="page-header">
-    <div class="header-brand">
-      <img src="{img_logo_3d}" class="header-logo" />
-      <div>
-        <div class="header-brand-title">SYNTRA SUPPLY</div>
-        <div class="header-brand-sub">CONSUMIBLES DE PRODUCCIÓN RÁPIDA</div>
-      </div>
-    </div>
-    <div class="header-badge">02 / FILAMENTOS BÁSICOS</div>
-  </div>
-
-  <div>
-    <div class="section-tag">PRODUCCIÓN RÁPIDA & PROTOTIPADO</div>
-    <h2 class="page-title">PLA Basic & PLA+ Alta Resistencia</h2>
-    <div class="page-desc">El polímero biobasado estándar de alta velocidad para prototipado rápido, figuras estéticas y componentes que requieren máxima fidelidad dimensional (1.75mm • 1.0 KG neto).</div>
-  </div>
-
-  <div class="photo-gallery-3col" style="gap: 9px;">
-    <div class="photo-card">
-      <img src="{img_pla_spool}" style="height: 135px;" />
-      <div class="photo-card-body" style="padding: 6px 9px;">
-        <span class="photo-card-title">Bobina Kingroon PLA 1KG</span>
-        <span class="photo-card-caption">Empaque sellado con desecante activo.</span>
-      </div>
-    </div>
-    <div class="photo-card">
-      <img src="{img_plaplus_prints}" style="height: 135px;" />
-      <div class="photo-card-body" style="padding: 6px 9px;">
-        <span class="photo-card-title">Modelos Arquitectónicos & Mecánicos</span>
-        <span class="photo-card-caption">Capas uniformes sin hilos ni deformaciones.</span>
-      </div>
-    </div>
-    <div class="photo-card">
-      <img src="{img_plaplus_tough}" style="height: 135px;" />
-      <div class="photo-card-body" style="padding: 6px 9px;">
-        <span class="photo-card-title">Tenacidad Reforzada PLA+</span>
-        <span class="photo-card-caption">Hasta 5x más resistencia al impacto que PLA común.</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="pricing-bar">
-    <div class="pricing-item">
-      <span class="pricing-label">PLA BASIC:</span>
-      <span class="pricing-amount">Ref. $20.00 BCV</span>
-      <span style="font-size: 8px; color: #8F9AA9; font-family: 'Consolas', monospace;">(200 un • 12 tonos)</span>
-    </div>
-    <div class="pricing-item">
-      <span class="pricing-label">PLA+:</span>
-      <span class="pricing-amount">Ref. $21.50 BCV</span>
-      <span style="font-size: 8px; color: #8F9AA9; font-family: 'Consolas', monospace;">(80 un • 7 tonos)</span>
-    </div>
-    <div class="pricing-legal-note">
-      Facturación formal en <strong>Bolívares a tasa oficial BCV</strong>.<br />Descuento de contado en divisas / USDT vía WhatsApp.
-    </div>
-  </div>
-
-  <div class="swatches-container">
-    <div class="swatches-header">
-      <span class="swatches-header-title">PLA BASIC (12 TONOS DISPONIBLES)</span>
-      <span class="swatches-header-badge">200 UNIDADES EN FÍSICO</span>
-    </div>
-    {render_swatch_grid(pla_basic_items, cols=4)}
-  </div>
-
-  <div class="swatches-container">
-    <div class="swatches-header">
-      <span class="swatches-header-title">PLA+ ALTA RESISTENCIA (7 TONOS DISPONIBLES)</span>
-      <span class="swatches-header-badge">80 UNIDADES EN FÍSICO</span>
-    </div>
-    {render_swatch_grid(plaplus_items, cols=4)}
-  </div>
-
-  <!-- TECHNICAL SPEC GUIDE -->
-  <div class="tech-guide-panel" style="padding: 9px 12px;">
-    <div class="tech-guide-header">
-      <span class="tech-guide-title">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C8D0DC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-        PERFILES RECOMENDADOS & APLICACIÓN EN TALLER
-      </span>
-      <span class="tech-guide-tag">BAMBU STUDIO / ORCA / CURA</span>
-    </div>
-    <div class="tech-guide-grid-3">
-      <div class="guide-card" style="padding: 7px 9px;">
-        <span class="guide-card-title">PLA Basic (Estética & Prototipado)</span>
-        <span class="guide-card-desc">Excelente acabado superficial y mínima contracción. Ideal para maquetas de arquitectura, cosplay y piezas decorativas.</span>
-      </div>
-      <div class="guide-card" style="padding: 7px 9px;">
-        <span class="guide-card-title">PLA+ High Speed (Piezas Mecánicas)</span>
-        <span class="guide-card-desc">Modificado con elastómeros de tenacidad. Tolera hasta 300 mm/s sin delaminación ni atascos en extrusores direct drive.</span>
-      </div>
-      <div class="guide-card" style="padding: 7px 9px;">
-        <span class="guide-card-title">Compatibilidad con Sistemas AMS</span>
-        <span class="guide-card-desc">Bobinas con devanado perimetral balanceado 100% compatibles con Bambu Lab AMS y Anycubic ACE Pro sin trabas.</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="tech-specs-bar">
-    <div class="spec-item">
-      <span class="spec-label">Temperatura Boquilla</span>
-      <span class="spec-value">190 – 225 °C</span>
-    </div>
-    <div class="spec-item">
-      <span class="spec-label">Temperatura Cama</span>
-      <span class="spec-value">50 – 60 °C</span>
-    </div>
-    <div class="spec-item">
-      <span class="spec-label">Velocidad Máxima</span>
-      <span class="spec-value">Hasta 300 mm/s</span>
-    </div>
-    <div class="spec-item">
-      <span class="spec-label">Ventilación de Capa</span>
-      <span class="spec-value">100% Activa</span>
-    </div>
-    <div class="spec-item">
-      <span class="spec-label">Tolerancia Diámetro</span>
-      <span class="spec-value">±0.02 mm</span>
-    </div>
-  </div>
-
-  <div class="order-action-bar">
-    <span style="font-size: 8px; color: #CBD5E1;">¿Deseas apartar bobinas de PLA o PLA+ hoy mismo? Escríbenos con el código SKU.</span>
-    <span style="font-family: 'Consolas', monospace; font-size: 8.5px; font-weight: 700; color: #FFFFFF;">WhatsApp: +58 422-3446675 • Despacho en Lechería</span>
-  </div>
-
-  <div class="page-footer">
-    <div>SYNTRA SUPPLY • CATÁLOGO INDUSTRIAL 2026</div>
-    <div>ALMACÉN CENTRAL: LECHERÍA, ANZOÁTEGUI</div>
-    <div>PÁG. 03 / 09</div>
-  </div>
-</div>
-""")
-
-# =========================================================================
-# PAGE 4: PETG BASIC & ESPECIALES (MATTE & MARBLE)
-# =========================================================================
-petg_items = products_by_material.get('PETG Basic', [])
-matte_items = products_by_material.get('PLA Matte', []) + products_by_material.get('PETG Matte', [])
-marble_items = products_by_material.get('PLA Marble', [])
-specials_items = matte_items + marble_items
-
-html_pages.append(f"""
-<div class="page" style="gap: 9px;">
-  <div class="page-header">
-    <div class="header-brand">
-      <img src="{img_logo_3d}" class="header-logo" />
-      <div>
-        <div class="header-brand-title">SYNTRA SUPPLY</div>
-        <div class="header-brand-sub">POLÍMEROS TÉCNICOS & ACABADOS PREMIUM</div>
-      </div>
-    </div>
-    <div class="header-badge">03 / PETG & ESPECIALES</div>
-  </div>
-
-  <div>
-    <div class="section-tag">INGENIERÍA MECÁNICA & ACABADOS SATINADOS</div>
-    <h2 class="page-title">PETG Basic, PLA Matte & Marble Efecto Roca</h2>
-    <div class="page-desc">Resistencia química y térmica para piezas de uso final, combinada con acabados satinados que eliminan el reflejo de las líneas de capa (1.75mm • 1.0 KG neto).</div>
-  </div>
-
-  <div class="photo-gallery-3col" style="gap: 9px;">
-    <div class="photo-card">
-      <img src="{img_petg_spool}" style="height: 135px;" />
-      <div class="photo-card-body" style="padding: 6px 9px;">
-        <span class="photo-card-title">Bobina Kingroon PETG 1KG</span>
-        <span class="photo-card-caption">Resistencia química a aceites, alcoholes y agua.</span>
-      </div>
-    </div>
-    <div class="photo-card">
-      <img src="{img_petg_prints}" style="height: 135px;" />
-      <div class="photo-card-body" style="padding: 6px 9px;">
-        <span class="photo-card-title">Piezas de Uso Final & Soportes</span>
-        <span class="photo-card-caption">Termorresistencia hasta 75°C sin deformación.</span>
-      </div>
-    </div>
-    <div class="photo-card">
-      <img src="{img_matte_prints}" style="height: 135px;" />
-      <div class="photo-card-body" style="padding: 6px 9px;">
-        <span class="photo-card-title">PLA Matte & Acabado Piedra Mármol</span>
-        <span class="photo-card-caption">Textura cerámica que disimula al 100% las capas.</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="pricing-bar">
-    <div class="pricing-item">
-      <span class="pricing-label">PETG BASIC:</span>
-      <span class="pricing-amount">Ref. $19.50 BCV</span>
-      <span style="font-size: 8px; color: #8F9AA9; font-family: 'Consolas', monospace;">(120 un • 17 tonos)</span>
-    </div>
-    <div class="pricing-item">
-      <span class="pricing-label">MATTE / MARBLE:</span>
-      <span class="pricing-amount">Ref. $21.50 BCV</span>
-      <span style="font-size: 8px; color: #8F9AA9; font-family: 'Consolas', monospace;">(50 un • 5 tonos)</span>
-    </div>
-    <div class="pricing-legal-note">
-      Facturación formal en <strong>Bolívares a tasa oficial BCV</strong>.<br />Descuento de contado en divisas / USDT vía WhatsApp.
-    </div>
-  </div>
-
-  <div class="swatches-container">
-    <div class="swatches-header">
-      <span class="swatches-header-title">PETG BASIC (17 TONOS MECÁNICOS EN STOCK)</span>
-      <span class="swatches-header-badge">120 UNIDADES EN FÍSICO</span>
-    </div>
-    {render_swatch_grid(petg_items, cols=4)}
-  </div>
-
-  <div class="swatches-container">
-    <div class="swatches-header">
-      <span class="swatches-header-title">PLA MATTE & MARBLE EFECTO CERÁMICO (5 TONOS)</span>
-      <span class="swatches-header-badge">50 UNIDADES EN FÍSICO</span>
-    </div>
-    {render_swatch_grid(specials_items, cols=5)}
-  </div>
-
-  <!-- TECHNICAL APPLICATION GUIDE -->
-  <div class="tech-guide-panel" style="padding: 9px 12px;">
-    <div class="tech-guide-header">
-      <span class="tech-guide-title">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C8D0DC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
-        CRITERIOS DE SELECCIÓN & PARÁMETROS TÉCNICOS
-      </span>
-      <span class="tech-guide-tag">GUÍA DE MATERIALES</span>
-    </div>
-    <div class="tech-guide-grid-2">
-      <div class="guide-card" style="padding: 7px 9px;">
-        <span class="guide-card-title">PETG (Grado Mecánico & Soportes de Taller)</span>
-        <span class="guide-card-desc">Fusión entre capas casi indestructible y excelente resistencia a solventes. Configurar ventilador al 30-50% para maximizar la resistencia al desgarro interlaminar.</span>
-      </div>
-      <div class="guide-card" style="padding: 7px 9px;">
-        <span class="guide-card-title">PLA Matte & Mármol (Diseño de Producto & Escultura)</span>
-        <span class="guide-card-desc">El PLA Matte dispersa el brillo para un aspecto tipo molde inyectado. El filamento Mármol incorpora micropartículas que reproducen la textura exacta de roca granítica.</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="tech-specs-bar">
-    <div class="spec-item">
-      <span class="spec-label">PETG Boquilla / Cama</span>
-      <span class="spec-value">220-250°C / 70-80°C</span>
-    </div>
-    <div class="spec-item">
-      <span class="spec-label">Matte Boquilla / Cama</span>
-      <span class="spec-value">190-220°C / 50-60°C</span>
-    </div>
-    <div class="spec-item">
-      <span class="spec-label">Resistencia Térmica</span>
-      <span class="spec-value">HDT 75 °C (PETG)</span>
-    </div>
-    <div class="spec-item">
-      <span class="spec-label">Superficie Sugerida</span>
-      <span class="spec-value">PEI Texturizada</span>
-    </div>
-    <div class="spec-item">
-      <span class="spec-label">Velocidad Sugerida</span>
-      <span class="spec-value">150 – 250 mm/s</span>
-    </div>
-  </div>
-
-  <div class="order-action-bar">
-    <span style="font-size: 8px; color: #CBD5E1;">¿Deseas apartar bobinas de PETG o acabados Matte/Marble? Escríbenos con el SKU.</span>
-    <span style="font-family: 'Consolas', monospace; font-size: 8.5px; font-weight: 700; color: #FFFFFF;">WhatsApp: +58 422-3446675 • Despacho en Lechería</span>
-  </div>
-
-  <div class="page-footer">
-    <div>SYNTRA SUPPLY • CATÁLOGO INDUSTRIAL 2026</div>
-    <div>ALMACÉN CENTRAL: LECHERÍA, ANZOÁTEGUI</div>
-    <div>PÁG. 04 / 09</div>
-  </div>
-</div>
-""")
-
-# =========================================================================
-# PAGE 5: PLA SILK SÓLIDO & SILK BICOLOR
-# =========================================================================
-silk_single_items = products_by_material.get('PLA Silk Sólido', [])
-silk_dual_items = products_by_material.get('PLA Silk Bicolor', [])
-
-html_pages.append(f"""
-<div class="page" style="gap: 9px;">
-  <div class="page-header">
-    <div class="header-brand">
-      <img src="{img_logo_3d}" class="header-logo" />
-      <div>
-        <div class="header-brand-title">SYNTRA SUPPLY</div>
-        <div class="header-brand-sub">ACABADOS REFLECTANTES & BICOLOR COAXIAL</div>
-      </div>
-    </div>
-    <div class="header-badge">04 / LÍNEA SILK PREMIUM</div>
-  </div>
-
-  <div>
-    <div class="section-tag">EFECTOS METÁLICOS & COEXTRUSIÓN LONGITUDINAL</div>
-    <h2 class="page-title">PLA Silk Sólido & Silk Bicolor (Doble Tono)</h2>
-    <div class="page-desc">Polímeros de acabado seda con brillo perlado metálico y tecnología de coextrusión bicromática longitudinal a 180° que crea transiciones dinámicas al rotar la pieza (1.75mm • 1.0 KG neto).</div>
-  </div>
-
-  <div class="photo-gallery-3col" style="gap: 9px;">
-    <div class="photo-card">
-      <img src="{img_silk_single_spool}" style="height: 135px;" />
-      <div class="photo-card-body" style="padding: 6px 9px;">
-        <span class="photo-card-title">Bobina Silk Oro Imperial</span>
-        <span class="photo-card-caption">Brillo especular sin necesidad de posprocesado ni laca.</span>
-      </div>
-    </div>
-    <div class="photo-card">
-      <img src="{img_silk_dual_dragon}" style="height: 135px;" />
-      <div class="photo-card-body" style="padding: 6px 9px;">
-        <span class="photo-card-title">Coextrusión Bicolor 180°</span>
-        <span class="photo-card-caption">Transición tonal según el ángulo de incidencia de luz.</span>
-      </div>
-    </div>
-    <div class="photo-card">
-      <img src="{img_silk_single_prints}" style="height: 135px;" />
-      <div class="photo-card-body" style="padding: 6px 9px;">
-        <span class="photo-card-title">Estatuillas & Trofeos</span>
-        <span class="photo-card-caption">Superficie reflectante de alta fidelidad estética.</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="pricing-bar">
-    <div class="pricing-item">
-      <span class="pricing-label">SILK SÓLIDO:</span>
-      <span class="pricing-amount">Ref. $24.00 BCV</span>
-      <span style="font-size: 8px; color: #8F9AA9; font-family: 'Consolas', monospace;">(110 un • 11 tonos)</span>
-    </div>
-    <div class="pricing-item">
-      <span class="pricing-label">SILK BICOLOR:</span>
-      <span class="pricing-amount">Ref. $27.00 BCV</span>
-      <span style="font-size: 8px; color: #8F9AA9; font-family: 'Consolas', monospace;">(70 un • 7 combinaciones)</span>
-    </div>
-    <div class="pricing-legal-note">
-      Facturación formal en <strong>Bolívares a tasa oficial BCV</strong>.<br />Descuento de contado en divisas / USDT vía WhatsApp.
-    </div>
-  </div>
-
-  <div class="swatches-container">
-    <div class="swatches-header">
-      <span class="swatches-header-title">PLA SILK SÓLIDO METALIZADO (11 TONOS)</span>
-      <span class="swatches-header-badge">110 UNIDADES EN FÍSICO</span>
-    </div>
-    {render_swatch_grid(silk_single_items, cols=4)}
-  </div>
-
-  <div class="swatches-container">
-    <div class="swatches-header">
-      <span class="swatches-header-title">PLA SILK BICOLOR COAXIAL (7 COMBINACIONES)</span>
-      <span class="swatches-header-badge">70 UNIDADES EN FÍSICO</span>
-    </div>
-    {render_swatch_grid(silk_dual_items, cols=4)}
-  </div>
-
-  <!-- TECHNICAL PRINTING GUIDE -->
-  <div class="tech-guide-panel" style="padding: 9px 12px;">
-    <div class="tech-guide-header">
-      <span class="tech-guide-title">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C8D0DC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-        TIPS DE IMPRESIÓN PARA ACABADO METÁLICO ESPEJO
-      </span>
-      <span class="tech-guide-tag">OPTIMIZACIÓN DE BRILLO</span>
-    </div>
-    <div class="tech-guide-grid-3">
-      <div class="guide-card" style="padding: 7px 9px;">
-        <span class="guide-card-title">Temperatura de Boquilla Óptima</span>
-        <span class="guide-card-desc">Imprimir a 215°C – 225°C. A temperaturas ligeramente más altas, los agentes de seda fluyen libremente creando máxima reflexión especular.</span>
-      </div>
-      <div class="guide-card" style="padding: 7px 9px;">
-        <span class="guide-card-title">Coextrusión sin Torre de Purga</span>
-        <span class="guide-card-desc">Dos colores en una misma hebra. Permite imprimir dragones articulados y jarrones bicolores sin desperdicio de filamento ni sistemas multi-material.</span>
-      </div>
-      <div class="guide-card" style="padding: 7px 9px;">
-        <span class="guide-card-title">Orientación Angular</span>
-        <span class="guide-card-desc">Alinee la cara principal de la pieza a 45° respecto al pórtico para que la transición entre colores resalte nítidamente en aristas y curvas.</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="tech-specs-bar">
-    <div class="spec-item">
-      <span class="spec-label">Temperatura Boquilla</span>
-      <span class="spec-value">205 – 225 °C</span>
-    </div>
-    <div class="spec-item">
-      <span class="spec-label">Temperatura Cama</span>
-      <span class="spec-value">50 – 60 °C</span>
-    </div>
-    <div class="spec-item">
-      <span class="spec-label">Acabado Superficial</span>
-      <span class="spec-value">Brillo Seda Metálico</span>
-    </div>
-    <div class="spec-item">
-      <span class="spec-label">Coextrusión</span>
-      <span class="spec-value">Bicolor 180° Coaxial</span>
-    </div>
-    <div class="spec-item">
-      <span class="spec-label">Aplicaciones Top</span>
-      <span class="spec-value">Joyería, Trofeos, Arte</span>
-    </div>
-  </div>
-
-  <div class="order-action-bar">
-    <span style="font-size: 8px; color: #CBD5E1;">¿Deseas apartar bobinas Silk Sólido o Bicolor? Escríbenos con el código SKU.</span>
-    <span style="font-family: 'Consolas', monospace; font-size: 8.5px; font-weight: 700; color: #FFFFFF;">WhatsApp: +58 422-3446675 • Despacho en Lechería</span>
-  </div>
-
-  <div class="page-footer">
-    <div>SYNTRA SUPPLY • CATÁLOGO INDUSTRIAL 2026</div>
-    <div>ALMACÉN CENTRAL: LECHERÍA, ANZOÁTEGUI</div>
-    <div>PÁG. 05 / 09</div>
-  </div>
-</div>
-""")
-
-# =========================================================================
-# PAGE 6: PLA SILK TRICOLOR & SILK RAINBOW
-# =========================================================================
-silk_tri_items = products_by_material.get('PLA Silk Tricolor', [])
-silk_rainbow_items = products_by_material.get('PLA Silk Rainbow', [])
-
-html_pages.append(f"""
-<div class="page" style="gap: 9px;">
-  <div class="page-header">
-    <div class="header-brand">
-      <img src="{img_logo_3d}" class="header-logo" />
-      <div>
-        <div class="header-brand-title">SYNTRA SUPPLY</div>
-        <div class="header-brand-sub">COEXTRUSIÓN COAXIAL & GRADIENTES CROMÁTICOS</div>
-      </div>
-    </div>
-    <div class="header-badge">05 / MULTICOLOR & RAINBOW</div>
-  </div>
-
-  <div>
-    <div class="section-tag">EFECTOS TRIDIMENSIONALES AVANZADOS</div>
-    <h2 class="page-title">PLA Silk Tricolor (3-Tone) & Silk Rainbow</h2>
-    <div class="page-desc">Tecnología de coextrusión tripartita en una sola hebra que revela 3 colores simultáneos según la rotación de la pieza, y gradientes continuos tipo arcoíris espectral (1.75mm • 1.0 KG neto).</div>
-  </div>
-
-  <div class="photo-gallery-3col" style="gap: 9px;">
-    <div class="photo-card">
-      <img src="{img_silk_tri}" style="height: 140px;" />
-      <div class="photo-card-body" style="padding: 6px 9px;">
-        <span class="photo-card-title">Coextrusión Tricolor 120°</span>
-        <span class="photo-card-caption">Tres tonalidades nítidas proyectadas sin cambiar de boquilla.</span>
-      </div>
-    </div>
-    <div class="photo-card">
-      <img src="{img_silk_multi}" style="height: 140px;" />
-      <div class="photo-card-body" style="padding: 6px 9px;">
-        <span class="photo-card-title">Colección Rainbow Gradient & Pastel</span>
-        <span class="photo-card-caption">Transición tonal armónica y suave cada 15 a 20 metros de extrusión.</span>
-      </div>
-    </div>
-    <div class="photo-card">
-      <img src="{img_silk_dual_vase}" style="height: 140px;" />
-      <div class="photo-card-body" style="padding: 6px 9px;">
-        <span class="photo-card-title">Jarrones & Esculturas Dinámicas</span>
-        <span class="photo-card-caption">Reflejos policromáticos de altísima riqueza visual.</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="pricing-bar">
-    <div class="pricing-item">
-      <span class="pricing-label">SILK TRICOLOR:</span>
-      <span class="pricing-amount">Ref. $27.00 BCV</span>
-      <span style="font-size: 8px; color: #8F9AA9; font-family: 'Consolas', monospace;">(80 un • 8 combos)</span>
-    </div>
-    <div class="pricing-item">
-      <span class="pricing-label">SILK RAINBOW:</span>
-      <span class="pricing-amount">Ref. $27.00 BCV</span>
-      <span style="font-size: 8px; color: #8F9AA9; font-family: 'Consolas', monospace;">(40 un • 4 variantes)</span>
-    </div>
-    <div class="pricing-legal-note">
-      Facturación formal en <strong>Bolívares a tasa oficial BCV</strong>.<br />Descuento de contado en divisas / USDT vía WhatsApp.
-    </div>
-  </div>
-
-  <div class="swatches-container">
-    <div class="swatches-header">
-      <span class="swatches-header-title">PLA SILK TRICOLOR (8 COMBINACIONES TRIPLES EN STOCK)</span>
-      <span class="swatches-header-badge">80 UNIDADES EN FÍSICO</span>
-    </div>
-    {render_swatch_grid(silk_tri_items, cols=4)}
-  </div>
-
-  <div class="swatches-container">
-    <div class="swatches-header">
-      <span class="swatches-header-title">PLA SILK RAINBOW & GRADIENTES ESPECTRALES (4 VARIANTES)</span>
-      <span class="swatches-header-badge">40 UNIDADES EN FÍSICO</span>
-    </div>
-    {render_swatch_grid(silk_rainbow_items, cols=4)}
-  </div>
-
-  <!-- COMPARATIVE OPTICAL EFFECTS GUIDE -->
-  <div class="tech-guide-panel" style="padding: 8px 12px;">
-    <div class="tech-guide-header">
-      <span class="tech-guide-title">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C8D0DC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path><path d="M2 12h20"></path></svg>
-        ANÁLISIS DE EFECTOS ÓPTICOS: TRICOLOR 120° VS. GRADIENTE RAINBOW
-      </span>
-      <span class="tech-guide-tag">SELECCIÓN ESTÉTICA</span>
-    </div>
-    <div class="tech-guide-grid-2">
-      <div class="guide-card" style="padding: 7px 9px;">
-        <span class="guide-card-title">Tricolor (Efecto Giroscópico Inmediato)</span>
-        <span class="guide-card-desc">Tres colores coextruidos divididos a 120°. Cualquier pieza pequeña o grande muestra tres tonos simultáneos según el ángulo. Ideal para dragones articulados y coleccionables.</span>
-      </div>
-      <div class="guide-card" style="padding: 7px 9px;">
-        <span class="guide-card-title">Silk Rainbow (Gradiente Espectral Continuo)</span>
-        <span class="guide-card-desc">El color cambia a lo largo de la bobina cada 15 a 20 metros. En modelos de más de 12 cm de altura, la pieza luce capas completas en degradé suave pastel o arcoíris vivo.</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- RECOMMENDED SLICER SETTINGS -->
-  <div class="tech-guide-panel" style="padding: 8px 12px;">
-    <div class="tech-guide-header">
-      <span class="tech-guide-title">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C8D0DC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
-        PARÁMETROS SLICER PARA COEXTRUSIÓN TRICOLOR & RAINBOW
-      </span>
-      <span class="tech-guide-tag">CONFIGURACIÓN ÓPTIMA</span>
-    </div>
-    <div class="tech-guide-grid-3">
-      <div class="guide-card" style="padding: 7px 9px;">
-        <span class="guide-card-title">Orientación en Cama (Tricolor)</span>
-        <span class="guide-card-desc">Evite rotar la bobina durante la impresión. Configure la costura (seam) en 'Alineada' o 'Dorso' para mantener la continuidad cromática.</span>
-      </div>
-      <div class="guide-card" style="padding: 7px 9px;">
-        <span class="guide-card-title">Altura de Capa Sugerida</span>
-        <span class="guide-card-desc">0.16mm a 0.20mm para modelos de exhibición. Permite suficiente volumen por trazo para que las tres tonalidades resalten con igual saturación óptica.</span>
-      </div>
-      <div class="guide-card" style="padding: 7px 9px;">
-        <span class="guide-card-title">Relleno (Infill) Recomendado</span>
-        <span class="guide-card-desc">Giroide o Lightning al 10-15%. Los patrones concéntricos ayudan a que la luz atraviese las paredes perimetrales con mayor luminosidad.</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="tech-specs-bar">
-    <div class="spec-item">
-      <span class="spec-label">Temperatura Boquilla</span>
-      <span class="spec-value">205 – 225 °C</span>
-    </div>
-    <div class="spec-item">
-      <span class="spec-label">Temperatura Cama</span>
-      <span class="spec-value">50 – 60 °C</span>
-    </div>
-    <div class="spec-item">
-      <span class="spec-label">Ciclo de Gradiente</span>
-      <span class="spec-value">15 – 20 metros</span>
-    </div>
-    <div class="spec-item">
-      <span class="spec-label">Bobinado</span>
-      <span class="spec-value">Tidy Winding ±0.02mm</span>
-    </div>
-    <div class="spec-item">
-      <span class="spec-label">Aplicaciones</span>
-      <span class="spec-value">Joyería, Trofeos, Arte</span>
-    </div>
-  </div>
-
-  <div class="order-action-bar">
-    <span style="font-size: 8px; color: #CBD5E1;">¿Deseas apartar bobinas Tricolor o Rainbow? Escríbenos con el código SKU.</span>
-    <span style="font-family: 'Consolas', monospace; font-size: 8.5px; font-weight: 700; color: #FFFFFF;">WhatsApp: +58 422-3446675 • Despacho en Lechería</span>
-  </div>
-
-  <div class="page-footer">
-    <div>SYNTRA SUPPLY • CATÁLOGO INDUSTRIAL 2026</div>
-    <div>ALMACÉN CENTRAL: LECHERÍA, ANZOÁTEGUI</div>
-    <div>PÁG. 06 / 09</div>
-  </div>
-</div>
-""")
-
-# =========================================================================
-# PAGE 7: TPU 95A, ASA SOLAR & FIBRA DE CARBONO
-# =========================================================================
-tpu_items = products_by_material.get('TPU 95A Flexible', [])
-asa_items = products_by_material.get('ASA Basic Solar UV', [])
-cf_items = products_by_material.get('PETG-CF Fibra de Carbono', []) + products_by_material.get('PLA-CF Fibra de Carbono', [])
-eng_items = asa_items + cf_items
-
-html_pages.append(f"""
-<div class="page" style="gap: 9px;">
-  <div class="page-header">
-    <div class="header-brand">
-      <img src="{img_logo_3d}" class="header-logo" />
-      <div>
-        <div class="header-brand-title">SYNTRA SUPPLY</div>
-        <div class="header-brand-sub">ELASTÓMEROS, INTEMPERIE & ULTRA-RIGIDEZ</div>
-      </div>
-    </div>
-    <div class="header-badge">06 / TÉCNICOS & INGENIERÍA</div>
-  </div>
-
-  <div>
-    <div class="section-tag">MATERIALES DE ALTO RENDIMIENTO</div>
-    <h2 class="page-title">TPU 95A Flexible, ASA Solar & Fibra de Carbono</h2>
-    <div class="page-desc">Polímeros especializados para partes mecánicas que requieren absorción de impactos, flexión repetitiva, resistencia solar UV prolongada o máxima rigidez estructural (1.75mm • 1.0 KG neto).</div>
-  </div>
-
-  <div class="photo-gallery-3col" style="gap: 9px;">
-    <div class="photo-card">
-      <img src="{img_tpu_shoe}" style="height: 135px;" />
-      <div class="photo-card-body" style="padding: 6px 9px;">
-        <span class="photo-card-title">TPU 95A: Flexión Extrema</span>
-        <span class="photo-card-caption">450% de elongación a la rotura sin fatiga.</span>
-      </div>
-    </div>
-    <div class="photo-card">
-      <img src="{img_tpu_models}" style="height: 135px;" />
-      <div class="photo-card-body" style="padding: 6px 9px;">
-        <span class="photo-card-title">Juntas, Sellos & Amortiguación</span>
-        <span class="photo-card-caption">Hermeticidad perfecta a fluidos y vibraciones.</span>
-      </div>
-    </div>
-    <div class="photo-card">
-      <img src="{img_pacf_drone}" style="height: 135px;" />
-      <div class="photo-card-body" style="padding: 6px 9px;">
-        <span class="photo-card-title">Fibra de Carbono (CF)</span>
-        <span class="photo-card-caption">Microfibras de refuerzo para chasis y drones.</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="pricing-bar">
-    <div class="pricing-item">
-      <span class="pricing-label">TPU 95A:</span>
-      <span class="pricing-amount">Ref. $28.50 BCV</span>
-      <span style="font-size: 8px; color: #8F9AA9; font-family: 'Consolas', monospace;">(120 un • 10 tonos)</span>
-    </div>
-    <div class="pricing-item">
-      <span class="pricing-label">ASA UV:</span>
-      <span class="pricing-amount">Ref. $28.50 BCV</span>
-      <span style="font-size: 8px; color: #8F9AA9; font-family: 'Consolas', monospace;">(30 un • 3 tonos)</span>
-    </div>
-    <div class="pricing-item">
-      <span class="pricing-label">CF CARBON:</span>
-      <span class="pricing-amount">Ref. $42.00 BCV</span>
-      <span style="font-size: 8px; color: #8F9AA9; font-family: 'Consolas', monospace;">(20 un)</span>
-    </div>
-    <div class="pricing-legal-note">
-      Facturación formal en <strong>Bolívares a tasa oficial BCV</strong>.<br />Descuento de contado en divisas / USDT vía WhatsApp.
-    </div>
-  </div>
-
-  <div class="swatches-container">
-    <div class="swatches-header">
-      <span class="swatches-header-title">TPU 95A FLEXIBLE (10 COLORES DISPONIBLES)</span>
-      <span class="swatches-header-badge">120 UNIDADES EN FÍSICO</span>
-    </div>
-    {render_swatch_grid(tpu_items, cols=5)}
-  </div>
-
-  <div class="swatches-container">
-    <div class="swatches-header">
-      <span class="swatches-header-title">ASA INTEMPERIE SOLAR UV & FIBRA DE CARBONO (CF)</span>
-      <span class="swatches-header-badge">50 UNIDADES EN FÍSICO</span>
-    </div>
-    {render_swatch_grid(eng_items, cols=5)}
-  </div>
-
-  <!-- ADVANCED POLYMER ENGINEERING GUIDE -->
-  <div class="tech-guide-panel" style="padding: 9px 12px;">
-    <div class="tech-guide-header">
-      <span class="tech-guide-title">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C8D0DC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-        PROTOCOLO INDUSTRIAL PARA POLÍMEROS AVANZADOS
-      </span>
-      <span class="tech-guide-tag">MANUFACTURA ADITIVA TÉCNICA</span>
-    </div>
-    <div class="tech-guide-grid-3">
-      <div class="guide-card" style="padding: 7px 9px;">
-        <span class="guide-card-title">TPU 95A (Elastómero Elástico)</span>
-        <span class="guide-card-desc">Imprimir a 30-50 mm/s en extrusor directo. Desactivar retracciones agresivas. Inmune a grasas, combustibles e hidrocarburos automotrices.</span>
-      </div>
-      <div class="guide-card" style="padding: 7px 9px;">
-        <span class="guide-card-title">ASA Solar UV (Exterior & Náutica)</span>
-        <span class="guide-card-desc">Soporta radiación solar directa y agua salina sin amarillear ni fragilizarse. Reemplazo del ABS sin deformación con cama a 90-100°C.</span>
-      </div>
-      <div class="guide-card" style="padding: 7px 9px;">
-        <span class="guide-card-title">Fibra de Carbono (Boquilla Hardened)</span>
-        <span class="guide-card-desc"><strong>Obligatorio boquilla de acero templado.</strong> Módulo de flexión >4500 MPa. Acabado mate granulado para brazos de drones y utillaje.</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="tech-specs-bar">
-    <div class="spec-item">
-      <span class="spec-label">TPU Temp Boquilla</span>
-      <span class="spec-value">210 – 235 °C</span>
-    </div>
-    <div class="spec-item">
-      <span class="spec-label">ASA Temp Boquilla/Cama</span>
-      <span class="spec-value">240–260°C / 90–110°C</span>
-    </div>
-    <div class="spec-item">
-      <span class="spec-label">Boquilla Sugerida CF</span>
-      <span class="spec-value">Acero Endurecido</span>
-    </div>
-    <div class="spec-item">
-      <span class="spec-label">Resistencia ASA UV</span>
-      <span class="spec-value">Exposición Solar Extrema</span>
-    </div>
-    <div class="spec-item">
-      <span class="spec-label">Rigidez CF</span>
-      <span class="spec-value">Módulo > 4500 MPa</span>
-    </div>
-  </div>
-
-  <div class="order-action-bar">
-    <span style="font-size: 8px; color: #CBD5E1;">¿Deseas apartar bobinas de TPU, ASA o Fibra de Carbono? Escríbenos con el SKU.</span>
-    <span style="font-family: 'Consolas', monospace; font-size: 8.5px; font-weight: 700; color: #FFFFFF;">WhatsApp: +58 422-3446675 • Despacho en Lechería</span>
-  </div>
-
-  <div class="page-footer">
-    <div>SYNTRA SUPPLY • CATÁLOGO INDUSTRIAL 2026</div>
-    <div>ALMACÉN CENTRAL: LECHERÍA, ANZOÁTEGUI</div>
-    <div>PÁG. 07 / 09</div>
-  </div>
-</div>
-""")
-
-# =========================================================================
-# PAGE 8: ECOSISTEMA HARDWARE BAMBU LAB & KINGROON H2D
-# =========================================================================
-html_pages.append(f"""
-<div class="page" style="gap: 9px;">
-  <div class="page-header">
-    <div class="header-brand">
-      <img src="{img_logo_3d}" class="header-logo" />
-      <div>
-        <div class="header-brand-title">SYNTRA SUPPLY</div>
-        <div class="header-brand-sub">SUPERFICIES DE IMPRESIÓN, HOTENDS & ACCESORIOS</div>
-      </div>
-    </div>
-    <div class="header-badge">07 / HARDWARE & REPUESTOS</div>
-  </div>
-
-  <div>
-    <div class="section-tag">MANTENIMIENTO & DISPONIBILIDAD OPERATIVA</div>
-    <h2 class="page-title">Placas Magnéticas, Hotends & Repuestos Críticos</h2>
-    <div class="page-desc">Componentes originales y de reemplazo directo para ecosistemas Bambu Lab (X1, P1, A1, A1 Mini) y Kingroon H2D. Asegura que tu taller jamás se detenga por desgaste de piezas.</div>
-  </div>
-
-  <div class="photo-gallery-4col" style="gap: 8px;">
-    <div class="photo-card">
-      <img src="{img_bambu_hardened}" style="height: 125px;" />
-      <div class="photo-card-body" style="padding: 6px 8px;">
-        <span class="photo-card-title">Hotends A1 / Mini</span>
-        <span class="photo-card-caption">Acero endurecido e inoxidable.</span>
-      </div>
-    </div>
-    <div class="photo-card">
-      <img src="{img_bambu_pei}" style="height: 125px;" />
-      <div class="photo-card-body" style="padding: 6px 8px;">
-        <span class="photo-card-title">Placa PEI Oro Bambu</span>
-        <span class="photo-card-caption">Texturizado doble cara 257mm.</span>
-      </div>
-    </div>
-    <div class="photo-card">
-      <img src="{img_bambu_peo}" style="height: 125px;" />
-      <div class="photo-card-body" style="padding: 6px 8px;">
-        <span class="photo-card-title">Placa Diamante PEO</span>
-        <span class="photo-card-caption">Patrón holográfico de contacto.</span>
-      </div>
-    </div>
-    <div class="photo-card">
-      <img src="{img_bambu_h2d}" style="height: 125px;" />
-      <div class="photo-card-body" style="padding: 6px 8px;">
-        <span class="photo-card-title">Camas Kingroon H2D</span>
-        <span class="photo-card-caption">Gran formato 355x346mm doble PEI.</span>
-      </div>
-    </div>
-  </div>
-
-  <table class="hardware-table">
-    <thead>
-      <tr>
-        <th style="width: 14%;">SKU</th>
-        <th style="width: 44%;">Superficie de Construcción / Placa Magnética</th>
-        <th style="width: 22%;">Compatibilidad</th>
-        <th style="width: 10%;">Stock</th>
-        <th style="width: 10%; text-align: right;">Ref. BCV</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr><td>B02553</td><td><strong>Placa PEI Texturizada Oro Doble Cara</strong> (184x184mm)</td><td>Bambu A1 Mini</td><td><span class="swatch-stock">20 un</span></td><td style="text-align: right; color: #FFFFFF; font-weight: 800;">$22.00</td></tr>
-      <tr><td>B03151</td><td><strong>Placa Diamante PEO + PEI Texturizada</strong> (184x184mm)</td><td>Bambu A1 Mini</td><td><span class="swatch-stock">20 un</span></td><td style="text-align: right; color: #FFFFFF; font-weight: 800;">$24.00</td></tr>
-      <tr><td>B02716</td><td><strong>Placa PEI Texturizada Doble Cara Dorada</strong> (257x257mm)</td><td>Bambu X1 / P1 / A1</td><td><span class="swatch-stock">10 un</span></td><td style="text-align: right; color: #FFFFFF; font-weight: 800;">$34.00</td></tr>
-      <tr><td>B02653</td><td><strong>Placa Diamante PEO + Fibra de Carbono PET</strong> (257x257mm)</td><td>Bambu X1 / P1 / A1</td><td><span class="swatch-stock">10 un</span></td><td style="text-align: right; color: #FFFFFF; font-weight: 800;">$38.00</td></tr>
-      <tr><td>B02787</td><td><strong>Placa PEO Chameleon Tornasol + PEI</strong> (257x257mm)</td><td>Bambu X1 / P1 / A1</td><td><span class="swatch-stock">10 un</span></td><td style="text-align: right; color: #FFFFFF; font-weight: 800;">$40.00</td></tr>
-      <tr><td>XP250402</td><td><strong>Placa Gran Formato Doble PEI</strong> (355x346mm)</td><td>Kingroon H2D</td><td><span class="swatch-stock">10 un</span></td><td style="text-align: right; color: #FFFFFF; font-weight: 800;">$48.00</td></tr>
-    </tbody>
-  </table>
-
-  <table class="hardware-table">
-    <thead>
-      <tr>
-        <th style="width: 14%;">SKU</th>
-        <th style="width: 44%;">Hotend Ensamblado & Boquillas de Alto Flujo</th>
-        <th style="width: 22%;">Material / Calibre</th>
-        <th style="width: 10%;">Stock</th>
-        <th style="width: 10%; text-align: right;">Ref. BCV</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr><td>B02755-58</td><td><strong>Hotend Ensamblado Bambu Inoxidable</strong> (0.2 / 0.4 / 0.6 / 0.8mm)</td><td>Bambu A1 / A1 Mini</td><td><span class="swatch-stock">80 un</span></td><td style="text-align: right; color: #FFFFFF; font-weight: 800;">$19.00</td></tr>
-      <tr><td>B02759-62</td><td><strong>Hotend Acero Endurecido Alta Temp</strong> (0.2 / 0.4 / 0.6 / 0.8mm)</td><td>Bambu A1 / A1 Mini</td><td><span class="swatch-stock">80 un</span></td><td style="text-align: right; color: #FFFFFF; font-weight: 800;">$25.00</td></tr>
-      <tr><td>XP250413-16</td><td><strong>Hotend Kingroon H2D Hardened Steel</strong> (0.2 / 0.4 / 0.6 / 0.8mm)</td><td>Kingroon H2D</td><td><span class="swatch-stock">80 un</span></td><td style="text-align: right; color: #FFFFFF; font-weight: 800;">$26.00</td></tr>
-      <tr><td>XP250417-19</td><td><strong>Hotend Kingroon H2D High-Flow Racing</strong> (0.4 / 0.6 / 0.8mm)</td><td>Kingroon H2D</td><td><span class="swatch-stock">30 un</span></td><td style="text-align: right; color: #FFFFFF; font-weight: 800;">$36.00</td></tr>
-    </tbody>
-  </table>
-
-  <table class="hardware-table">
-    <thead>
-      <tr>
-        <th style="width: 14%;">SKU</th>
-        <th style="width: 44%;">Consumibles, Wipers & Sistema de Extrusión</th>
-        <th style="width: 22%;">Presentación</th>
-        <th style="width: 10%;">Stock</th>
-        <th style="width: 10%; text-align: right;">Ref. BCV</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr><td>XP240809-10</td><td><strong>Wipers Limpiadores de Silicona para Boquilla</strong></td><td>Set x3 unidades (A1 / Mini)</td><td><span class="swatch-stock">100 un</span></td><td style="text-align: right; color: #FFFFFF; font-weight: 800;">$2.50-$4.50</td></tr>
-      <tr><td>XP250421</td><td><strong>Funda Térmica de Silicona para Bloque Calefactor H2D</strong></td><td>Unidad sellada alta temp</td><td><span class="swatch-stock">100 un</span></td><td style="text-align: right; color: #FFFFFF; font-weight: 800;">$3.50</td></tr>
-      <tr><td>XP240606</td><td><strong>Engranaje Helicoidal de Extrusión en Acero Templado</strong></td><td>Unidad mecanizada CNC</td><td><span class="swatch-stock">10 un</span></td><td style="text-align: right; color: #FFFFFF; font-weight: 800;">$26.00</td></tr>
-    </tbody>
-  </table>
-
-  <!-- HARDWARE MAINTENANCE & COMPATIBILITY GUIDE -->
-  <div class="tech-guide-panel" style="padding: 9px 12px;">
-    <div class="tech-guide-header">
-      <span class="tech-guide-title">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C8D0DC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
-        GUÍA DE SELECCIÓN DE BOQUILLAS & CUIDADO DE PLACAS PEI
-      </span>
-      <span class="tech-guide-tag">MANTENIMIENTO PRO</span>
-    </div>
-    <div class="tech-guide-grid-3">
-      <div class="guide-card" style="padding: 7px 9px;">
-        <span class="guide-card-title">Acero Inoxidable vs. Endurecido</span>
-        <span class="guide-card-desc">El acero inoxidable es ideal para PLA/PETG básico y piezas no abrasivas. Para fibra de carbono, mármol o glow-in-the-dark, el acero endurecido 55 HRC es obligatorio.</span>
-      </div>
-      <div class="guide-card" style="padding: 7px 9px;">
-        <span class="guide-card-title">Desprendimiento Automático PEI</span>
-        <span class="guide-card-desc">Las placas de acero elástico texturizado liberan las piezas por sí solas una vez que la cama enfría por debajo de 35°C. No requiere espátulas ni pegamentos.</span>
-      </div>
-      <div class="guide-card" style="padding: 7px 9px;">
-        <span class="guide-card-title">Limpieza Preventiva</span>
-        <span class="guide-card-desc">Limpiar periódicamente la superficie con alcohol isopropílico al 99% o agua tibia con jabón desengrasante neutro para retirar la grasa de dedos y mantener adhesión 100%.</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="order-action-bar">
-    <span style="font-size: 8px; color: #CBD5E1;">¿Necesitas repuestos o placas para tu impresora hoy? Consulta stock directo por WhatsApp.</span>
-    <span style="font-family: 'Consolas', monospace; font-size: 8.5px; font-weight: 700; color: #FFFFFF;">WhatsApp: +58 422-3446675 • Despacho en Lechería</span>
-  </div>
-
-  <div class="page-footer">
-    <div>SYNTRA SUPPLY • CATÁLOGO INDUSTRIAL 2026</div>
-    <div>ALMACÉN CENTRAL: LECHERÍA, ANZOÁTEGUI</div>
-    <div>PÁG. 08 / 09</div>
-  </div>
-</div>
-""")
-
-# =========================================================================
-# PAGE 9: LOGÍSTICA, ATENCIÓN, PAGOS & CONTACTO DIRECTO
-# =========================================================================
-html_pages.append(f"""
-<div class="page" style="gap: 10px;">
-  <div class="page-header">
-    <div class="header-brand">
-      <img src="{img_logo_3d}" class="header-logo" />
-      <div>
-        <div class="header-brand-title">SYNTRA SUPPLY</div>
-        <div class="header-brand-sub">PROTOCOLO DE COMPRA, DESPACHO & CONTACTO</div>
-      </div>
-    </div>
-    <div class="header-badge">08 / LOGÍSTICA DIRECTA</div>
-  </div>
-
-  <div>
-    <div class="section-tag">ATENCIÓN INMEDIATA SIN INTERMEDIARIOS</div>
-    <h2 class="page-title">Cómo Adquirir en Syntra Supply</h2>
-    <div class="page-desc">Proceso ágil diseñado para abastecer a makers, odontólogos, arquitectos y talleres industriales con entrega récord en todo el oriente del país.</div>
-  </div>
-
-  <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 9px;">
-    <div style="background: #0E121A; border: 1px solid rgba(200, 210, 225, 0.16); border-radius: 8px; padding: 13px 14px;">
-      <div style="font-family: 'Segoe UI', sans-serif; font-size: 11px; font-weight: 800; color: #FFFFFF; margin-bottom: 4px;">
-        1. SELECCIONA TUS SKUS
-      </div>
-      <div style="font-size: 8.2px; color: #94A3B8; line-height: 1.4;">
-        Revisa este catálogo y anota los códigos de filamento, color o repuestos que requiere tu taller para tu orden de producción.
-      </div>
-    </div>
-    <div style="background: #0E121A; border: 1px solid rgba(200, 210, 225, 0.16); border-radius: 8px; padding: 13px 14px;">
-      <div style="font-family: 'Segoe UI', sans-serif; font-size: 11px; font-weight: 800; color: #FFFFFF; margin-bottom: 4px;">
-        2. ENVÍA POR WHATSAPP
-      </div>
-      <div style="font-size: 8.2px; color: #94A3B8; line-height: 1.4;">
-        Escríbenos directamente con tu pedido. Confirmamos stock en tiempo real y emitimos tu nota de entrega formal a tasa oficial BCV.
-      </div>
-    </div>
-    <div style="background: #0E121A; border: 1px solid rgba(200, 210, 225, 0.16); border-radius: 8px; padding: 13px 14px;">
-      <div style="font-family: 'Segoe UI', sans-serif; font-size: 11px; font-weight: 800; color: #FFFFFF; margin-bottom: 4px;">
-        3. DESPACHO INMEDIATO
-      </div>
-      <div style="font-size: 8.2px; color: #94A3B8; line-height: 1.4;">
-        Retira personalmente en nuestro almacén en Lechería en 15 min o recibe con delivery express en tu puerta en PLC, BCN o Lechería.
-      </div>
-    </div>
-  </div>
-
-  <div style="background: #0E121A; border: 1px solid rgba(200, 210, 225, 0.16); border-radius: 8px; padding: 11px 14px;">
-    <div style="font-family: 'Segoe UI', sans-serif; font-size: 10px; font-weight: 800; color: #FFFFFF; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 7px;">
-      MATRIZ DE COBERTURA & TIEMPOS DE ENTREGA
-    </div>
-    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; text-align: center;">
-      <div style="background: #141923; padding: 9px 7px; border-radius: 6px; border: 1px solid rgba(200, 210, 225, 0.1);">
-        <div style="font-size: 7.5px; color: #8F9AA9; text-transform: uppercase; font-weight: 700;">LECHERÍA</div>
-        <div style="font-family: 'Segoe UI', sans-serif; font-size: 14px; font-weight: 800; color: #FFFFFF; margin: 2px 0;">15 - 30 MIN</div>
-        <div style="font-size: 7.5px; color: #94A3B8;">Retiro o Express</div>
-      </div>
-      <div style="background: #141923; padding: 9px 7px; border-radius: 6px; border: 1px solid rgba(200, 210, 225, 0.1);">
-        <div style="font-size: 7.5px; color: #8F9AA9; text-transform: uppercase; font-weight: 700;">PUERTO LA CRUZ</div>
-        <div style="font-family: 'Segoe UI', sans-serif; font-size: 14px; font-weight: 800; color: #FFFFFF; margin: 2px 0;">30 - 45 MIN</div>
-        <div style="font-size: 7.5px; color: #94A3B8;">Delivery Directo</div>
-      </div>
-      <div style="background: #141923; padding: 9px 7px; border-radius: 6px; border: 1px solid rgba(200, 210, 225, 0.1);">
-        <div style="font-size: 7.5px; color: #8F9AA9; text-transform: uppercase; font-weight: 700;">BARCELONA</div>
-        <div style="font-family: 'Segoe UI', sans-serif; font-size: 14px; font-weight: 800; color: #FFFFFF; margin: 2px 0;">45 - 90 MIN</div>
-        <div style="font-size: 7.5px; color: #94A3B8;">Delivery Directo</div>
-      </div>
-      <div style="background: #141923; padding: 9px 7px; border-radius: 6px; border: 1px solid rgba(200, 210, 225, 0.1);">
-        <div style="font-size: 7.5px; color: #8F9AA9; text-transform: uppercase; font-weight: 700;">TODO EL PAÍS</div>
-        <div style="font-family: 'Segoe UI', sans-serif; font-size: 14px; font-weight: 800; color: #FFFFFF; margin: 2px 0;">24 - 48 HORAS</div>
-        <div style="font-size: 7.5px; color: #94A3B8;">MRW / Tealca / Zoom</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- PAYMENT METHODS -->
-  <div class="tech-guide-panel" style="padding: 10px 14px;">
-    <div class="tech-guide-header">
-      <span class="tech-guide-title">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C8D0DC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
-        MÉTODOS DE PAGO ACEPTADOS & POLÍTICA FISCAL
-      </span>
-      <span class="tech-guide-tag">FLEXIBILIDAD COMERCIAL</span>
-    </div>
-    <div class="tech-guide-grid-4">
-      <div class="guide-card" style="padding: 8px 9px;">
-        <span class="guide-card-title">Pago Móvil / VES</span>
-        <span class="guide-card-desc">Banesco, Mercantil, BDV a tasa oficial BCV. Facturación legal con nota de entrega fiscal formal.</span>
-      </div>
-      <div class="guide-card" style="padding: 8px 9px;">
-        <span class="guide-card-title">Binance Pay (USDT)</span>
-        <span class="guide-card-desc">Transferencia P2P instantánea directa sin comisiones. Precios especiales con descuento de contado.</span>
-      </div>
-      <div class="guide-card" style="padding: 8px 9px;">
-        <span class="guide-card-title">Efectivo en Divisas ($)</span>
-        <span class="guide-card-desc">Pago en mano contra entrega en Lechería. Billetes limpios sin roturas ni tachaduras.</span>
-      </div>
-      <div class="guide-card" style="padding: 8px 9px;">
-        <span class="guide-card-title">Zelle Corporativo</span>
-        <span class="guide-card-desc">Aprobación inmediata para empresas, instituciones educativas y compras por volumen.</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- WHOLESALE & VOLUME POLICY -->
-  <div class="tech-guide-panel" style="padding: 10px 14px;">
-    <div class="tech-guide-header">
-      <span class="tech-guide-title">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C8D0DC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
-        PLANES PARA TALLERES & COMPRAS AL MAYOR
-      </span>
-      <span class="tech-guide-tag">PROGRAMA PARTNER</span>
-    </div>
-    <div class="tech-guide-grid-3">
-      <div class="guide-card" style="padding: 8px 9px;">
-        <span class="guide-card-title">Pack Taller Maker (5 a 9 Unidades)</span>
-        <span class="guide-card-desc">Descuento escalonado para mantener tu producción continua sin interrupciones de stock.</span>
-      </div>
-      <div class="guide-card" style="padding: 8px 9px;">
-        <span class="guide-card-title">Pack Granja 3D (10+ Unidades)</span>
-        <span class="guide-card-desc">Precios preferenciales de distribuidor mayorista directo con despacho prioritario y asesoría técnica.</span>
-      </div>
-      <div class="guide-card" style="padding: 8px 9px;">
-        <span class="guide-card-title">Cotizaciones Formales a Empresas</span>
-        <span class="guide-card-desc">Atención a clínicas odontológicas, firmas de arquitectura y contratistas industriales con cotizaciones en PDF.</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- GRAND WHATSAPP & QR CENTERPIECE -->
-  <div style="background: linear-gradient(135deg, rgba(200, 210, 225, 0.12) 0%, rgba(14, 18, 26, 0.95) 100%); border: 1.5px solid rgba(200, 210, 225, 0.28); border-radius: 8px; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 6px 20px rgba(0,0,0,0.4);">
-    <div style="display: flex; align-items: center; gap: 16px;">
-      <img src="{img_qr}" style="width: 85px; height: 85px; border-radius: 8px; background: #FFFFFF; padding: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); flex-shrink: 0;" />
-      <div>
-        <div style="font-family: 'Segoe UI', sans-serif; font-size: 9px; font-weight: 700; color: #8F9AA9; letter-spacing: 0.14em; text-transform: uppercase;">LÍNEA DIRECTA DE ATENCIÓN & PEDIDOS</div>
-        <div style="font-family: 'Segoe UI', sans-serif; font-size: 22px; font-weight: 900; color: #FFFFFF; letter-spacing: 0.04em; margin: 1px 0;">+58 422-3446675</div>
-        <div style="font-size: 8.5px; color: #C8D0DC; margin-bottom: 2px;">Enlace directo: <strong>https://wa.me/584223446675</strong></div>
-        <div style="font-size: 8px; color: #8F9AA9;">Horario: Lunes a Sábado de 8:00 AM a 7:00 PM • Almacén Central: Lechería, Estado Anzoátegui.</div>
-      </div>
-    </div>
-    <div style="text-align: right; border-left: 1px solid rgba(200, 210, 225, 0.15); padding-left: 16px; max-width: 210px;">
-      <div style="font-size: 8px; font-weight: 700; color: #FFFFFF; text-transform: uppercase; margin-bottom: 3px;">CONDICIONES FORMALES</div>
-      <div style="font-size: 7.5px; color: #8F9AA9; line-height: 1.35;">
-        Precios de lista referenciados a tasa oficial BCV. Descuentos especiales de contado disponibles al consultar por WhatsApp.
-      </div>
-    </div>
-  </div>
-
-  <div class="page-footer">
-    <div>SYNTRA SUPPLY • CATÁLOGO INDUSTRIAL 2026</div>
-    <div>ALMACÉN CENTRAL: LECHERÍA, ANZOÁTEGUI</div>
-    <div>PÁG. 09 / 09</div>
-  </div>
-</div>
-""")
-
-full_html = f"""<!DOCTYPE html>
+print("Generando HTML optimizado para 1080p exacto...")
+
+# CSS styles for high-performance 1080p catalog
+CSS_STYLES = '''
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+}
+body {
+  background-color: #05070A;
+  color: #F8FAFC;
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+.page {
+  width: 1080px;
+  height: 1528px;
+  background-color: #080B11;
+  position: relative;
+  overflow: hidden;
+  padding: 36px 44px 28px 44px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  margin: 0 auto;
+}
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1.5px solid #1E2838;
+  padding-bottom: 12px;
+}
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.header-brand {
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  color: #FFFFFF;
+}
+.header-sub {
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  color: #94A3B8;
+  text-transform: uppercase;
+}
+.header-badge {
+  background: #111827;
+  border: 1px solid #334155;
+  color: #E2E8F0;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  padding: 5px 12px;
+  border-radius: 6px;
+  text-transform: uppercase;
+}
+
+.page-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 16px 0;
+}
+
+.page-footer {
+  border-top: 1.5px solid #1E2838;
+  padding-top: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10px;
+  font-weight: 600;
+  color: #64748B;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.footer-highlight {
+  color: #94A3B8;
+  font-weight: 700;
+}
+
+/* Reusable components */
+.section-header {
+  border-left: 4px solid #38BDF8;
+  padding-left: 12px;
+  margin-bottom: 12px;
+}
+.section-title {
+  font-size: 19px;
+  font-weight: 900;
+  color: #FFFFFF;
+  letter-spacing: 0.05em;
+}
+.section-desc {
+  font-size: 11px;
+  color: #94A3B8;
+  margin-top: 2px;
+}
+
+.panel-card {
+  background: #0D131F;
+  border: 1.5px solid #1E2838;
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+
+.card-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.card-main-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: #FFFFFF;
+}
+.price-tag {
+  background: #162235;
+  border: 1px solid #2563EB;
+  color: #38BDF8;
+  font-family: 'Consolas', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 10.5px;
+}
+.data-table th {
+  background: #111827;
+  color: #94A3B8;
+  font-weight: 700;
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1.5px solid #1E2838;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.data-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #162030;
+  color: #CBD5E1;
+}
+.data-table tr:nth-child(even) td {
+  background: #0B101A;
+}
+
+.badge-tag {
+  display: inline-block;
+  background: #1E293B;
+  color: #94A3B8;
+  border: 1px solid #334155;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+'''
+print("CSS Base compilado.")
+
+# HTML generation functions for each page
+def render_header(page_num, total_pages=9):
+    return f'''
+    <div class="page-header">
+      <div class="header-left">
+        <div style="width: 28px; height: 28px; border-radius: 6px; background: #1E293B; border: 1.5px solid #475569; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px; color: #38BDF8;">S</div>
+        <div>
+          <div class="header-brand">SYNTRA GROUP</div>
+          <div class="header-sub">DIVISIÓN MANUFACTURA ADITIVA & CONSUMIBLES 3D</div>
+        </div>
+      </div>
+      <div class="header-badge">EDICIÓN 2026 • CATÁLOGO MAESTRO</div>
+    </div>
+    '''
+
+def render_footer(page_num, total_pages=9):
+    return f'''
+    <div class="page-footer">
+      <div>SYNTRA SUPPLY • CATÁLOGO INDUSTRIAL 2026</div>
+      <div class="footer-highlight">ALMACÉN CENTRAL: LECHERÍA, ESTADO ANZOÁTEGUI</div>
+      <div>PÁG. 0{page_num} / 0{total_pages}</div>
+    </div>
+    '''
+
+# Build Page 1
+def build_page_1():
+    return f'''
+    <div class="page" id="page-1">
+      {render_header(1)}
+      <div class="page-content">
+        
+        <!-- Hero Header -->
+        <div style="display: flex; flex-direction: column; align-items: center; text-align: center; padding: 6px 0;">
+          <img src="{img_logo}" style="width: 100px; height: 100px; border-radius: 20px; border: 2px solid #334155; margin-bottom: 12px; object-fit: cover;" />
+          <h1 style="font-size: 40px; font-weight: 900; letter-spacing: 0.04em; color: #FFFFFF; margin-bottom: 4px;">
+            SYNTRA SUPPLY
+          </h1>
+          <div style="font-size: 13px; font-weight: 700; color: #38BDF8; letter-spacing: 0.18em; text-transform: uppercase; margin-bottom: 6px;">
+            DISTRIBUIDOR AUTORIZADO KINGROON • ALMACÉN CENTRAL LECHERÍA
+          </div>
+          <p style="font-size: 12px; color: #94A3B8; max-width: 680px; line-height: 1.5;">
+            El inventario físico más completo de filamentos de grado técnico, placas magnéticas y hotends de alto rendimiento en el oriente venezolano. Stock real verificado con despacho express inmediato.
+          </p>
+        </div>
+
+        <!-- 3 Feature Photo Cards -->
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;">
+          <div class="panel-card" style="padding: 0; overflow: hidden;">
+            <img src="{img_silk_dual_dragon}" style="width: 100%; height: 210px; object-fit: cover; display: block;" />
+            <div style="padding: 12px 14px;">
+              <div style="font-size: 13.5px; font-weight: 800; color: #FFFFFF;">PLA Silk Bicolor Coaxial</div>
+              <div style="font-size: 10.5px; color: #94A3B8; margin-top: 3px;">Brillo metálico perlado y coextrusión continua.</div>
+            </div>
+          </div>
+          <div class="panel-card" style="padding: 0; overflow: hidden;">
+            <img src="{img_plaplus_prints}" style="width: 100%; height: 210px; object-fit: cover; display: block;" />
+            <div style="padding: 12px 14px;">
+              <div style="font-size: 13.5px; font-weight: 800; color: #FFFFFF;">PLA+ High Speed Pro</div>
+              <div style="font-size: 10.5px; color: #94A3B8; margin-top: 3px;">Precisión geométrica y tolerancia láser ±0.02mm.</div>
+            </div>
+          </div>
+          <div class="panel-card" style="padding: 0; overflow: hidden;">
+            <img src="{img_tpu_shoe}" style="width: 100%; height: 210px; object-fit: cover; display: block;" />
+            <div style="padding: 12px 14px;">
+              <div style="font-size: 13.5px; font-weight: 800; color: #FFFFFF;">TPU 95A Elastómero Flexible</div>
+              <div style="font-size: 10.5px; color: #94A3B8; margin-top: 3px;">450% de elongación y alta memoria elástica.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Metrics Grid -->
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;">
+          <div class="panel-card" style="text-align: center; padding: 14px 10px;">
+            <div style="font-size: 24px; font-weight: 900; color: #FFFFFF;">1.750 UN</div>
+            <div style="font-size: 9.5px; font-weight: 700; color: #38BDF8; letter-spacing: 0.08em; text-transform: uppercase; margin-top: 2px;">Stock Físico Real</div>
+          </div>
+          <div class="panel-card" style="text-align: center; padding: 14px 10px;">
+            <div style="font-size: 24px; font-weight: 900; color: #FFFFFF;">117 SKUs</div>
+            <div style="font-size: 9.5px; font-weight: 700; color: #38BDF8; letter-spacing: 0.08em; text-transform: uppercase; margin-top: 2px;">Variedad Inmediata</div>
+          </div>
+          <div class="panel-card" style="text-align: center; padding: 14px 10px;">
+            <div style="font-size: 24px; font-weight: 900; color: #FFFFFF;">±0.02 mm</div>
+            <div style="font-size: 9.5px; font-weight: 700; color: #38BDF8; letter-spacing: 0.08em; text-transform: uppercase; margin-top: 2px;">Calibración Láser</div>
+          </div>
+          <div class="panel-card" style="text-align: center; padding: 14px 10px;">
+            <div style="font-size: 24px; font-weight: 900; color: #FFFFFF;">15 - 30 MIN</div>
+            <div style="font-size: 9.5px; font-weight: 700; color: #38BDF8; letter-spacing: 0.08em; text-transform: uppercase; margin-top: 2px;">Despacho Lechería</div>
+          </div>
+        </div>
+
+        <!-- Navigation Index (8 sections) -->
+        <div class="panel-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid #1E2838; padding-bottom: 8px;">
+            <div style="font-size: 13px; font-weight: 800; color: #FFFFFF; letter-spacing: 0.08em; text-transform: uppercase;">
+              ÍNDICE EJECUTIVO DEL CATÁLOGO & ESTRUCTURA DE PRODUCTO
+            </div>
+            <div class="badge-tag">GUÍA DE SECCIONES</div>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
+            <div style="background: #111723; border: 1px solid #1E293B; border-radius: 6px; padding: 9px 10px;">
+              <div style="font-size: 10px; font-weight: 800; color: #38BDF8;">PÁG. 02 • INFRAESTRUCTURA</div>
+              <div style="font-size: 9px; color: #94A3B8; margin-top: 2px;">Almacén Lechería vs pedidos foráneos y matriz de valor.</div>
+            </div>
+            <div style="background: #111723; border: 1px solid #1E293B; border-radius: 6px; padding: 9px 10px;">
+              <div style="font-size: 10px; font-weight: 800; color: #38BDF8;">PÁG. 03 • PLA & PLA+</div>
+              <div style="font-size: 9px; color: #94A3B8; margin-top: 2px;">19 colores en stock y guía de perfiles de laminación.</div>
+            </div>
+            <div style="background: #111723; border: 1px solid #1E293B; border-radius: 6px; padding: 9px 10px;">
+              <div style="font-size: 10px; font-weight: 800; color: #38BDF8;">PÁG. 04 • PETG & MATTE</div>
+              <div style="font-size: 9px; color: #94A3B8; margin-top: 2px;">22 SKUs mecánicos, hidrofóbicos y piedra mármol.</div>
+            </div>
+            <div style="background: #111723; border: 1px solid #1E293B; border-radius: 6px; padding: 9px 10px;">
+              <div style="font-size: 10px; font-weight: 800; color: #38BDF8;">PÁG. 05 • SILK & BICOLOR</div>
+              <div style="font-size: 9px; color: #94A3B8; margin-top: 2px;">18 colores de alto brillo y coextrusión dual.</div>
+            </div>
+            <div style="background: #111723; border: 1px solid #1E293B; border-radius: 6px; padding: 9px 10px;">
+              <div style="font-size: 10px; font-weight: 800; color: #38BDF8;">PÁG. 06 • TRICOLOR & RAINBOW</div>
+              <div style="font-size: 9px; color: #94A3B8; margin-top: 2px;">12 variantes artísticas y reglas de orientación.</div>
+            </div>
+            <div style="background: #111723; border: 1px solid #1E293B; border-radius: 6px; padding: 9px 10px;">
+              <div style="font-size: 10px; font-weight: 800; color: #38BDF8;">PÁG. 07 • TPU, ASA & CF</div>
+              <div style="font-size: 9px; color: #94A3B8; margin-top: 2px;">Polímeros industriales, flexibles y fibra de carbono.</div>
+            </div>
+            <div style="background: #111723; border: 1px solid #1E293B; border-radius: 6px; padding: 9px 10px;">
+              <div style="font-size: 10px; font-weight: 800; color: #38BDF8;">PÁG. 08 • HARDWARE & CAMAS</div>
+              <div style="font-size: 9px; color: #94A3B8; margin-top: 2px;">31 repuestos, camas magnéticas PEI y hotends.</div>
+            </div>
+            <div style="background: #111723; border: 1px solid #1E293B; border-radius: 6px; padding: 9px 10px;">
+              <div style="font-size: 10px; font-weight: 800; color: #38BDF8;">PÁG. 09 • PACKS & PEDIDOS</div>
+              <div style="font-size: 9px; color: #94A3B8; margin-top: 2px;">Modalidades de pago, precios mayoristas y WhatsApp.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Banner Syntra Local -->
+        <div class="panel-card" style="background: #0B111D; border-color: #2563EB; display: flex; justify-content: space-between; align-items: center; padding: 14px 20px;">
+          <div>
+            <div style="font-size: 14px; font-weight: 900; color: #FFFFFF; letter-spacing: 0.04em;">
+              TU TALLER 3D EN LECHERÍA, SIN INTERRUPCIONES NI FLETES COSTOSOS
+            </div>
+            <div style="font-size: 11px; color: #94A3B8; margin-top: 3px;">
+              Retiro inmediato en almacén central o delivery express en Lechería, PLC y Barcelona. Envíos nacionales por MRW, Tealca y Zoom.
+            </div>
+          </div>
+          <div style="background: #1D4ED8; color: #FFFFFF; font-size: 12px; font-weight: 800; padding: 8px 16px; border-radius: 6px; white-space: nowrap; letter-spacing: 0.05em;">
+            WA: +58 422-3446675
+          </div>
+        </div>
+
+      </div>
+      {render_footer(1)}
+    </div>
+    '''
+
+print("Función Page 1 definida.")
+
+# Build Page 2
+def build_page_2():
+    return f'''
+    <div class="page" id="page-2">
+      {render_header(2)}
+      <div class="page-content">
+        
+        <div class="section-header">
+          <div class="section-title">01 / INFRAESTRUCTURA & RESPALDO LOCAL</div>
+          <div class="section-desc">Por qué Syntra Group es el socio logístico estratégico de las granjas de impresión y creadores del oriente venezolano.</div>
+        </div>
+
+        <!-- 3 Pillars Grid -->
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;">
+          <div class="panel-card" style="padding: 0; overflow: hidden;">
+            <img src="{img_pla_basic_spool}" style="width: 100%; height: 160px; object-fit: cover; display: block;" />
+            <div style="padding: 12px 14px;">
+              <div style="font-size: 13.5px; font-weight: 800; color: #FFFFFF;">Stock Físico Inmediato</div>
+              <div style="font-size: 10.5px; color: #94A3B8; margin-top: 3px; line-height: 1.4;">
+                1.750 rollos en almacén climatizado de Lechería. Retiras en 15 minutos o recibes el mismo día.
+              </div>
+            </div>
+          </div>
+          <div class="panel-card" style="padding: 0; overflow: hidden;">
+            <img src="{img_bambu_hotend}" style="width: 100%; height: 160px; object-fit: cover; display: block;" />
+            <div style="padding: 12px 14px;">
+              <div style="font-size: 13.5px; font-weight: 800; color: #FFFFFF;">Respaldo de Repuestos</div>
+              <div style="font-size: 10.5px; color: #94A3B8; margin-top: 3px; line-height: 1.4;">
+                Hotends, boquillas y camas PEI originales en stock. Tu taller nunca se detiene por falta de piezas.
+              </div>
+            </div>
+          </div>
+          <div class="panel-card" style="padding: 0; overflow: hidden;">
+            <img src="{img_pacf_drone}" style="width: 100%; height: 160px; object-fit: cover; display: block;" />
+            <div style="padding: 12px 14px;">
+              <div style="font-size: 13.5px; font-weight: 800; color: #FFFFFF;">Asesoría Técnica Maker</div>
+              <div style="font-size: 10.5px; color: #94A3B8; margin-top: 3px; line-height: 1.4;">
+                Ingenieros con experiencia real en impresión 3D para calibrar perfiles, temperaturas y retracción.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Comparison Table -->
+        <div class="panel-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <div style="font-size: 13.5px; font-weight: 800; color: #FFFFFF; letter-spacing: 0.05em;">
+              MATRIZ DE VALOR: SYNTRA LECHERÍA VS PROVEEDORES DE CARACAS
+            </div>
+            <div class="badge-tag">VENTAJA LOGÍSTICA REAL</div>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="width: 25%;">Variable Operativa</th>
+                <th style="width: 40%; color: #38BDF8;">Syntra Supply (Almacén Lechería)</th>
+                <th style="width: 35%;">Distribuidores Caracas / ML</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="font-weight: 700; color: #FFFFFF;">Disponibilidad de Entrega</td>
+                <td style="color: #38BDF8; font-weight: 700;">Inmediata hoy mismo (15 a 30 min)</td>
+                <td>3 a 5 días hábiles de espera</td>
+              </tr>
+              <tr>
+                <td style="font-weight: 700; color: #FFFFFF;">Costo de Flete / Encomienda</td>
+                <td style="color: #38BDF8; font-weight: 700;">$0.00 (Retiro gratis en Lechería)</td>
+                <td>$5.00 a $12.00 adicionales por bobina</td>
+              </tr>
+              <tr>
+                <td style="font-weight: 700; color: #FFFFFF;">Riesgo de Transporte Terrestre</td>
+                <td style="color: #38BDF8; font-weight: 700;">Cero riesgo. Trato directo en mano</td>
+                <td>Riesgo de extravío, golpes y cajas mojadas</td>
+              </tr>
+              <tr>
+                <td style="font-weight: 700; color: #FFFFFF;">Métodos de Pago Aceptados</td>
+                <td style="color: #38BDF8; font-weight: 700;">USDT Binance Pay, Efectivo $, Bs BCV, Zelle</td>
+                <td>Restricciones cambiarias y recargos altos</td>
+              </tr>
+              <tr>
+                <td style="font-weight: 700; color: #FFFFFF;">Garantía de Fábrica Directa</td>
+                <td style="color: #38BDF8; font-weight: 700;">Cambio inmediato en tienda local</td>
+                <td>Envíos de retorno costosos y semanas de espera</td>
+              </tr>
+              <tr>
+                <td style="font-weight: 700; color: #FFFFFF;">Soporte Técnico Presencial</td>
+                <td style="color: #38BDF8; font-weight: 700;">Personalizado por makers en persona</td>
+                <td>Respuestas genéricas o bots de mensajería</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Quality Control Protocol -->
+        <div class="panel-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <div style="font-size: 13px; font-weight: 800; color: #FFFFFF; letter-spacing: 0.05em;">
+              PROTOCOLO DE CALIDAD & ALMACENAMIENTO INDUSTRIAL
+            </div>
+            <div class="badge-tag">ESTÁNDAR KINGROON OFICIAL</div>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
+            <div style="background: #111723; border: 1px solid #1E293B; border-radius: 6px; padding: 10px;">
+              <div style="font-size: 11px; font-weight: 800; color: #38BDF8;">Sellado al Vacío</div>
+              <div style="font-size: 9.5px; color: #94A3B8; margin-top: 3px; line-height: 1.35;">
+                Empaque hermético aluminizado directo de fábrica para cero absorción de humedad.
+              </div>
+            </div>
+            <div style="background: #111723; border: 1px solid #1E293B; border-radius: 6px; padding: 10px;">
+              <div style="font-size: 11px; font-weight: 800; color: #38BDF8;">Desecante Activo</div>
+              <div style="font-size: 9.5px; color: #94A3B8; margin-top: 3px; line-height: 1.35;">
+                Cada bobina incluye bolsa de gel de sílice activa para preservar propiedades mecánicas.
+              </div>
+            </div>
+            <div style="background: #111723; border: 1px solid #1E293B; border-radius: 6px; padding: 10px;">
+              <div style="font-size: 11px; font-weight: 800; color: #38BDF8;">Bobinado CNC 100%</div>
+              <div style="font-size: 9.5px; color: #94A3B8; margin-top: 3px; line-height: 1.35;">
+                Bobinado robotizado capa por capa que garantiza cero cruces y cero paradas de extrusión.
+              </div>
+            </div>
+            <div style="background: #111723; border: 1px solid #1E293B; border-radius: 6px; padding: 10px;">
+              <div style="font-size: 11px; font-weight: 800; color: #38BDF8;">Láser Coaxial ±0.02</div>
+              <div style="font-size: 9.5px; color: #94A3B8; margin-top: 3px; line-height: 1.35;">
+                Medición continua de diámetro para flujo uniforme y capas superficiales perfectas.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Logistics Coverage Banner -->
+        <div class="panel-card" style="background: #0B111D; border-color: #2563EB; display: flex; justify-content: space-between; align-items: center; padding: 12px 18px;">
+          <div style="font-size: 12px; color: #CBD5E1; line-height: 1.4;">
+            <strong style="color: #FFFFFF;">COBERTURA LOGÍSTICA COMPLETA:</strong> Retiro en Almacén Lechería (15-30 min) • Delivery express en Lechería, Puerto La Cruz y Barcelona • Envíos a todo el país vía MRW, Tealca y Zoom con guías rastreables en tiempo real.
+          </div>
+          <div class="price-tag" style="white-space: nowrap; margin-left: 14px;">DESPACHO HOY MISMO</div>
+        </div>
+
+      </div>
+      {render_footer(2)}
+    </div>
+    '''
+
+# Build Page 3
+def build_page_3():
+    pla_basic_items = products_by_material.get('PLA Basic', [])
+    plaplus_items = products_by_material.get('PLA+ Alta Resistencia', [])
+    
+    return f'''
+    <div class="page" id="page-3">
+      {render_header(3)}
+      <div class="page-content">
+        
+        <div class="section-header">
+          <div class="section-title">02 / FILAMENTOS BÁSICOS & ALTA VELOCIDAD</div>
+          <div class="section-desc">Polímeros de alta estabilidad térmica y tolerancia geométrica para prototipado rápido, maquetas y producción continua.</div>
+        </div>
+
+        <!-- PLA Basic Panel -->
+        <div class="panel-card">
+          <div class="card-title-row">
+            <div>
+              <div class="card-main-title">PLA Basic Estándar Kingroon (12 Colores en Stock)</div>
+              <div style="font-size: 10.5px; color: #94A3B8; margin-top: 2px;">
+                1.75mm • 1.0 kg neto • Densidad 1.24 g/cm³ • Temp Nozzle: 190 - 220 °C • Temp Cama: 50 - 60 °C
+              </div>
+            </div>
+            <div class="price-tag">Ref. $20.00 BCV</div>
+          </div>
+          <div style="display: flex; gap: 14px; align-items: center; margin-bottom: 12px;">
+            <img src="{img_pla_basic_spool}" style="width: 130px; height: 110px; object-fit: cover; border-radius: 8px; border: 1px solid #1E293B;" />
+            <div style="flex: 1; font-size: 10.5px; color: #CBD5E1; line-height: 1.45;">
+              Fabricado a base de almidón de maíz biodegradable. Mínima contracción térmica, excelente adhesión entre capas y acabado satinado uniforme. Ideal para piezas de exhibición, figuras, moldes y piezas arquitectónicas sin alabeo.
+              <div style="margin-top: 6px; color: #38BDF8; font-weight: 700;">
+                ★ Descuento directo en divisa limpia (Binance Pay USDT / Efectivo $) al consultar por WhatsApp.
+              </div>
+            </div>
+          </div>
+          {render_swatches(pla_basic_items, cols=3)}
+        </div>
+
+        <!-- PLA+ High Speed Panel -->
+        <div class="panel-card">
+          <div class="card-title-row">
+            <div>
+              <div class="card-main-title">PLA+ High Speed Pro (7 Colores en Stock)</div>
+              <div style="font-size: 10.5px; color: #94A3B8; margin-top: 2px;">
+                1.75mm • 1.0 kg neto • Resistencia al impacto 5x • Velocidad hasta 500 mm/s • Temp Nozzle: 205 - 230 °C
+              </div>
+            </div>
+            <div class="price-tag">Ref. $21.50 BCV</div>
+          </div>
+          <div style="display: flex; gap: 14px; align-items: center; margin-bottom: 12px;">
+            <img src="{img_plaplus_spool}" style="width: 130px; height: 105px; object-fit: cover; border-radius: 8px; border: 1px solid #1E293B;" />
+            <div style="flex: 1; font-size: 10.5px; color: #CBD5E1; line-height: 1.45;">
+              Modificado con elastómeros técnicos para conferir hasta 5 veces mayor resistencia al impacto que el PLA estándar. Diseñado para impresoras de alta aceleración como Bambu Lab X1/P1/A1, Creality K1 y Voron.
+            </div>
+          </div>
+          {render_swatches(plaplus_items, cols=3)}
+        </div>
+
+        <!-- Slicer Guide -->
+        <div class="panel-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <div style="font-size: 12.5px; font-weight: 800; color: #FFFFFF; letter-spacing: 0.05em;">
+              GUÍA DE LAMINACIÓN RECOMENDADA (BAMBU STUDIO / ORCASLICER / CURA)
+            </div>
+            <div class="badge-tag">PARÁMETROS TESTEADOS</div>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Material</th>
+                <th>Temp. Boquilla</th>
+                <th>Temp. Cama (PEI)</th>
+                <th>Caudal Volumétrico</th>
+                <th>Ventilador de Capa</th>
+                <th>Retracción Recomendada</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="font-weight: 700; color: #FFFFFF;">PLA Basic</td>
+                <td>200 - 215 °C</td>
+                <td>50 - 55 °C</td>
+                <td>18 - 22 mm³/s</td>
+                <td>100% (desde capa 2)</td>
+                <td>0.8 mm (Direct) / 4.5 mm (Bowden)</td>
+              </tr>
+              <tr>
+                <td style="font-weight: 700; color: #FFFFFF;">PLA+ High Speed</td>
+                <td>215 - 230 °C</td>
+                <td>55 - 60 °C</td>
+                <td>22 - 28 mm³/s</td>
+                <td>100% (desde capa 2)</td>
+                <td>0.6 - 0.8 mm (Direct Drive)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+      {render_footer(3)}
+    </div>
+    '''
+
+print("Funciones Page 2 y 3 definidas.")
+
+# Build Page 4
+def build_page_4():
+    petg_items = products_by_material.get('PETG Basic', [])
+    pla_matte = products_by_material.get('PLA Matte', [])
+    petg_matte = products_by_material.get('PETG Matte', [])
+    pla_marble = products_by_material.get('PLA Marble', [])
+    special_items = pla_matte + petg_matte + pla_marble
+    
+    return f'''
+    <div class="page" id="page-4">
+      {render_header(4)}
+      <div class="page-content">
+        
+        <div class="section-header">
+          <div class="section-title">03 / RESISTENCIA QUÍMICA & ACABADOS ESPECIALES</div>
+          <div class="section-desc">Termoplásticos de ingeniería para exteriores y polímeros de textura mate antirreflejo y mármol mineral.</div>
+        </div>
+
+        <!-- PETG Basic Panel -->
+        <div class="panel-card">
+          <div class="card-title-row">
+            <div>
+              <div class="card-main-title">PETG Basic Grado Técnico (17 Colores en Stock)</div>
+              <div style="font-size: 10.5px; color: #94A3B8; margin-top: 2px;">
+                1.75mm • 1.0 kg neto • Hidrofóbico • Temp Nozzle: 225 - 250 °C • Temp Cama: 70 - 80 °C
+              </div>
+            </div>
+            <div class="price-tag">Ref. $19.50 BCV</div>
+          </div>
+          <div style="display: flex; gap: 14px; align-items: center; margin-bottom: 10px;">
+            <img src="{img_petg_spool}" style="width: 125px; height: 100px; object-fit: cover; border-radius: 8px; border: 1px solid #1E293B;" />
+            <div style="flex: 1; font-size: 10.5px; color: #CBD5E1; line-height: 1.45;">
+              Combina la facilidad de impresión del PLA con la resistencia mecánica y térmica del ABS. No absorbe humedad con facilidad, resiste químicos corrosivos, aceites y exposición continua a luz solar exterior.
+              <div style="margin-top: 4px; color: #38BDF8; font-weight: 700;">
+                ★ Opción predilecta para soportes de taller, piezas mecánicas y carcasas de electrónica marina en Lechería.
+              </div>
+            </div>
+          </div>
+          {render_swatches(petg_items, cols=3)}
+        </div>
+
+        <!-- Special Filaments Panel -->
+        <div class="panel-card">
+          <div class="card-title-row">
+            <div>
+              <div class="card-main-title">Filamentos de Acabado Especial (Matte & Mármol Mineral)</div>
+              <div style="font-size: 10.5px; color: #94A3B8; margin-top: 2px;">
+                5 Variantes estéticas para arquitectura, interiorismo y disimulo total de líneas de capa
+              </div>
+            </div>
+            <div class="price-tag">Ref. $21.50 - $22.50 BCV</div>
+          </div>
+          <div style="display: flex; gap: 14px; align-items: center; margin-bottom: 10px;">
+            <img src="{img_matte_prints}" style="width: 125px; height: 95px; object-fit: cover; border-radius: 8px; border: 1px solid #1E293B;" />
+            <div style="flex: 1; font-size: 10.5px; color: #CBD5E1; line-height: 1.45;">
+              <strong>PLA & PETG Matte:</strong> Textura micro-porosa antirreflejo de tacto cerámico suave.<br/>
+              <strong>PLA Mármol Granito:</strong> Matriz mineral con motas oscuras que recrea piedra natural pulida.
+            </div>
+          </div>
+          {render_swatches(special_items, cols=3)}
+        </div>
+
+        <!-- Mechanical Matrix Table -->
+        <div class="panel-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <div style="font-size: 12.5px; font-weight: 800; color: #FFFFFF; letter-spacing: 0.05em;">
+              MATRIZ DE SELECCIÓN MECÁNICA Y TÉRMICA COMPARADA
+            </div>
+            <div class="badge-tag">GUÍA TÉCNICA</div>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Polímero</th>
+                <th>Resistencia Mecánica</th>
+                <th>Temp. Deflexión (HDT)</th>
+                <th>Resistencia a Intemperie</th>
+                <th>Acabado Superficial</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="font-weight: 700; color: #FFFFFF;">PLA Basic</td>
+                <td>Media (55 MPa)</td>
+                <td>52 - 55 °C</td>
+                <td>Baja (Exclusivo Interiores)</td>
+                <td>Satinado estándar</td>
+              </tr>
+              <tr>
+                <td style="font-weight: 700; color: #FFFFFF;">PLA+ High Speed</td>
+                <td>Alta (68 MPa)</td>
+                <td>55 - 58 °C</td>
+                <td>Media</td>
+                <td>Semibrillante suave</td>
+              </tr>
+              <tr>
+                <td style="font-weight: 700; color: #FFFFFF;">PETG Basic</td>
+                <td>Muy Alta (75 MPa)</td>
+                <td>72 - 78 °C</td>
+                <td>Alta (Apto Sol y Lluvia)</td>
+                <td>Brillante / Translúcido</td>
+              </tr>
+              <tr>
+                <td style="font-weight: 700; color: #FFFFFF;">PLA / PETG Matte</td>
+                <td>Media-Alta</td>
+                <td>55 °C / 75 °C</td>
+                <td>Media / Alta</td>
+                <td>Mate Cerámico Antirreflejo</td>
+              </tr>
+              <tr>
+                <td style="font-weight: 700; color: #FFFFFF;">PLA Mármol</td>
+                <td>Media (52 MPa)</td>
+                <td>54 - 56 °C</td>
+                <td>Baja</td>
+                <td>Piedra Esculpida Granítica</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+      {render_footer(4)}
+    </div>
+    '''
+
+# Build Page 5
+def build_page_5():
+    silk_solid = products_by_material.get('PLA Silk Sólido', [])
+    silk_bi = products_by_material.get('PLA Silk Bicolor', [])
+    
+    return f'''
+    <div class="page" id="page-5">
+      {render_header(5)}
+      <div class="page-content">
+        
+        <div class="section-header">
+          <div class="section-title">04 / FILAMENTOS SILK ACABADO METÁLICO & COEXTRUSIÓN</div>
+          <div class="section-desc">Efecto sedoso de alto reflejo especular y coextrusión bicromática continua para piezas de diseño y trofeos.</div>
+        </div>
+
+        <!-- Silk Solid Panel -->
+        <div class="panel-card">
+          <div class="card-title-row">
+            <div>
+              <div class="card-main-title">PLA Silk Sólido Brillo Metálico (11 Colores en Stock)</div>
+              <div style="font-size: 10.5px; color: #94A3B8; margin-top: 2px;">
+                1.75mm • 1.0 kg neto • Reflejo espejo • Temp Nozzle: 205 - 225 °C • Temp Cama: 55 - 60 °C
+              </div>
+            </div>
+            <div class="price-tag">Ref. $24.00 BCV</div>
+          </div>
+          <div style="display: flex; gap: 14px; align-items: center; margin-bottom: 10px;">
+            <img src="{img_silk_single_gold}" style="width: 130px; height: 105px; object-fit: cover; border-radius: 8px; border: 1px solid #1E293B;" />
+            <div style="flex: 1; font-size: 10.5px; color: #CBD5E1; line-height: 1.45;">
+              Polímero adicionado con modificadores ópticos que multiplican la reflectividad lumínica, ocultando completamente las líneas de capa verticales. Perfecto para galardones, joyería, litofanias decorativas y réplicas de metales nobles.
+              <div style="margin-top: 4px; color: #38BDF8; font-weight: 700;">
+                ★ Oro Imperial Kingroon: El filamento más solicitado para reconocimientos institucionales y piezas de lujo.
+              </div>
+            </div>
+          </div>
+          {render_swatches(silk_solid, cols=3)}
+        </div>
+
+        <!-- Silk Bicolor Panel -->
+        <div class="panel-card">
+          <div class="card-title-row">
+            <div>
+              <div class="card-main-title">PLA Silk Bicolor Coaxial (7 Combinaciones Dual en Stock)</div>
+              <div style="font-size: 10.5px; color: #94A3B8; margin-top: 2px;">
+                1.75mm • 1.0 kg neto • Coextrusión longitudinal 50/50 • Cambio cromático dinámico al rotar la pieza
+              </div>
+            </div>
+            <div class="price-tag">Ref. $27.00 BCV</div>
+          </div>
+          <div style="display: flex; gap: 14px; align-items: center; margin-bottom: 10px;">
+            <img src="{img_silk_dual_dragon}" style="width: 130px; height: 105px; object-fit: cover; border-radius: 8px; border: 1px solid #1E293B;" />
+            <div style="flex: 1; font-size: 10.5px; color: #CBD5E1; line-height: 1.45;">
+              Dos polímeros de distinto color extruidos en paralelo dentro del mismo filamento. Al imprimir, la pieza muestra un tono en una cara y otro en la cara opuesta, creando un efecto tornasol cinético impresionante al girar o cambiar de luz.
+            </div>
+          </div>
+          {render_swatches(silk_bi, cols=3)}
+        </div>
+
+        <!-- Silk Printing Guide -->
+        <div class="panel-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <div style="font-size: 12.5px; font-weight: 800; color: #FFFFFF; letter-spacing: 0.05em;">
+              GUÍA DE TALLER: CÓMO MAXIMIZAR EL BRILLO ESPEJO EN FILAMENTOS SILK
+            </div>
+            <div class="badge-tag">REGLA DE ACABADO</div>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; font-size: 10px; color: #CBD5E1;">
+            <div style="background: #111723; border: 1px solid #1E293B; border-radius: 6px; padding: 10px;">
+              <div style="font-weight: 800; color: #38BDF8; margin-bottom: 3px;">1. Velocidad de Muro Exterior</div>
+              Reducir la velocidad del perímetro exterior a <strong>40 - 60 mm/s</strong>. A menor velocidad, mayor es la orientación molecular reflectiva y más intenso el brillo de espejo.
+            </div>
+            <div style="background: #111723; border: 1px solid #1E293B; border-radius: 6px; padding: 10px;">
+              <div style="font-weight: 800; color: #38BDF8; margin-bottom: 3px;">2. Temperatura de Boquilla</div>
+              Imprimir a <strong>215 - 225 °C</strong> (5-10°C por encima del PLA regular). Una mayor temperatura funde mejor los modificadores sedosos y evita acabados mates lechosos.
+            </div>
+            <div style="background: #111723; border: 1px solid #1E293B; border-radius: 6px; padding: 10px;">
+              <div style="font-weight: 800; color: #38BDF8; margin-bottom: 3px;">3. Orientación en Bicolor</div>
+              Alinear la costura de capa (seam) en la parte trasera del modelo para que la división cromática bicromática quede perfectamente simétrica en los laterales frontal y posterior.
+            </div>
+          </div>
+        </div>
+
+      </div>
+      {render_footer(5)}
+    </div>
+    '''
+
+# Build Page 6
+def build_page_6():
+    silk_tri = products_by_material.get('PLA Silk Tricolor', [])
+    silk_rainbow = products_by_material.get('PLA Silk Rainbow', [])
+    
+    return f'''
+    <div class="page" id="page-6">
+      {render_header(6)}
+      <div class="page-content">
+        
+        <div class="section-header">
+          <div class="section-title">05 / FILAMENTOS SILK TRICOLOR & RAINBOW GRADIENTE</div>
+          <div class="section-desc">Efectos tridimensionales de 3 colores simultáneos y gradientes secuenciales cromáticos para obras de arte.</div>
+        </div>
+
+        <!-- Silk Tricolor Panel -->
+        <div class="panel-card">
+          <div class="card-title-row">
+            <div>
+              <div class="card-main-title">PLA Silk Tricolor Coextruido (8 Variantes en Stock)</div>
+              <div style="font-size: 10.5px; color: #94A3B8; margin-top: 2px;">
+                1.75mm • 1.0 kg neto • 3 filamentos fundidos a 120° en un solo hilo • Cambio tricromático continuo
+              </div>
+            </div>
+            <div class="price-tag">Ref. $27.00 BCV</div>
+          </div>
+          <div style="display: flex; gap: 14px; align-items: center; margin-bottom: 10px;">
+            <img src="{img_silk_tri_showcase}" style="width: 130px; height: 105px; object-fit: cover; border-radius: 8px; border: 1px solid #1E293B;" />
+            <div style="flex: 1; font-size: 10.5px; color: #CBD5E1; line-height: 1.45;">
+              La máxima evolución de la tecnología de coextrusión Kingroon. Tres filamentos independientes fusionados a 120 grados dentro de una sola hebra. La pieza impresa ofrece una transición de 3 colores según el ángulo de observación y la posición de las fuentes de luz.
+            </div>
+          </div>
+          {render_swatches(silk_tri, cols=3)}
+        </div>
+
+        <!-- Silk Rainbow Panel -->
+        <div class="panel-card">
+          <div class="card-title-row">
+            <div>
+              <div class="card-main-title">PLA Silk Rainbow Gradiente Longitudinal (4 Variantes en Stock)</div>
+              <div style="font-size: 10.5px; color: #94A3B8; margin-top: 2px;">
+                1.75mm • 1.0 kg neto • Transición gradual por metros • Excelente para jarrones, esculturas y dragones
+              </div>
+            </div>
+            <div class="price-tag">Ref. $27.00 BCV</div>
+          </div>
+          <div style="display: flex; gap: 14px; align-items: center; margin-bottom: 10px;">
+            <img src="{img_silk_single_gold}" style="width: 130px; height: 100px; object-fit: cover; border-radius: 8px; border: 1px solid #1E293B;" />
+            <div style="flex: 1; font-size: 10.5px; color: #CBD5E1; line-height: 1.45;">
+              El color evoluciona suavemente a lo largo del filamento sin saltos bruscos. Variantes en stock: Pastel Rainbow (tonos suaves), Fast Rainbow (cambio cada 10-15 metros), Macaron Rainbow (tonos pastel cremosos) y Candy Rainbow (tonos frutales vibrantes).
+            </div>
+          </div>
+          {render_swatches(silk_rainbow, cols=3)}
+        </div>
+
+        <!-- Tricolor vs Rainbow Comparison -->
+        <div class="panel-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <div style="font-size: 12.5px; font-weight: 800; color: #FFFFFF; letter-spacing: 0.05em;">
+              COMPARATIVA DE APLICACIÓN: TRICOLOR COEXTRUIDO VS RAINBOW LONGITUDINAL
+            </div>
+            <div class="badge-tag">CRITERIO DE DISEÑO</div>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Factor</th>
+                <th>Silk Tricolor Coextruido</th>
+                <th>Silk Rainbow Gradiente</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="font-weight: 700; color: #FFFFFF;">Dirección del Cambio</td>
+                <td>Radial (360° en el plano horizontal X/Y)</td>
+                <td>Vertical (progresivo a lo largo de la altura Z)</td>
+              </tr>
+              <tr>
+                <td style="font-weight: 700; color: #FFFFFF;">Tamaño Mínimo de Pieza</td>
+                <td>Visible desde piezas pequeñas (10 gramos en adelante)</td>
+                <td>Requiere modelos de medianos a grandes (> 120-150 gramos)</td>
+              </tr>
+              <tr>
+                <td style="font-weight: 700; color: #FFFFFF;">Uso Recomendado</td>
+                <td>Miniaturas, bustos, dragones articulados, trofeos</td>
+                <td>Jarrones en modo espiral (vase mode), lámparas, arte decorativo</td>
+              </tr>
+              <tr>
+                <td style="font-weight: 700; color: #FFFFFF;">Patrón de Relleno Óptimo</td>
+                <td>Gyroid al 10% - 15% para soporte uniforme</td>
+                <td>Lineal o Gyroid al 10%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+      {render_footer(6)}
+    </div>
+    '''
+
+print("Funciones Page 4, 5 y 6 definidas.")
+
+# Build Page 7
+def build_page_7():
+    tpu_items = products_by_material.get('TPU 95A Flexible', [])
+    asa_items = products_by_material.get('ASA Basic Solar UV', [])
+    petg_cf = products_by_material.get('PETG-CF Fibra de Carbono', [])
+    pla_cf = products_by_material.get('PLA-CF Fibra de Carbono', [])
+    cf_items = petg_cf + pla_cf
+    
+    return f'''
+    <div class="page" id="page-7">
+      {render_header(7)}
+      <div class="page-content">
+        
+        <div class="section-header">
+          <div class="section-title">06 / POLÍMEROS INDUSTRIALES, FLEXIBLES & COMPUESTOS</div>
+          <div class="section-desc">Materiales técnicos de ingeniería para amortiguación, intemperie solar severa y rigidez aeroespacial.</div>
+        </div>
+
+        <!-- TPU 95A Panel -->
+        <div class="panel-card">
+          <div class="card-title-row">
+            <div>
+              <div class="card-main-title">TPU 95A Poliuretano Termoplástico Flexible (10 Colores en Stock)</div>
+              <div style="font-size: 10.5px; color: #94A3B8; margin-top: 2px;">
+                1.75mm • 1.0 kg neto • Dureza Shore 95A • 450% de elongación • Temp Nozzle: 215 - 235 °C • Temp Cama: 40 - 55 °C
+              </div>
+            </div>
+            <div class="price-tag">Ref. $28.50 BCV</div>
+          </div>
+          <div style="display: flex; gap: 14px; align-items: center; margin-bottom: 10px;">
+            <img src="{img_tpu_shoe}" style="width: 130px; height: 100px; object-fit: cover; border-radius: 8px; border: 1px solid #1E293B;" />
+            <div style="flex: 1; font-size: 10.5px; color: #CBD5E1; line-height: 1.45;">
+              Elastómero de alta resiliencia con excelente memoria de retorno elástico y resistencia extrema al desgaste por abrasión e impacto repetitivo. Apto para juntas de sellado, amortiguadores de vibración para drones, fundas protectoras, calzado y correas.
+              <div style="margin-top: 4px; color: #38BDF8; font-weight: 700;">
+                ★ 10 Colores disponibles en Lechería: Negro, Blanco, Rojo, Azul, Verde, Amarillo, Naranja, Púrpura, Gris y Transparente.
+              </div>
+            </div>
+          </div>
+          {render_swatches(tpu_items, cols=3)}
+        </div>
+
+        <!-- ASA & Carbon Fiber Dual Grid -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+          <!-- ASA Card -->
+          <div class="panel-card">
+            <div class="card-title-row">
+              <div>
+                <div class="card-main-title" style="font-size: 14.5px;">ASA Basic Solar UV (3 Colores)</div>
+                <div style="font-size: 10px; color: #94A3B8; margin-top: 2px;">
+                  1.75mm • 1.0 kg • Temp Nozzle: 240 - 260 °C • Temp Cama: 90 - 100 °C
+                </div>
+              </div>
+              <div class="price-tag" style="font-size: 11px;">Ref. $28.50 BCV</div>
+            </div>
+            <div style="font-size: 10px; color: #CBD5E1; line-height: 1.4; margin-bottom: 8px;">
+              Evolución directa del ABS con sustitución acrílica. Inmune a la radiación ultravioleta del sol venezolano (no amarillea ni se vuelve quebradizo). Ideal para accesorios náuticos en Lechería y piezas exteriores automotrices.
+            </div>
+            {render_swatches(asa_items, cols=2)}
+          </div>
+
+          <!-- Carbon Fiber Card -->
+          <div class="panel-card">
+            <div class="card-title-row">
+              <div>
+                <div class="card-main-title" style="font-size: 14.5px;">Fibra de Carbono (PETG-CF / PLA-CF)</div>
+                <div style="font-size: 10px; color: #94A3B8; margin-top: 2px;">
+                  1.75mm • 1.0 kg • Microfibras de carbono al 15% • Rigidez extrema
+                </div>
+              </div>
+              <div class="price-tag" style="font-size: 11px;">Ref. $42.00 BCV</div>
+            </div>
+            <div style="font-size: 10px; color: #CBD5E1; line-height: 1.4; margin-bottom: 8px;">
+              Reforzado con microfibras de carbono de módulo elástico ultra-alto. Cero deformación dimensional (alabeo), acabado mate antracita de nivel automotriz y gran tolerancia mecánica. Requiere boquilla de acero endurecido.
+            </div>
+            {render_swatches(cf_items, cols=2)}
+          </div>
+        </div>
+
+        <!-- Industrial Parameters Table -->
+        <div class="panel-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <div style="font-size: 12.5px; font-weight: 800; color: #FFFFFF; letter-spacing: 0.05em;">
+              PROTOCOLO TÉCNICO DE EXTRUSIÓN PARA POLÍMEROS AVANZADOS
+            </div>
+            <div class="badge-tag">MANDATORIO EN TALLER</div>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Polímero</th>
+                <th>Tipo de Boquilla</th>
+                <th>Temp. Extrusión</th>
+                <th>Temp. Cama</th>
+                <th>Tratamiento de Secado</th>
+                <th>Entorno de Impresión</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="font-weight: 700; color: #FFFFFF;">TPU 95A Flexible</td>
+                <td>Latón o Acero (0.4mm)</td>
+                <td>220 - 235 °C</td>
+                <td>40 - 50 °C</td>
+                <td>Secado a 55 °C por 6h si hay humedad</td>
+                <td>Extrusor directo obligatorio, velocidad 25-40 mm/s</td>
+              </tr>
+              <tr>
+                <td style="font-weight: 700; color: #FFFFFF;">ASA Solar UV</td>
+                <td>Latón o Acero (0.4mm)</td>
+                <td>245 - 260 °C</td>
+                <td>95 - 105 °C</td>
+                <td>Secado a 70 °C por 4h previo uso</td>
+                <td>Cámara cerrada obligatoria (cero corrientes de aire)</td>
+              </tr>
+              <tr>
+                <td style="font-weight: 700; color: #FFFFFF;">Fibra de Carbono (CF)</td>
+                <td style="color: #38BDF8; font-weight: 700;">Acero Endurecido (0.4 - 0.6mm)</td>
+                <td>240 - 265 °C</td>
+                <td>70 - 80 °C</td>
+                <td>Secado a 65 °C por 8h</td>
+                <td>Baja retracción, boquilla resistente a la abrasión</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+      {render_footer(7)}
+    </div>
+    '''
+
+# Build Page 8
+def build_page_8():
+    return f'''
+    <div class="page" id="page-8">
+      {render_header(8)}
+      <div class="page-content">
+        
+        <div class="section-header">
+          <div class="section-title">07 / HARDWARE, REPUESTOS & SUPERFICIES DE IMPRESIÓN</div>
+          <div class="section-desc">Camas magnéticas flexibles de alta adherencia y hotends ensamblados para Bambu Lab y Kingroon con entrega inmediata en Lechería.</div>
+        </div>
+
+        <!-- 3 Hardware Photo Cards -->
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;">
+          <div class="panel-card" style="padding: 0; overflow: hidden;">
+            <img src="{img_bambu_hardened}" style="width: 100%; height: 140px; object-fit: cover; display: block;" />
+            <div style="padding: 10px 12px;">
+              <div style="font-size: 13px; font-weight: 800; color: #FFFFFF;">Hotends Bambu Lab A1 / Mini</div>
+              <div style="font-size: 10px; color: #94A3B8; margin-top: 2px;">Sistema de cambio rápido con clip magnético. 0.2 a 0.8mm.</div>
+            </div>
+          </div>
+          <div class="panel-card" style="padding: 0; overflow: hidden;">
+            <img src="{img_bambu_pei}" style="width: 100%; height: 140px; object-fit: cover; display: block;" />
+            <div style="padding: 10px 12px;">
+              <div style="font-size: 13px; font-weight: 800; color: #FFFFFF;">Placas PEI Texturizado Doble Cara</div>
+              <div style="font-size: 10px; color: #94A3B8; margin-top: 2px;">Adhesión insuperable sin adhesivos y liberación automática al enfriar.</div>
+            </div>
+          </div>
+          <div class="panel-card" style="padding: 0; overflow: hidden;">
+            <img src="{img_bambu_peo}" style="width: 100%; height: 140px; object-fit: cover; display: block;" />
+            <div style="padding: 10px 12px;">
+              <div style="font-size: 13px; font-weight: 800; color: #FFFFFF;">Superficies PEO Diamante & PET</div>
+              <div style="font-size: 10px; color: #94A3B8; margin-top: 2px;">Transfieren patrones prismáticos y textura de carbono a la base.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Magnetic Beds Table -->
+        <div class="panel-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <div style="font-size: 12.5px; font-weight: 800; color: #FFFFFF; letter-spacing: 0.05em;">
+              CAMAS MAGNÉTICAS FLEXIBLES DE RESORTE DE ACERO (11 MODELOS EN STOCK)
+            </div>
+            <div class="badge-tag">REPUESTOS ORIGINALES</div>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Plataforma Compatible</th>
+                <th>Dimensiones</th>
+                <th>Tipo de Superficie / Acabado</th>
+                <th>Adherencia</th>
+                <th>Ref. Lista BCV</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="font-weight: 700; color: #FFFFFF;">Bambu Lab A1 Mini</td>
+                <td>180 x 180 mm</td>
+                <td>PEI Texturizado Oro Doble Cara</td>
+                <td style="color: #38BDF8;">Excelente (Sin pegamento)</td>
+                <td style="font-weight: 700; color: #38BDF8;">$22.00</td>
+              </tr>
+              <tr>
+                <td style="font-weight: 700; color: #FFFFFF;">Bambu Lab A1 Mini</td>
+                <td>180 x 180 mm</td>
+                <td>PEO Diamante Holográfico + Smooth</td>
+                <td style="color: #38BDF8;">Patrón transferible</td>
+                <td style="font-weight: 700; color: #38BDF8;">$24.00</td>
+              </tr>
+              <tr>
+                <td style="font-weight: 700; color: #FFFFFF;">Bambu Lab X1 / P1 / A1</td>
+                <td>257 x 257 mm</td>
+                <td>PEI Texturizado Oro Doble Cara</td>
+                <td style="color: #38BDF8;">Uso rudo para granja</td>
+                <td style="font-weight: 700; color: #38BDF8;">$28.00</td>
+              </tr>
+              <tr>
+                <td style="font-weight: 700; color: #FFFFFF;">Bambu Lab X1 / P1 / A1</td>
+                <td>257 x 257 mm</td>
+                <td>PEO Diamante + PET Carbon Texture</td>
+                <td style="color: #38BDF8;">Doble textura estética</td>
+                <td style="font-weight: 700; color: #38BDF8;">$32.00</td>
+              </tr>
+              <tr>
+                <td style="font-weight: 700; color: #FFFFFF;">Kingroon H2D / Gran Formato</td>
+                <td>310 x 310 mm</td>
+                <td>PEI Texturizado Industrial Doble Cara</td>
+                <td style="color: #38BDF8;">Máxima área de trabajo</td>
+                <td style="font-weight: 700; color: #38BDF8;">$35.00</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Hotends & Accessories Table -->
+        <div class="panel-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <div style="font-size: 12.5px; font-weight: 800; color: #FFFFFF; letter-spacing: 0.05em;">
+              HOTENDS COMPLETOS, BOQUILLAS DE ALTO RENDIMIENTO & MANTENIMIENTO (20 SKUs)
+            </div>
+            <div class="badge-tag">REPUESTOS CRÍTICOS</div>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Componente</th>
+                <th>Compatibilidad</th>
+                <th>Material de la Boquilla</th>
+                <th>Diámetro</th>
+                <th>Ref. Lista BCV</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="font-weight: 700; color: #FFFFFF;">Hotend Completo Ensamblado</td>
+                <td>Bambu Lab A1 / A1 Mini</td>
+                <td>Acero Endurecido (Hardened Steel)</td>
+                <td>0.4 mm (Estándar antiabrasión)</td>
+                <td style="font-weight: 700; color: #38BDF8;">$22.00</td>
+              </tr>
+              <tr>
+                <td style="font-weight: 700; color: #FFFFFF;">Hotend Alta Precisión</td>
+                <td>Bambu Lab A1 / A1 Mini</td>
+                <td>Acero Endurecido / Latón</td>
+                <td>0.2 mm (Miniaturas y joyería)</td>
+                <td style="font-weight: 700; color: #38BDF8;">$22.00</td>
+              </tr>
+              <tr>
+                <td style="font-weight: 700; color: #FFFFFF;">Hotend Gran Caudal (High Flow)</td>
+                <td>Bambu Lab A1 / A1 Mini</td>
+                <td>Acero Endurecido / Latón</td>
+                <td>0.6 mm y 0.8 mm (Piezas masivas)</td>
+                <td style="font-weight: 700; color: #38BDF8;">$22.00</td>
+              </tr>
+              <tr>
+                <td style="font-weight: 700; color: #FFFFFF;">Bloque Calefactor Cerámico 300°C</td>
+                <td>Kingroon H2D / KP3S Pro</td>
+                <td>Calentador cerámico 360° + Bimetal</td>
+                <td>Ensamblado rápido</td>
+                <td style="font-weight: 700; color: #38BDF8;">$18.00</td>
+              </tr>
+              <tr>
+                <td style="font-weight: 700; color: #FFFFFF;">Wipers Limpiadores de Boquilla</td>
+                <td>Bambu Lab A1 / A1 Mini</td>
+                <td>Silicona de alta temperatura</td>
+                <td>Pack de repuesto oficial</td>
+                <td style="font-weight: 700; color: #38BDF8;">$8.00</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- PEI Maintenance Protocol -->
+        <div class="panel-card" style="background: #0B111D; border-color: #2563EB; display: flex; justify-content: space-between; align-items: center; padding: 12px 18px;">
+          <div style="font-size: 11px; color: #CBD5E1; line-height: 1.4;">
+            <strong style="color: #FFFFFF;">PROTOCOLO DE MANTENIMIENTO PEI:</strong> Lavar cada 15 impresiones con agua tibia y jabón desengrasante neutro para disolver aceites corporales y recuperar adherencia al 100%. Entre impresiones, limpiar con paño de microfibra y alcohol isopropílico 99%.
+          </div>
+          <div class="badge-tag" style="background: #1E293B; color: #38BDF8; font-weight: 800; white-space: nowrap; margin-left: 14px;">
+            MÁXIMA DURABILIDAD
+          </div>
+        </div>
+
+      </div>
+      {render_footer(8)}
+    </div>
+    '''
+
+# Build Page 9
+def build_page_9():
+    return f'''
+    <div class="page" id="page-9">
+      {render_header(9)}
+      <div class="page-content">
+        
+        <div class="section-header">
+          <div class="section-title">08 / CONDICIONES COMERCIALES, PACKS & PEDIDOS DIRECTOS</div>
+          <div class="section-desc">Atención personalizada y abastecimiento continuo para granjas de impresión, empresas de arquitectura y talleres de manufactura.</div>
+        </div>
+
+        <!-- 4 Payment Cards -->
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;">
+          <div class="panel-card" style="padding: 12px 14px;">
+            <div style="font-size: 13.5px; font-weight: 900; color: #38BDF8; margin-bottom: 4px;">Binance Pay (USDT)</div>
+            <div style="font-size: 10px; color: #CBD5E1; line-height: 1.4;">
+              Confirmación automática 24/7 sin comisiones bancarias. <strong>Descuento directo exclusivo de contado</strong> frente al precio de lista.
+            </div>
+          </div>
+          <div class="panel-card" style="padding: 12px 14px;">
+            <div style="font-size: 13.5px; font-weight: 900; color: #38BDF8; margin-bottom: 4px;">Efectivo Divisas ($)</div>
+            <div style="font-size: 10px; color: #CBD5E1; line-height: 1.4;">
+              Billetes en buen estado para retiro presencial inmediato en nuestro almacén central de Lechería o contraentrega local.
+            </div>
+          </div>
+          <div class="panel-card" style="padding: 12px 14px;">
+            <div style="font-size: 13.5px; font-weight: 900; color: #38BDF8; margin-bottom: 4px;">Pago Móvil / VES</div>
+            <div style="font-size: 10px; color: #CBD5E1; line-height: 1.4;">
+              Transferencias en Bolívares calculadas a la tasa oficial del Banco Central de Venezuela (BCV) del día con facturación legal.
+            </div>
+          </div>
+          <div class="panel-card" style="padding: 12px 14px;">
+            <div style="font-size: 13.5px; font-weight: 900; color: #38BDF8; margin-bottom: 4px;">Zelle Corporativo</div>
+            <div style="font-size: 10px; color: #CBD5E1; line-height: 1.4;">
+              Aceptado para órdenes institucionales, empresas y packs mayoristas de granjas con confirmación directa.
+            </div>
+          </div>
+        </div>
+
+        <!-- 2 Wholesale Packs -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+          <div class="panel-card" style="background: #0B111D; border-color: #2563EB;">
+            <div class="card-title-row">
+              <div class="card-main-title" style="color: #38BDF8;">PACK MAKER PRO (10 BOBINAS)</div>
+              <div class="price-tag">TARIFA VOLUMEN</div>
+            </div>
+            <ul style="font-size: 10.5px; color: #CBD5E1; line-height: 1.5; padding-left: 18px; margin-top: 6px;">
+              <li>Combinación libre de colores y materiales (PLA Basic, PLA+, PETG, Silk).</li>
+              <li>Delivery gratuito en toda la zona metropolitana de Lechería, PLC y Barcelona.</li>
+              <li>Asesoría técnica prioritaria para calibración de flujo y perfiles en tu impresora.</li>
+            </ul>
+          </div>
+          <div class="panel-card" style="background: #0B111D; border-color: #2563EB;">
+            <div class="card-title-row">
+              <div class="card-main-title" style="color: #38BDF8;">PACK GRANJA INDUSTRIAL (20+ BOBINAS)</div>
+              <div class="price-tag">PRECIO MAYORISTA</div>
+            </div>
+            <ul style="font-size: 10.5px; color: #CBD5E1; line-height: 1.5; padding-left: 18px; margin-top: 6px;">
+              <li>Máximo descuento por volumen para líneas de manufactura en serie y servicios 3D.</li>
+              <li>Reserva de lote garantizada en almacén para evitar roturas de stock en tu producción.</li>
+              <li>Acceso con descuento a camas magnéticas PEI de repuesto y hotends ensamblados.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Logistics & Syntra Warranty Protocol -->
+        <div class="panel-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <div style="font-size: 12.5px; font-weight: 800; color: #FFFFFF; letter-spacing: 0.05em;">
+              DESPACHO INMEDIATO, LOGÍSTICA & GARANTÍA DE SATISFACCIÓN
+            </div>
+            <div class="badge-tag">COMPROMISO SYNTRA</div>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; font-size: 10.5px; color: #CBD5E1; line-height: 1.45;">
+            <div>
+              <strong style="color: #FFFFFF;">Logística de Despacho Inmediato:</strong><br/>
+              • <strong>Retiro en Mano Lechería:</strong> Listo en 15 a 30 minutos tras confirmar orden.<br/>
+              • <strong>Delivery Express Zona Norte:</strong> Lechería, Puerto La Cruz y Barcelona.<br/>
+              • <strong>Envíos Nacionales:</strong> Salidas diarias por MRW, Tealca y Zoom con embalaje de alta resistencia contra impactos.
+            </div>
+            <div>
+              <strong style="color: #FFFFFF;">Garantía Directa de Fábrica:</strong><br/>
+              • Todos los filamentos se entregan con sellado al vacío y gel desecante activo.<br/>
+              • Garantía de reemplazo inmediato en tienda local ante cualquier eventualidad de fabricación o defecto de bobinado.<br/>
+              • Respaldo y soporte de perfiles por la comunidad oficial de Syntra Group.
+            </div>
+          </div>
+        </div>
+
+        <!-- Grand WhatsApp Banner -->
+        <div class="panel-card" style="background: #0B111D; border-color: #38BDF8; padding: 18px 24px; display: flex; align-items: center; gap: 24px;">
+          <img src="{img_qr}" style="width: 105px; height: 105px; border-radius: 8px; border: 2px solid #38BDF8; background: #FFFFFF; padding: 4px;" />
+          <div style="flex: 1;">
+            <div style="font-size: 12px; font-weight: 800; color: #38BDF8; letter-spacing: 0.15em; text-transform: uppercase;">
+              CONTACTO DIRECTO & PEDIDOS WHATSAPP
+            </div>
+            <div style="font-size: 26px; font-weight: 900; color: #FFFFFF; letter-spacing: 0.02em; margin-top: 2px;">
+              +58 422-3446675
+            </div>
+            <div style="font-size: 11px; color: #94A3B8; margin-top: 4px; line-height: 1.4;">
+              Escanea el código QR o haz clic en el enlace para contactar a nuestro equipo de ventas y soporte técnico. Cotizaciones inmediatas, consulta de colores en tiempo real y despacho express en Lechería.
+            </div>
+            <div style="margin-top: 10px;">
+              <a href="https://wa.me/584223446675" style="display: inline-block; background: #25D366; color: #000000; font-size: 12px; font-weight: 800; padding: 8px 18px; border-radius: 6px; text-decoration: none; letter-spacing: 0.05em;">
+                CHATEAR POR WHATSAPP AHORA
+              </a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      {render_footer(9)}
+    </div>
+    '''
+
+print("Funciones Page 7, 8 y 9 definidas.")
+
+# Compile full HTML document
+full_html = f'''<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Syntra Supply - Catálogo Maestro Industrial 2026</title>
-  <style>
-{css_styles}
-  </style>
+<meta charset="UTF-8">
+<title>Catálogo Maestro Syntra Supply 2026</title>
+<style>
+{CSS_STYLES}
+</style>
 </head>
 <body>
-{''.join(html_pages)}
+{build_page_1()}
+{build_page_2()}
+{build_page_3()}
+{build_page_4()}
+{build_page_5()}
+{build_page_6()}
+{build_page_7()}
+{build_page_8()}
+{build_page_9()}
 </body>
-</html>
-"""
+</html>'''
 
-html_dest = "crm/static/catalogo_master_view.html"
-with open(html_dest, "w", encoding="utf-8") as f:
+with open(HTML_OUT, "w", encoding="utf-8") as f:
     f.write(full_html)
 
-print(f"HTML master catalog compiled to {html_dest} ({len(full_html)} chars)")
+print(f"HTML guardado en {HTML_OUT} ({len(full_html)} chars)")
 
-async def render_pdf_and_screenshots():
-    async with async_playwright() as p:
-        browser = await p.chromium.launch()
-        context = await browser.new_context(
-            viewport={'width': 794, 'height': 1123},
-            device_scale_factor=2.0
-        )
-        page = await context.new_page()
+# Render via Playwright
+print("Iniciando renderizado con Playwright a 1080p exacto...")
+rendered_images = []
+
+with sync_playwright() as p:
+    browser = p.chromium.launch()
+    # Viewport 1080 x 1528 exact
+    page = browser.new_page(viewport={'width': 1080, 'height': 1528})
+    page.goto(f"file:///{HTML_OUT.replace(os.sep, '/')}")
+    page.wait_for_load_state("networkidle")
+    
+    for i in range(1, 10):
+        img_file = os.path.join(SCRATCH_DIR, f"page_fluid_1080p_{i}.jpg")
+        page_elem = page.locator(f"#page-{i}")
+        page_elem.screenshot(path=img_file, type="jpeg", quality=86)
+        rendered_images.append(img_file)
+        print(f"  Capturada Página {i} a 1080x1528 -> {os.path.getsize(img_file)} bytes")
         
-        file_url = f"file:///{os.path.abspath(html_dest).replace(chr(92), '/')}"
-        await page.goto(file_url, wait_until='networkidle')
-        await page.wait_for_timeout(1000)
-        
-        # Render high-res PDF
-        pdf_path = 'crm/static/catalogo_syntra_supply.pdf'
-        await page.pdf(
-            path=pdf_path,
-            format='A4',
-            print_background=True,
-            prefer_css_page_size=True,
-            margin={'top': '0mm', 'bottom': '0mm', 'left': '0mm', 'right': '0mm'}
-        )
-        print(f"High-Res PDF generated at {pdf_path} ({os.path.getsize(pdf_path)} bytes)")
+    browser.close()
 
-        # Save copies to all required locations
-        copies = [
-            'crm/static/catalogo.pdf',
-            'syntraweb/catalogo_syntra_supply.pdf',
-            'syntraweb/catalogo.pdf'
-        ]
-        with open(pdf_path, 'rb') as f_in:
-            data = f_in.read()
-        for c_path in copies:
-            with open(c_path, 'wb') as f_out:
-                f_out.write(data)
-            print(f"Copied PDF to {c_path}")
-
-        # Render 9 Retina screenshots
-        out_dir = "C:/Users/UNK/.gemini/antigravity/brain/1fbe410f-c733-4b9d-841e-cf76d3274e44"
-        pages = await page.query_selector_all('.page')
-        print(f"Total pages rendered: {len(pages)}")
-        for i, p_elem in enumerate(pages):
-            out_img = os.path.join(out_dir, f"retina_page_{i+1}.png")
-            await p_elem.screenshot(path=out_img, scale='device')
-            print(f"Captured Retina Page {i+1} -> {out_img} ({os.path.getsize(out_img)} bytes)")
+# Measure bottom dead space with PIL
+print("\n=== VERIFICACIÓN DE ESPACIO MUERTO POR PÁGINA ===")
+for i, img_file in enumerate(rendered_images, start=1):
+    im = Image.open(img_file).convert("RGB")
+    W, H = im.size
+    
+    # Footer starts around Y=1470-1500
+    # Let's find footer start Y
+    footer_y = 0
+    for y in range(H-60, H-10):
+        for x in range(int(W*0.1), int(W*0.9), 15):
+            r, g, b = im.getpixel((x, y))
+            if r > 40 or g > 40 or b > 50:
+                footer_y = y
+                break
+        if footer_y:
+            break
             
-        await browser.close()
+    # Let's find last content row ABOVE footer_y - 20
+    last_content_y = 0
+    scan_limit = footer_y - 15 if footer_y else H - 65
+    for y in range(scan_limit, 200, -1):
+        row_has_content = False
+        for x in range(int(W*0.1), int(W*0.9), 15):
+            r, g, b = im.getpixel((x, y))
+            if r > 40 or g > 40 or b > 50:
+                row_has_content = True
+                break
+        if row_has_content:
+            last_content_y = y
+            break
+            
+    gap_px = (footer_y - last_content_y) if (footer_y and last_content_y) else 0
+    gap_pct = (gap_px / H) * 100
+    print(f"Página {i}: Último contenido Y={last_content_y}, Inicio Footer Y={footer_y}, Espacio vacío = {gap_px}px ({gap_pct:.1f}% de altura)")
 
-asyncio.run(render_pdf_and_screenshots())
-print("ALL TASKS FINISHED SUCCESSFULLY!")
+# Build unified PDF via PIL
+print("\nCompilando PDF unificado a 1080p...")
+pil_pages = [Image.open(img_path) for img_path in rendered_images]
+pil_pages[0].save(
+    PDF_OUT,
+    "PDF",
+    resolution=150.0,
+    save_all=True,
+    append_images=pil_pages[1:]
+)
+pdf_size = os.path.getsize(PDF_OUT)
+print(f"PDF generado con éxito: {PDF_OUT} ({pdf_size} bytes, ~{round(pdf_size/1024/1024, 2)} MB)")
+
+# Copy to static and syntraweb destinations
+import shutil
+shutil.copyfile(PDF_OUT, PDF_OUT_FULL)
+shutil.copyfile(PDF_OUT, SYNTRAWEB_PDF)
+shutil.copyfile(PDF_OUT, SYNTRAWEB_PDF_FULL)
+print("PDF copiado a todas las rutas de distribución:")
+print(f"  - {PDF_OUT}")
+print(f"  - {PDF_OUT_FULL}")
+print(f"  - {SYNTRAWEB_PDF}")
+print(f"  - {SYNTRAWEB_PDF_FULL}")
+
+# Save previews for user inspection
+for i, img_path in enumerate(rendered_images, start=1):
+    preview_path = os.path.join(BRAIN_DIR, f"catalog_1080p_p{i}.png")
+    im = Image.open(img_path)
+    im.save(preview_path, "PNG")
+
+print("=== PROCESO COMPLETADO EXITOSAMENTE ===")
