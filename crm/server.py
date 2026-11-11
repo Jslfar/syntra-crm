@@ -307,8 +307,8 @@ class SyntraCRMHandler(BaseHTTPRequestHandler):
         parsed = urlparse(self.path)
         path = parsed.path
 
-        if path == "/favicon.ico":
-            self.serve_static("/favicon.ico")
+        if path in ("/favicon.ico", "/catalogo.pdf", "/catalogo_syntra_supply.pdf"):
+            self.serve_static(path)
             return
         elif path == "/api/public/catalog":
             self.handle_get_public_catalog()
@@ -1733,8 +1733,8 @@ class SyntraCRMHandler(BaseHTTPRequestHandler):
                 filepath = os.path.join(WEB_DIR, "assets", clean_path)
         elif clean_path.startswith("branding_8k/"):
             filepath = os.path.join(ROOT_DIR, clean_path)
-        elif clean_path in ("favicon.ico", "favicon-32x32.png", "apple-touch-icon.png", "syntra_icon.png"):
-            filepath = os.path.join(CRM_STATIC_DIR, "img", clean_path)
+        elif clean_path in ("favicon.ico", "favicon-32x32.png", "apple-touch-icon.png", "syntra_icon.png", "catalogo.pdf", "catalogo_syntra_supply.pdf"):
+            filepath = os.path.join(CRM_STATIC_DIR, "catalogo_syntra_supply.pdf") if "catalogo" in clean_path else os.path.join(CRM_STATIC_DIR, "img", clean_path)
             if not os.path.exists(filepath):
                 filepath = os.path.join(CRM_STATIC_DIR, clean_path)
             if not os.path.exists(filepath):
