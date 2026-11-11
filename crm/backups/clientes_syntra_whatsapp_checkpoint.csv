@@ -1,0 +1,39 @@
+﻿id,name,phone,location,printer_model,materials_interest,lead_status,notes,created_at,pipeline_stage
+4,Andres Jaramillo,+584122733023,Lecheria,Anycubic,PLA,Prospecto,Primeros clientes / suele comprar cantidad,2026-11-06 02:53:17,Nuevo Prospecto
+5,Clovers Makers,+588613388,Barcelona,"Bambu Lab P1S, Bambu Lab A1",PLA,Prospecto,Emprendimiento de jueguetes y otras cosas,2026-11-06 02:56:28,Nuevo Prospecto
+18,Luis Castillo,+584121939140,Barcelona,Bambu Lab A1 Mini (x2),PLA,Comprador Recurrente,,2026-11-11 04:46:41,Nuevo Prospecto
+19,No recuerdo,+584261805502,Puerto La Cruz,Bambu Lab P1S,PLA,Comprador Recurrente,,2026-11-11 04:49:33,Nuevo Prospecto
+20,Adrian Dominguez,+584121179080,Lechería / Anzoátegui,,PLA,Prospecto,,2026-11-11 04:51:01,Nuevo Prospecto
+21,Jp,+584120954516,Lechería / Anzoátegui,Anycubic Kobra 3,PLA,Cliente Activo,,2026-11-11 04:52:43,Nuevo Prospecto
+22,Elio Vattolo,+584148068486,Lechería / Anzoátegui,Creality Ender 3 V3,PLA,Comprador Recurrente,,2026-11-11 04:54:18,Nuevo Prospecto
+23,Luis Zabaleta,+584126996605,Barcelona,Flashforge Adventurer 5M,PLA,Cliente Activo,,2026-11-11 04:55:23,Nuevo Prospecto
+24,Victor Ramos,+584148004402,Lecheria,Creality,PLA,Prospecto,Dueño de papeleria Creativa - Local en Lecheria,2026-11-11 04:56:25,Nuevo Prospecto
+25,Luis Velasquez,+584248651768,Lecheria,,PLA,Prospecto,,2026-11-11 04:57:30,Nuevo Prospecto
+26,Damian Tesillo,+584248665711,Puerto La Cruz,,PLA,Cliente Activo,,2026-11-11 04:58:48,Nuevo Prospecto
+27,Creaciones del Valle,+584124591296,,,PLA,Cliente Activo,Hizo Pickup no se su direccion ni impresora,2026-11-11 05:00:05,Nuevo Prospecto
+28,SUMI Service,+584124001128,Puerto La Cruz,Creality,PLA,Cliente Activo,Compro 2 filamentos,2026-11-11 05:01:32,Nuevo Prospecto
+29,Eudys Vicent,+584148398653,,,PLA,Cliente Activo,,2026-11-11 05:02:18,Nuevo Prospecto
+30,Luis ( No se apellido),+584141985478,,,PLA,Cliente Activo,Hizo 1 compra,2026-11-11 05:03:22,Nuevo Prospecto
+31,Judith Aleman,+584148182166,Lecheria,Flashforge Adventurer 5M,PLA,Comprador Recurrente,Ha comprado varias veces,2026-11-11 05:04:22,Nuevo Prospecto
+32,AB,+584148004207,Lecheria,,PLA,Prospecto,,2026-11-11 05:04:57,Nuevo Prospecto
+33,Cristina Hernandez,+584148361720,Lecheria,Bambu Lab A1,PLA,Cliente Activo,"Compro 1 vez, la siguiente vez no tenia de los colores que buscaba",2026-11-11 05:05:48,Nuevo Prospecto
+34,Yosihan de Rondon,+584128528552,Anaco,,PLA,Prospecto,No conteste -  no recordaba el mensaje,2026-11-11 05:06:42,Nuevo Prospecto
+35,Corina Egui,+584148110155,Lecheria,,PLA,Prospecto,Nunca pude venderle porque ya me habia quedado sin stock cuando escribio,2026-11-11 05:08:18,Nuevo Prospecto
+36,Dayana,+584248510548,Barcelona,,PLA,Cliente Activo,Compro1  vez,2026-11-11 05:09:19,Nuevo Prospecto
+37,Cesar Lara,+584148046410,,,PLA,Prospecto,No se ubicacion,2026-11-11 05:10:29,Nuevo Prospecto
+38,Mundo3D.ven,+584121032100,Barcelona,,PLA,Cliente Activo,"Compro1  vez, la siguiente vez que pregunto no tenia material",2026-11-11 05:11:51,Nuevo Prospecto
+39,Puly Lamberti,+584128411351,Lecheria,,PLA,Cliente Activo,"Compro 1 vez , le vendi a 22 probablemente no pregunto mas pq le vendi mas caro que mercado",2026-11-11 05:13:12,Nuevo Prospecto
+40,JD,+584248990345,,,PLA,Prospecto,"Pregunto y no compro, probablemente no podia acercarse al sitio de retiro",2026-11-11 05:14:07,Nuevo Prospecto
+41,No recuerdo 2,+584148138980,,,PLA,Cliente Activo,"Hizo pickup, compro 1 vez",2026-11-11 05:15:38,Nuevo Prospecto
+42,AAMG,+584248687129,Barcelona,,PLA,Cliente Activo,Compro 2 veces - sin novedades,2026-11-11 05:16:27,Nuevo Prospecto
+43,JS,+584120966609,,,PLA,Prospecto,No llego a comprar - pregunto mas no cotizo,2026-11-11 05:17:17,Nuevo Prospecto
+44,AA Greenpoint,+584121184278,,,PLA,Prospecto,Puse precio 22 bcv probablemente  no compro por eso,2026-11-11 05:18:07,Nuevo Prospecto
+45,VidaconTF,+584248562448,,,PLA,Cliente Activo,Compro 1 vez - no hubo feedback si tuvieron alguna novedad - probablemente por la distancia no compraron mas pq no tenian carro,2026-11-11 05:19:11,Nuevo Prospecto
+46,Laura Marquez,+584163804733,,,PLA,Cliente Activo,Compro 1 vez - luego pidio un descuento por 4 unidades y le dije que no - tenia el precio a 22 bcv y le ofreci 21  perdi la venta por eso probablemente,2026-11-11 05:20:34,Nuevo Prospecto
+47,Johan Acosta,+584165810139,,,,Cliente Activo,Compro 1 vez,2026-11-11 05:21:43,Nuevo Prospecto
+48,Edith Perez,+584248623794,,,PLA,Cliente Activo,Hizo pickup probablemente no escribio mas pq le dije que me quede sin stock,2026-11-11 05:24:28,Nuevo Prospecto
+49,JB,+584141371949,Caracas,,PLA,Cliente Activo,Compro 1 vez no volvi a hablar con el,2026-11-11 05:25:24,Nuevo Prospecto
+50,Isaac Ojeda,+584248785000,Tumeremo,,PLA,Cliente Activo,Compro una caja completa,2026-11-11 05:26:23,Nuevo Prospecto
+51,Car,+584124226531,Puerto La Cruz,,PLA,Cliente Activo,"Entregue delivery en puerto la cruz,  trabaja en un colegio con robotica - no compro mas",2026-11-11 05:27:25,Nuevo Prospecto
+52,AC,+584166027835,Puerto La Cruz,,PLA,Cliente Activo,Compro 1 vez turquesa - no volvio a comprar probablemente buscaba filamentos tecnicos pq hace moldes,2026-11-11 05:29:05,Nuevo Prospecto
+53,Ing Jcf,+584147956404,Barcelona,,PLA,Prospecto,Compraro 4 bobinas - no volvieron a comprar / es una mini imprenta,2026-11-11 05:30:15,Nuevo Prospecto
